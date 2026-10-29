@@ -38,14 +38,14 @@ rHWP의 2026-04-09 Legal FAQ는 한컴 공개 명세를 바탕으로 개발했�
 
 OOXML은 공개 명세와 Microsoft의 Open Specifications 조건을 별도로 확인할 수 있다. 명세의 저작권 허락과 특허 약속은 다르다. OSP는 명시된 규격과 필요한 청구항에 대한 조건부 약속이며 상표나 타사의 특허 전체를 포괄하지 않는다. 실제 구현한 규격과 판을 대조해야 한다. [Microsoft OSP](https://learn.microsoft.com/en-us/openspecs/dev_center/ms-devcentlp/1c24c7c8-28b0-4ce1-a47d-95fe1ff504bc), [MS-PPTX의 권리 고지](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-pptx/efd8bb2d-d888-4e2e-af25-cad476730c9f)
 
-## 이 소스에서 확인한 출처와 미확인 항목
+## 공개 준비 전 검사에서 확인한 항목
 
 - README와 docs/rea/README.md는 상용 앱 바이너리와 전환 자원을 복사하지 않았다고 설명한다. REA 기록은 실행 파일 정보와 일부 Interface Builder 객체를 분석한 기록이며 Hopper 함수 분석은 시간 초과였다. 이 설명과 기록은 완전한 소스 기원 감사 또는 분석자와 구현자를 분리한 clean-room 절차의 증명이 아니다.
 - 빌드 스크립트는 Swift 소스 파일을 직접 컴파일한다. 확인한 import는 Apple 또는 시스템 프레임워크이며 외부 패키지나 LibreOffice/rHWP 연결 의존성은 발견되지 않았다. 링크 의존성이 없다는 사실만으로 복사한 코드가 전혀 없음을 증명하지는 못한다. Sources의 Swift 파일에서 저작권 헤더도 발견되지 않아 기여자와 참고 출처를 별도로 정리해야 한다.
 - Resources에는 아이콘, Info.plist, 설치 안내 HTML이 있다. Tools/make-icon.swift는 시스템 글꼴과 도형으로 아이콘을 그리는 로컬 생성 코드를 제공한다. 실제 배포 아이콘이 이 코드로 생성되었는지는 빌드 이력 또는 재생성 비교로 확인할 수 있다.
-- FontResolver.swift는 사용자의 설치된 한컴 앱과 Word 앱 번들에서 폰트를 찾아 프로세스에 등록한다. 확인한 소스 Resources에 폰트 파일은 없지만 다른 앱 전용 폰트의 사용권 확인은 별도 문제다. Microsoft의 Windows 폰트 FAQ도 다른 앱과 함께 제공된 폰트는 해당 이용약관을 보라고 구분한다. 시스템 또는 적법하게 설치한 공개 폰트를 기본값으로 쓰는 방식이 관리하기 쉽다. [Microsoft 폰트 FAQ](https://learn.microsoft.com/en-us/typography/fonts/font-faq)
+- 초기 FontResolver.swift는 사용자의 설치된 한컴 앱과 Word 앱 번들에서 폰트를 찾아 프로세스에 등록한다. 확인한 소스 Resources에 폰트 파일은 없지만 다른 앱 전용 폰트의 사용권 확인은 별도 문제다. Microsoft의 Windows 폰트 FAQ도 다른 앱과 함께 제공된 폰트는 해당 이용약관을 보라고 구분한다. 시스템 또는 적법하게 설치한 공개 폰트를 기본값으로 쓰는 방식이 관리하기 쉽다. [Microsoft 폰트 FAQ](https://learn.microsoft.com/en-us/typography/fonts/font-faq)
 - Tests/samples/brochure.hwp와 writ01.hwp의 제작자 및 재배포 허락을 확인할 문서가 발견되지 않았다. 침해라고 단정할 수 없지만 공개 패키지에는 허락이 확인된 자체 제작 샘플만 포함해야 한다.
-- PPTXWriter.swift의 Office 테마 XML과 HWP5Writer.swift에서 언급한 Normal.hwt 및 CLEAN011.hwt 관찰의 기원을 기록해야 한다. 형식 상수나 호환성 관찰과 기존 문서의 창작적 테마 또는 템플릿 자원 복제를 구분해야 한다. 현재 검사로 복제 여부는 확정할 수 없다.
+- 초기 PPTXWriter.swift의 Office 테마 XML과 HWP5Writer.swift에서 언급한 Normal.hwt 및 CLEAN011.hwt 관찰의 기원을 기록해야 한다. 형식 상수나 호환성 관찰과 기존 문서의 창작적 테마 또는 템플릿 자원 복제를 구분해야 한다. 현재 검사로 복제 여부는 확정할 수 없다.
 - 원시 REA evidence JSON에는 상용 UI 자원의 디코딩 구조가 들어 있다. 공개 소스 패키지에서는 우선 제외하고 공개 명세 링크, 필요한 호환성 사실, 새 구현 설명을 담은 요약만 배포하는 것을 권한다. 필요한 분석 기록은 비공개 근거로 보관할 수 있다.
 - 한컴 공식 지원 페이지는 기존 서비스 이름으로 이미 한워드를 사용한다. 현재 프로젝트의 한워드/HanWord 명칭에 관한 상표 등록 여부나 침해 여부는 조사로 확정하지 않았다. 공개 이름을 정하기 전에 혼동 가능성을 따로 확인하거나 다른 이름을 선택하는 것이 좋다. 비제휴 고지는 혼동 위험을 완전히 없애는 허락이 아니다. [한컴 공식 사용 안내](https://support.hancomdocs.com/d53fda05-422a-475c-b2a2-35dce5962e62)
 

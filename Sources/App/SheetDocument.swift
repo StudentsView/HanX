@@ -652,7 +652,14 @@ final class SheetWindowController: NSWindowController, SheetGridDelegate, NSTool
 
     func toolbarDefaultItemIdentifiers(_ t: NSToolbar) -> [NSToolbarItem.Identifier] {
         let ids = items.map { NSToolbarItem.Identifier($0.0) }
-        return Array(ids[0..<3]) + [.space] + Array(ids[3..<6]) + [.space] + Array(ids[6..<9]) + [NSToolbarItem.Identifier("format"), .flexibleSpace]
+        var items = Array(ids[0..<3])
+        items.append(.space)
+        items.append(contentsOf: ids[3..<6])
+        items.append(.space)
+        items.append(contentsOf: ids[6..<9])
+        items.append(NSToolbarItem.Identifier("format"))
+        items.append(.flexibleSpace)
+        return items
             + Array(ids[9...12]) + [NSToolbarItem.Identifier("chart")]
     }
 
