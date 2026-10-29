@@ -126,7 +126,7 @@ enum MarkdownWriter {
                 if c.bold && c.italic { s = "***\(s)***" } else if c.bold { s = "**\(s)**" } else if c.italic { s = "*\(s)*" }
                 if c.strike { s = "~~\(s)~~" }
                 let lead = t.prefix { $0 == " " }, trail = String(t.reversed().prefix { $0 == " " })
-                out += lead + s + trail
+                out += String(lead) + s + trail
             case .tab: out += "\t"
             case .field: out += "#"
             case .lineBreak: out += "  \n"
