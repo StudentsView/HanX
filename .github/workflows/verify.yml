@@ -1,0 +1,21 @@
+name: Verify
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  cli:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build native CLI
+        run: ./build-cli.sh
+      - name: CLI and MCP integration
+        run: python3 -m unittest discover -s Tests/AgentCLI
+      - name: Formula regression
+        run: build/hanword-cli formula-suite Tests/formulas.tsv
+      - name: Start screen behavior
+        run: Tests/StartWindow/run.sh
+      - name: Existing editing behavior
+        run: Tests/run-editing.sh

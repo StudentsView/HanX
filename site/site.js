@@ -1,0 +1,104 @@
+(() => {
+  'use strict';
+  const config = window.HANWORD_SITE || {};
+  const unresolved = value => !value || /HANWORD_/.test(value);
+  const repoReady = !unresolved(config.owner) && !unresolved(config.repository);
+  const repository = repoReady ? `https://github.com/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repository)}` : null;
+  function setLinks(selector, url) {
+    if (!url) return;
+    document.querySelectorAll(selector).forEach(link => {
+      link.href = url;
+      link.hidden = false;
+    });
+  }
+  setLinks('[data-guide]', config.guide || './cli/');
+  setLinks('[data-repo]', repository);
+  setLinks('[data-releases]', repository && `${repository}/releases`);
+  setLinks('[data-license]', repository && `${repository}/blob/main/${config.licensePath || 'LICENSE'}`);
+  setLinks('[data-provenance]', repository && `${repository}/blob/main/${config.provenancePath || 'PROVENANCE.md'}`);
+
+  const channels = {
+    npm: { ready: config.npm?.available && !unresolved(config.npm.package), command: `npm install -g ${config.npm?.package || ''}`, title: 'npm으로 CLI 설치', pending: 'npm 배포 준비 중', detail: 'Node.js와 npm이 설치된 환경에서 실행하세요. Mac용 네이티브 CLI를 설치합니다.' },
+    brew: { ready: config.brew?.available && !unresolved(config.brew.formula), command: `brew install ${config.brew?.formula || ''}`, title: 'Homebrew로 CLI 설치', pending: 'Homebrew 배포 준비 중', detail: 'Homebrew가 설치된 Mac에서 실행하세요. 설치한 명령의 지원 범위를 capabilities로 확인하세요.' },
+    pkg: { ready: config.pkg?.available && repoReady && !unresolved(config.pkg.asset), title: `한워드 ${config.version || ''} Mac 설치 패키지`, pending: '설치 패키지 배포 준비 중', detail: '설치 파일을 열고 안내를 따르세요. 릴리스 안내에서 앱과 CLI의 포함 여부를 확인하세요.' }
+  };
+  Object.entries(channels).forEach(([key, channel]) => {
+    const status = document.querySelector(`[data-channel-status="${key}"]`);
+    status.textContent = channel.ready ? channel.title : channel.pending;
+    if (!channel.ready) return;
+    document.querySelector(`[data-channel-detail="${key}"]`).textContent = channel.detail;
+    if (channel.command) {
+      document.getElementById(`command-${key}`).textContent = channel.command;
+      document.querySelector(`[data-command-wrap="${key}"]`).hidden = false;
+    } else {
+      const download = document.getElementById('pkg-download');
+      download.href = `${repository}/releases/download/v${encodeURIComponent(config.version)}/${encodeURIComponent(config.pkg.asset)}`;
+      download.hidden = false;
+    }
+  });
+
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  function selectTab(tab, focus) {
+    tabs.forEach(item => {
+      const selected = item === tab;
+      item.setAttribute('aria-selected', String(selected));
+      item.tabIndex = selected ? 0 : -1;
+      document.getElementById(item.getAttribute('aria-controls')).hidden = !selected;
+    });
+    if (focus) tab.focus();
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectTab(tab, false));
+    tab.addEventListener('keydown', event => {
+      let target;
+      if (event.key === 'ArrowRight') target = (index + 1) % tabs.length;
+      if (event.key === 'ArrowLeft') target = (index + tabs.length - 1) % tabs.length;
+      if (event.key === 'Home') target = 0;
+      if (event.key === 'End') target = tabs.length - 1;
+      if (target !== undefined) { event.preventDefault(); selectTab(tabs[target], true); }
+    });
+  });
+
+  let statusTimeout;
+  function announce(message) {
+    const status = document.getElementById('copy-status');
+    clearTimeout(statusTimeout);
+    status.textContent = message;
+    statusTimeout = setTimeout(() => { status.textContent = ''; }, 3500);
+  }
+  async function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (_) { /* Try the selection fallback. */ }
+    }
+    const previous = document.activeElement;
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('aria-label', '복사할 명령');
+    textarea.style.cssText = 'position:fixed;left:-9999px;top:0;';
+    document.body.appendChild(textarea);
+    textarea.select();
+    let copied = false;
+    try { copied = document.execCommand('copy'); } catch (_) { copied = false; }
+    textarea.remove();
+    previous?.focus();
+    return copied;
+  }
+  document.querySelectorAll('[data-copy]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const text = document.getElementById(button.dataset.copy)?.textContent;
+      if (!text) return;
+      const copied = await copyText(text);
+      announce(copied ? '클립보드에 복사했습니다.' : '자동으로 복사할 수 없습니다. 명령을 선택해 복사하세요.');
+    });
+  });
+
+  document.querySelectorAll('.screenshot-frame img').forEach(img => {
+    const fallback = () => {
+      img.hidden = true;
+      const message = img.parentElement.querySelector('.screenshot-fallback');
+      if (message) message.hidden = false;
+    };
+    img.addEventListener('error', fallback);
+    if (img.complete && img.naturalWidth === 0) fallback();
+  });
+})();

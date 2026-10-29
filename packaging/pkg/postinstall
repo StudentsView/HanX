@@ -1,0 +1,22 @@
+#!/bin/sh
+# The package owns its embedded CLI. Existing commands from another channel
+# remain owned by that channel. Installer passes the target volume as $3.
+set -eu
+hw_volume=${3:-/}
+hw_payload=/Applications/HanWord.app/Contents/Resources/CLI/hanword
+hw_embedded="${hw_volume%/}$hw_payload"
+[ -f "$hw_embedded" ] || { printf '%s\n' 'HanWord embedded CLI is missing.' >&2; exit 1; }
+hw_bin="${hw_volume%/}/usr/local/bin"
+mkdir -p "$hw_bin"
+for hw_name in hanword hanword-cli; do
+  hw_command="$hw_bin/$hw_name"
+  if [ -L "$hw_command" ] && [ "$(readlink "$hw_command")" = "$hw_payload" ]; then
+    continue
+  fi
+  if [ -e "$hw_command" ] || [ -L "$hw_command" ]; then
+    printf '%s\n' "Keeping existing command: $hw_command" >&2
+    continue
+  fi
+  ln -s "$hw_payload" "$hw_command"
+done
+exit 0

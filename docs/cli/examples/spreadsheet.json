@@ -1,0 +1,14 @@
+{
+  "kind": "spreadsheet",
+  "sheets": [
+    {
+      "name": "매출",
+      "rows": [["상품", "수량", "단가", "금액"], ["사과", 2, 1000, "=B2*C2"], ["배", 3, 2000, "=B3*C3"], ["귤", 4, 500, "=B4*C4"], ["합계", null, null, "=SUM(D2:D4)"]],
+      "cells": {"A1": {"style": {"bold": true, "fill": "DBEAFE"}}, "D5": {"style": {"bold": true, "numberFormat": "#,##0"}}},
+      "columnWidths": {"A": 120, "B": 80, "C": 100, "D": 120},
+      "frozenRows": 1
+    },
+    {"name": "요약", "rows": [["매출 합계", "=매출!D5"], ["사과 매출", "=XLOOKUP(\"사과\",매출!A2:A4,매출!D2:D4)"], ["목표 달성", "=IF(B1>=10000,\"달성\",\"미달\")"]]}
+  ],
+  "definedNames": {"매출합계": "매출!D5"}
+}

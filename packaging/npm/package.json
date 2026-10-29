@@ -1,0 +1,16 @@
+{
+  "name": "@studentsview/hanword",
+  "version": "2.6.0",
+  "description": "Local macOS office CLI and MCP tools for spreadsheet formulas, HWP, DOCX and PPTX",
+  "license": "MIT",
+  "homepage": "https://studentsview.github.io/HanWord/",
+  "repository": {"type": "git", "url": "git+https://github.com/StudentsView/HanWord.git"},
+  "bugs": {"url": "https://github.com/StudentsView/HanWord/issues"},
+  "bin": {"hanword": "bin/hanword.js", "hanword-cli": "bin/hanword.js"},
+  "files": ["bin/hanword.js", "native/hanword", "native/README.md", "native/examples", "LICENSE", "NOTICE"],
+  "os": ["darwin"],
+  "cpu": ["arm64", "x64"],
+  "engines": {"node": ">=18"},
+  "publishConfig": {"access": "public"},
+  "keywords": ["hwp", "docx", "xlsx", "pptx", "mcp", "spreadsheet", "cli", "macos"]
+}

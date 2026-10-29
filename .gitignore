@@ -1,0 +1,15 @@
+build/
+.DS_Store
+**/__pycache__/
+node_modules/
+packaging/npm/native/
+work/
+*.pkg
+*.zip
+*.tgz
+*.p12
+*.pfx
+*.cer
+*.key
+.env
+.env.*
