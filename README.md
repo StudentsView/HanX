@@ -8,11 +8,45 @@ macOS 13 이상, Apple Silicon과 Intel을 지원합니다. 현재 버전은 2.7
 
 ## 설치
 
+CLI는 npm과 Homebrew 중 하나로 설치합니다. macOS 13 이상, Apple Silicon과 Intel을 지원합니다.
+
+### npm
+
+Node.js 18 이상이 필요합니다. [공개 npm 패키지](https://www.npmjs.com/package/@juyoungsuh/hanx)를 설치합니다.
+
 ```sh
 npm install -g @juyoungsuh/hanx
-# 또는
+```
+
+### Homebrew
+
+Homebrew가 설치된 Mac에서 실행합니다. [공개 tap](https://github.com/StudentsView/homebrew-tap)에서 CLI를 설치하며 Node.js는 필요하지 않습니다.
+
+```sh
 brew install StudentsView/tap/hanx
 ```
+
+### 설치 확인
+
+어느 방법으로 설치해도 실행 명령은 같습니다.
+
+```sh
+hanx --version
+hanx capabilities --pretty
+```
+
+AI 에이전트의 MCP 연결에는 `hanx mcp`를 사용합니다. [CLI 안내](docs/cli/README.md)에서 연결과 엑셀 작업 예제를 확인하세요.
+
+### 업데이트
+
+npm으로 설치했다면 `npm install -g @juyoungsuh/hanx`를 다시 실행합니다. Homebrew로 설치했다면 다음 명령을 실행합니다.
+
+```sh
+brew update
+brew upgrade StudentsView/tap/hanx
+```
+
+### macOS 앱 설치
 
 앱과 CLI를 함께 설치하려면 [릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.7.0)의 `HanX-2.7.0.pkg`를 사용하세요. npm과 Homebrew는 CLI를 설치합니다.
 
