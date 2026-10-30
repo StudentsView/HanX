@@ -7,7 +7,7 @@
 macOS 13 이상에서 Apple Silicon과 Intel을 지원합니다. 공개 설치 채널의 현재 상태는 [HanX 설치 페이지](https://studentsview.github.io/HanX/#install)에서 확인하세요. npm 패키지 이름은 `hanx`, Homebrew formula는 `StudentsView/tap/hanx`입니다. 공개 배포가 확인된 채널에서 다음 명령으로 CLI를 설치합니다.
 
 ```sh
-npm install -g hanx
+npm install -g https://github.com/StudentsView/HanX/releases/download/v2.7.0/hanx-2.7.0.tgz
 # 또는
 brew install StudentsView/tap/hanx
 ```

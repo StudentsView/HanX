@@ -14,7 +14,7 @@
 <p>로컬 AI 에이전트가 CLI 또는 MCP로 엑셀 파일의 셀과 범위를 읽고 수정하고 수식을 계산합니다. HWP, DOCX, HWPX, HWPML, PPTX와 XML도 읽고 생성하고 수정하고 변환합니다. Swift 실행 파일 하나로 동작하며 Word나 한글을 실행할 필요가 없습니다. 네이티브 CLI 실행에는 Python, Node.js, AI API 키와 추가 유료 라이브러리가 필요하지 않습니다. npm으로 설치하는 경우에는 Node.js 18 이상이 필요합니다.</p>
 <h2>설치와 시작</h2>
 <p>macOS 13 이상에서 Apple Silicon과 Intel을 지원합니다. 공개 설치 채널의 현재 상태는 <a href="https://studentsview.github.io/HanX/#install" rel="nofollow">HanX 설치 페이지</a>에서 확인하세요. npm 패키지 이름은 <code class="notranslate">hanx</code>, Homebrew formula는 <code class="notranslate">StudentsView/tap/hanx</code>입니다. 공개 배포가 확인된 채널에서 다음 명령으로 CLI를 설치합니다.</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate">npm install -g hanx
+<div class="highlight highlight-source-shell"><pre class="notranslate">npm install -g https://github.com/StudentsView/HanX/releases/download/v2.7.0/hanx-2.7.0.tgz
 <span class="pl-c"><span class="pl-c">#</span> 또는</span>
 brew install StudentsView/tap/hanx</pre></div>
 <p>GUI 앱과 CLI를 함께 설치하려면 <a href="https://github.com/StudentsView/HanX/releases">HanX 릴리스</a>의 <code class="notranslate">HanX-2.7.0.pkg</code>를 사용하세요. pkg는 앱을 <code class="notranslate">/Applications/HanX.app</code>에 설치하고 <code class="notranslate">/usr/local/bin</code>의 비어 있는 <code class="notranslate">hanx</code>와 <code class="notranslate">hanx-cli</code> 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.</p>
