@@ -6,6 +6,16 @@ macOS 13 이상, Apple Silicon과 Intel을 지원합니다. 현재 버전은 2.7
 
 [설치와 화면 보기](https://studentsview.github.io/HanX/) | [CLI 안내](docs/cli/README.md) | [릴리스](https://github.com/StudentsView/HanX/releases)
 
+## 설치
+
+```sh
+npm install -g @juyoungsuh/hanx
+# 또는
+brew install StudentsView/tap/hanx
+```
+
+앱과 CLI를 함께 설치하려면 [릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.7.0)의 `HanX-2.7.0.pkg`를 사용하세요. npm과 Homebrew는 CLI를 설치합니다.
+
 ## 엑셀 CLI
 
 ```sh
