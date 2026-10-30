@@ -1,9 +1,9 @@
 import Foundation
 
-// hanword-cli: headless harness for the import/export pipeline.
-//   hanword-cli dump <file>          stats + text preview
-//   hanword-cli convert <in> <out>   convert via the unified model (.docx/.hwpx/.hwp)
-//   hanword-cli corpus <file...>     parse many files, report failures
+// hanx-cli: headless harness for the import/export pipeline.
+//   hanx-cli dump <file>          stats + text preview
+//   hanx-cli convert <in> <out>   convert via the unified model (.docx/.hwpx/.hwp)
+//   hanx-cli corpus <file...>     parse many files, report failures
 let args = CommandLine.arguments
 if args.count<2 || AgentCLI.commands.contains(args[1]) { exit(AgentCLI.run(Array(args.dropFirst()))) }
 guard args.count >= 3 else {
@@ -63,7 +63,7 @@ case "slides":
     if args.count > 3 { try PPTXWriter.write(pres).write(to: URL(fileURLWithPath: args[3])); print("wrote \(args[3])") }
 case "make-slides":
     let pres = Presentation.blank()
-    pres.slides[0].shapes[0].paragraphs = [Presentation.textParagraph("HanWord 프레젠테이션", size: 44, bold: true, align: .center)]
+    pres.slides[0].shapes[0].paragraphs = [Presentation.textParagraph("HanX 프레젠테이션", size: 44, bold: true, align: .center)]
     pres.slides[0].shapes[1].paragraphs = [Presentation.textParagraph("HWP · DOCX · XLSX · PPTX 통합 편집기", size: 24, align: .center)]
     var s2 = pres.contentSlide()
     s2.shapes[0].paragraphs = [Presentation.textParagraph("구성", size: 36, bold: true)]

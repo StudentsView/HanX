@@ -677,7 +677,7 @@ enum TableRowSizer {
     }
 }
 
-/// Style names HanWord applies; carried as an attribute so they survive editing.
+/// Style names HanX applies; carried as an attribute so they survive editing.
 enum EditorStyleNames {
     static let known: Set<String> = ["바탕글", "제목", "부제목", "제목 1", "제목 2", "제목 3", "본문", "인용", "강조"]
     /// WordprocessingML built-in style ids for the names above.

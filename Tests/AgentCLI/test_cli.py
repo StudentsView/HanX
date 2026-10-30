@@ -1,10 +1,10 @@
 import hashlib, json, os, pathlib, subprocess, tempfile, unittest, zipfile
 import xml.etree.ElementTree as ET
 
-BIN = pathlib.Path(os.environ.get('HANWORD_BIN', 'build/hanword-cli')).resolve()
+BIN = pathlib.Path(os.environ.get('HANX_BIN', 'build/hanx-cli')).resolve()
 class CLI(unittest.TestCase):
     def setUp(self):
-        self.temp=tempfile.TemporaryDirectory(prefix='한워드 CLI '); self.root=pathlib.Path(self.temp.name)
+        self.temp=tempfile.TemporaryDirectory(prefix='HanX CLI '); self.root=pathlib.Path(self.temp.name)
     def tearDown(self): self.temp.cleanup()
     def spec(self,name,value):
         p=self.root/name; p.write_text(json.dumps(value,ensure_ascii=False)); return p
@@ -16,7 +16,7 @@ class CLI(unittest.TestCase):
         self.assertEqual(value['ok'],ok,value); return value.get('data') if ok else value['error']
     def make_doc(self,ext='docx'):
         spec=self.spec('doc.json',{'kind':'document','title':'보고서','blocks':[
-            {'type':'paragraph','text':'안녕하세요 한워드','style':{'bold':True,'size':18}},
+            {'type':'paragraph','text':'안녕하세요 HanX','style':{'bold':True,'size':18}},
             {'type':'paragraph','runs':[{'text':'빨강','color':'FF0000'},{'text':' 파랑','color':'0000FF'}]},
             {'type':'table','rows':[['이름','값'],['합계','10']]}]})
         out=self.root/('문서.'+ext); self.runcli('create','--spec',spec,'--output',out); return out
@@ -25,11 +25,11 @@ class CLI(unittest.TestCase):
     def test_hwp_docx_hwpx_create_read_convert(self):
         for ext in ['hwp','docx','hwpx','hml']:
             with self.subTest(ext=ext):
-                p=self.make_doc(ext); d=self.runcli('read',p); self.assertIn('안녕하세요 한워드',d['text']); self.assertIn('합계\t10',d['text'])
+                p=self.make_doc(ext); d=self.runcli('read',p); self.assertIn('안녕하세요 HanX',d['text']); self.assertIn('합계\t10',d['text'])
                 out=self.root/(ext+'-converted.docx'); self.runcli('convert',p,'--output',out); self.assertIn('합계\t10',self.runcli('read',out)['text'])
     def test_document_edits_preserve_other_run_formatting(self):
         p=self.make_doc(); ops=self.spec('ops.json',[{'op':'replace_text','find':'안녕하세요','replace':'반갑습니다'},{'op':'set_cell','section':0,'block':2,'row':1,'column':1,'text':'20'},{'op':'append_paragraph','text':'추가 문단'}]); out=self.root/'수정.docx'
-        self.runcli('edit',p,'--ops',ops,'--output',out); text=self.runcli('read',out)['text']; self.assertIn('반갑습니다 한워드',text); self.assertIn('합계\t20',text); self.assertIn('추가 문단',text)
+        self.runcli('edit',p,'--ops',ops,'--output',out); text=self.runcli('read',out)['text']; self.assertIn('반갑습니다 HanX',text); self.assertIn('합계\t20',text); self.assertIn('추가 문단',text)
         root=ET.fromstring(zipfile.ZipFile(out).read('word/document.xml')); ns={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
         colors=[x.get('{'+ns['w']+'}val') for x in root.findall('.//w:color',ns)]; self.assertIn('FF0000',colors); self.assertIn('0000FF',colors)
     def test_refuses_overwrite_and_invalid_batch_preserves_files(self):

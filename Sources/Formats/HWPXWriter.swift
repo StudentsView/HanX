@@ -138,7 +138,7 @@ final class HWPXWriter {
         z.add("mimetype", "application/hwp+zip", compress: false)
         z.add("version.xml", """
         <?xml version="1.0" encoding="UTF-8" standalone="yes" ?><hv:HCFVersion xmlns:hv="http://www.hancom.co.kr/hwpml/2011/version" \
-        tagetApplication="WORDPROCESSOR" major="5" minor="1" micro="0" buildNumber="1" os="1" xmlVersion="1.4" application="HanWord" appVersion="1.0"/>
+        tagetApplication="WORDPROCESSOR" major="5" minor="1" micro="0" buildNumber="1" os="1" xmlVersion="1.4" application="HanX" appVersion="1.0"/>
         """)
         z.add("META-INF/container.xml", """
         <?xml version="1.0" encoding="UTF-8" standalone="yes" ?><ocf:container xmlns:ocf="urn:oasis:names:tc:opendocument:xmlns:container" \

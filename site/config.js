@@ -1,11 +1,11 @@
-window.HANWORD_SITE = {
+window.HANX_SITE = {
   owner: 'StudentsView',
-  repository: 'HanWord',
-  version: '2.6.0',
+  repository: 'HanX',
+  version: '2.7.0',
   guide: './cli/',
   licensePath: 'LICENSE',
   provenancePath: 'PROVENANCE.md',
-  npm: { available: true, package: 'https://github.com/StudentsView/HanWord/releases/download/v2.6.0/studentsview-hanword-2.6.0.tgz' },
-  brew: { available: true, formula: 'StudentsView/tap/hanword' },
-  pkg: { available: true, asset: 'HanWord-2.6.0.pkg' }
+  npm: { available: false, package: 'hanx' },
+  brew: { available: false, formula: 'StudentsView/tap/hanx' },
+  pkg: { available: false, asset: 'HanX-2.7.0.pkg' }
 };

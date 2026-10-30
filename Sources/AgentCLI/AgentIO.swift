@@ -10,7 +10,7 @@ struct AgentError: Error {
 }
 
 enum AgentIO {
-    static let version="2.6.0"
+    static let version="2.7.0"
     static func object(_ data:Data)->Any? { try? JSONSerialization.jsonObject(with:data,options:[.fragmentsAllowed]) }
     static func json(_ value:Any,pretty:Bool=false)throws->Data {
         try JSONSerialization.data(withJSONObject:value,options:pretty ? [.sortedKeys,.prettyPrinted,.fragmentsAllowed] : [.sortedKeys,.fragmentsAllowed])
@@ -59,7 +59,7 @@ enum AgentIO {
         var isDirectory:ObjCBool=false
         if fm.fileExists(atPath:dest.path,isDirectory:&isDirectory),isDirectory.boolValue { throw AgentError("io_error","Output is a directory: \(dest.path)") }
         try fm.createDirectory(at:dest.deletingLastPathComponent(),withIntermediateDirectories:true)
-        let temp=dest.deletingLastPathComponent().appendingPathComponent(".hanword-\(UUID().uuidString).tmp")
+        let temp=dest.deletingLastPathComponent().appendingPathComponent(".hanx-\(UUID().uuidString).tmp")
         defer { try? fm.removeItem(at:temp) }
         try data.write(to:temp,options:.withoutOverwriting)
         let rc = force ? Darwin.rename(temp.path,dest.path) : Darwin.link(temp.path,dest.path)

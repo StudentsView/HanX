@@ -35,7 +35,7 @@ final class SheetDocument: NSDocument {
 
     override func read(from url: URL, ofType typeName: String) throws {
         do { book = try SheetIO.load(url: url) } catch let e as FormatError {
-            throw NSError(domain: "HanWord", code: 1, userInfo: [NSLocalizedDescriptionKey: "문서를 열 수 없습니다", NSLocalizedFailureReasonErrorKey: e.description])
+            throw NSError(domain: "HanX", code: 1, userInfo: [NSLocalizedDescriptionKey: "문서를 열 수 없습니다", NSLocalizedFailureReasonErrorKey: e.description])
         }
         engine = FormulaEngine(book: book)
     }
@@ -93,7 +93,7 @@ final class SheetDocument: NSDocument {
     }
 }
 
-extension Notification.Name { static let sheetChanged = Notification.Name("HanWordSheetChanged") }
+extension Notification.Name { static let sheetChanged = Notification.Name("HanXSheetChanged") }
 
 final class SheetWindowController: NSWindowController, SheetGridDelegate, NSToolbarDelegate, NSTextFieldDelegate, NSMenuItemValidation {
     private unowned let doc: SheetDocument

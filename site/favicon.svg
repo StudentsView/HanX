@@ -1,1 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="13" fill="#234d76"/><text x="32" y="44" text-anchor="middle" font-family="Apple SD Gothic Neo, sans-serif" font-size="40" font-weight="700" fill="white">한</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>HanX</title>
+  <defs><linearGradient id="blue" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2f6b9a"/><stop offset="1" stop-color="#234d76"/></linearGradient></defs>
+  <rect x="6" y="6" width="52" height="52" rx="11.5" fill="url(#blue)"/>
+  <path d="M18 12h22l8 8v30a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V14a2 2 0 0 1 2-2Z" fill="#fff"/>
+  <path d="M40 12v6l2 2h6Z" fill="#ddeaf2"/>
+  <path d="M20.5 22h7.125L43.5 44h-7.125Z" fill="#234d76"/>
+  <path d="M36.375 22H43.5L27.625 44H20.5Z" fill="#168a98"/>
+</svg>

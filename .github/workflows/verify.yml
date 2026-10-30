@@ -14,7 +14,7 @@ jobs:
       - name: CLI and MCP integration
         run: python3 -m unittest discover -s Tests/AgentCLI
       - name: Formula regression
-        run: build/hanword-cli formula-suite Tests/formulas.tsv
+        run: build/hanx-cli formula-suite Tests/formulas.tsv
       - name: Start screen behavior
         run: Tests/StartWindow/run.sh
       - name: Existing editing behavior

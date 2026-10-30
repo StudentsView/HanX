@@ -1,6 +1,6 @@
 # 공개 배포를 위한 법적 근거 조사
 
-확인일: 2026-10-30. 이 문서는 공식 법령, 권리자의 공개 조건, 프로젝트 자체 문서와 로컬 소스에서 확인한 사실을 구분한다. 공개 가능성을 확정하는 법률 의견이나 프로젝트의 라이선스 부여 문서가 아니다. 아래 라이선스는 선택지이며 아직 선택하거나 적용하지 않았다.
+확인일: 2026-10-30. 이 문서는 공식 법령, 권리자의 공개 조건, 프로젝트 자체 문서와 로컬 소스에서 확인한 사실을 구분한다. 공개 가능성을 확정하는 법률 의견이나 프로젝트의 라이선스 부여 문서가 아니다. 아래 라이선스 비교는 초기 조사 당시의 선택지를 기록한다. 현재 공개 준비본의 MIT 선택과 출처 고지는 마지막 절과 루트 LICENSE 및 NOTICE에 정리했다.
 
 ## 가장 직접적인 근거: 한컴의 공개 명세 사용 조건
 
@@ -16,15 +16,15 @@
 
 LibreOffice의 공식 라이선스 안내는 현재 배포를 MPL 2.0으로 설명한다. Apache OpenOffice의 Apache 2.0 코드와 여러 다른 라이선스의 구성요소를 포함하므로 실제 파일과 배포판의 LICENSE를 확인하도록 한다. 새 기여에는 MPL 2.0과 LGPL v3 이상으로 함께 이용허락할 것을 요청하며 저작권 양도는 요구하지 않는다. 이 구조는 한글 또는 Office 상용 코드의 복제 허락을 뜻하지 않는다. [LibreOffice 공식 안내](https://www.libreoffice.org/licenses/)
 
-The Document Foundation은 파일 형식 분석과 별도 변환 라이브러리 개발을 공개적으로 설명한다. 예를 들어 Document Liberation Project는 역공학한 Publisher 형식을 읽는 libmspub를 만들었고 LibreOffice가 이를 이용한다. 공식 개발 블로그의 mso-dumper 설명은 DOC, PPT, XLS 등의 문서 바이너리 구조를 덤프하여 분석하는 도구를 소개한다. 이는 파일을 관찰하고 독립 파서를 작성한 구체적인 실무 근거다. 조사한 자료에서는 모든 상용 앱 분석에 일괄 적용되는 법적 승인이나 HanWord와 같은 분석에 대한 법원 판단을 확인하지 못했다. [TDF의 libmspub 설명](https://blog.documentfoundation.org/blog/2026/10/14/libreoffice-come-to-the-rescue-of-microsoft-publisher-users/), [공식 mso-dumper 설명](https://dev.blog.documentfoundation.org/2022/04/26/supporting-metafile-formats-wmf-emf-emfplus/)
+The Document Foundation은 파일 형식 분석과 별도 변환 라이브러리 개발을 공개적으로 설명한다. 예를 들어 Document Liberation Project는 역공학한 Publisher 형식을 읽는 libmspub를 만들었고 LibreOffice가 이를 이용한다. 공식 개발 블로그의 mso-dumper 설명은 DOC, PPT, XLS 등의 문서 바이너리 구조를 덤프하여 분석하는 도구를 소개한다. 이는 파일을 관찰하고 독립 파서를 작성한 구체적인 실무 근거다. 조사한 자료에서는 모든 상용 앱 분석에 일괄 적용되는 법적 승인이나 HanX와 같은 분석에 대한 법원 판단을 확인하지 못했다. [TDF의 libmspub 설명](https://blog.documentfoundation.org/blog/2026/10/14/libreoffice-come-to-the-rescue-of-microsoft-publisher-users/), [공식 mso-dumper 설명](https://dev.blog.documentfoundation.org/2022/04/26/supporting-metafile-formats-wmf-emf-emfplus/)
 
-LibreOffice hwpfilter의 README는 새로운 HWP 형식을 올바르게 처리하지 못하고 조용히 손상시킬 수 있다고 경고한다. 따라서 LibreOffice의 존재를 HanWord의 HWP 5 호환성이나 법적 적합성의 증명으로 제시하면 안 된다. 실제 hwpfile.cxx 헤더에는 MPL 2.0과 기존 Apache 라이선스 관련 고지가 함께 있다. 이 코드를 가져오거나 번역한다면 각 파일의 조건을 따라야 한다. [hwpfilter README](https://github.com/LibreOffice/core/blob/master/hwpfilter/README.md), [실제 소스 헤더](https://github.com/LibreOffice/core/blob/master/hwpfilter/source/hwpfile.cxx)
+LibreOffice hwpfilter의 README는 새로운 HWP 형식을 올바르게 처리하지 못하고 조용히 손상시킬 수 있다고 경고한다. 따라서 LibreOffice의 존재를 HanX의 HWP 5 호환성이나 법적 적합성의 증명으로 제시하면 안 된다. 실제 hwpfile.cxx 헤더에는 MPL 2.0과 기존 Apache 라이선스 관련 고지가 함께 있다. 이 코드를 가져오거나 번역한다면 각 파일의 조건을 따라야 한다. [hwpfilter README](https://github.com/LibreOffice/core/blob/master/hwpfilter/README.md), [실제 소스 헤더](https://github.com/LibreOffice/core/blob/master/hwpfilter/source/hwpfile.cxx)
 
 ## rHWP가 실제로 설명한 근거와 한계
 
 주된 조사 대상은 edwardkim/rhwp다. ic4u2u/rHWP의 README 역시 이 원본 프로젝트의 링크를 사용한다. 원본의 LICENSE는 Edward Kim의 저작권 고지와 MIT 조건을 담는다. 재사용 시 해당 저작권 고지와 이용허락 문구를 유지해야 한다. 자체 LICENSE와 별도로 THIRD_PARTY_LICENSES.md에서 Rust, npm, 폰트 등 구성요소를 관리한다. MIT 표지만으로 모든 자산의 조건이 없어지는 것은 아니다. [rHWP LICENSE](https://github.com/edwardkim/rhwp/blob/main/LICENSE), [서드파티 목록](https://github.com/edwardkim/rhwp/blob/main/THIRD_PARTY_LICENSES.md)
 
-rHWP의 2026-04-09 Legal FAQ는 한컴 공개 명세를 바탕으로 개발했고 실제 HWP 파일을 분석해 명세 불일치를 보정했다고 설명한다. 한국 저작권법 제101조의4, 미국 DMCA 1201(f), EU 소프트웨어 지침 제6조를 근거로 들지만 이는 프로젝트의 입장이다. FAQ의 짧은 법률 요약은 한국법의 정당한 이용권, 정보 획득의 불가피성, 필요한 부분으로의 제한을 모두 전달하지 않는다. 따라서 그 문서를 그대로 HanWord의 적법성 결론으로 인용할 수 없다. 실제 정오표는 검증 방법과 수정 파일을 기록한다. [Legal FAQ](https://github.com/edwardkim/rhwp/wiki/Legal-FAQ), [정오표](https://github.com/edwardkim/rhwp/blob/main/mydocs/tech/hwp_spec_errata.md)
+rHWP의 2026-04-09 Legal FAQ는 한컴 공개 명세를 바탕으로 개발했고 실제 HWP 파일을 분석해 명세 불일치를 보정했다고 설명한다. 한국 저작권법 제101조의4, 미국 DMCA 1201(f), EU 소프트웨어 지침 제6조를 근거로 들지만 이는 프로젝트의 입장이다. FAQ의 짧은 법률 요약은 한국법의 정당한 이용권, 정보 획득의 불가피성, 필요한 부분으로의 제한을 모두 전달하지 않는다. 따라서 그 문서를 그대로 HanX의 적법성 결론으로 인용할 수 없다. 실제 정오표는 검증 방법과 수정 파일을 기록한다. [Legal FAQ](https://github.com/edwardkim/rhwp/wiki/Legal-FAQ), [정오표](https://github.com/edwardkim/rhwp/blob/main/mydocs/tech/hwp_spec_errata.md)
 
 같은 FAQ는 초기에 포함했던 상용 폰트 83개를 Git 기록에서 제거하고 릴리스를 다시 만든 조치를 공개한다. 배포에는 공개 라이선스 폰트만 사용한다고 설명한다. README에는 한컴 공개 명세 출처와 제휴 또는 승인 관계가 없다는 고지가 있다. 이 사례의 실질적 교훈은 라이선스 이름보다 자산별 출처와 배포 기록까지 관리해야 한다는 점이다. [rHWP README](https://github.com/edwardkim/rhwp/blob/main/README.md), [폰트 조치 기록](https://github.com/edwardkim/rhwp/wiki/Legal-FAQ)
 
@@ -47,11 +47,11 @@ OOXML은 공개 명세와 Microsoft의 Open Specifications 조건을 별도로 �
 - Tests/samples/brochure.hwp와 writ01.hwp의 제작자 및 재배포 허락을 확인할 문서가 발견되지 않았다. 침해라고 단정할 수 없지만 공개 패키지에는 허락이 확인된 자체 제작 샘플만 포함해야 한다.
 - 초기 PPTXWriter.swift의 Office 테마 XML과 HWP5Writer.swift에서 언급한 Normal.hwt 및 CLEAN011.hwt 관찰의 기원을 기록해야 한다. 형식 상수나 호환성 관찰과 기존 문서의 창작적 테마 또는 템플릿 자원 복제를 구분해야 한다. 현재 검사로 복제 여부는 확정할 수 없다.
 - 원시 REA evidence JSON에는 상용 UI 자원의 디코딩 구조가 들어 있다. 공개 소스 패키지에서는 우선 제외하고 공개 명세 링크, 필요한 호환성 사실, 새 구현 설명을 담은 요약만 배포하는 것을 권한다. 필요한 분석 기록은 비공개 근거로 보관할 수 있다.
-- 한컴 공식 지원 페이지는 기존 서비스 이름으로 이미 한워드를 사용한다. 현재 프로젝트의 한워드/HanWord 명칭에 관한 상표 등록 여부나 침해 여부는 조사로 확정하지 않았다. 공개 이름을 정하기 전에 혼동 가능성을 따로 확인하거나 다른 이름을 선택하는 것이 좋다. 비제휴 고지는 혼동 위험을 완전히 없애는 허락이 아니다. [한컴 공식 사용 안내](https://support.hancomdocs.com/d53fda05-422a-475c-b2a2-35dce5962e62)
+- 한컴 공식 지원 페이지는 기존 서비스 이름으로 이미 한워드를 사용한다. 이 프로젝트는 공개 이름을 HanX로 변경했다. 이전 프로젝트 이름인 한워드/HanWord와 HanX의 상표 등록 여부나 침해 여부는 이 조사로 확정하지 않았다. 비제휴 고지는 혼동 위험을 완전히 없애는 허락이 아니다. [한컴 공식 사용 안내](https://support.hancomdocs.com/d53fda05-422a-475c-b2a2-35dce5962e62)
 
 ## 출처 확인 후 선택할 배포 라이선스
 
-1. MIT: CLI와 네이티브 라이브러리의 넓은 재사용을 원하고 간단한 조건을 선호할 때 적합하다. 복사 또는 상당 부분 사용 시 저작권과 허락 고지를 보존해야 한다. rHWP와 같은 선택이지만 그 사실 자체가 HanWord의 소스 권리를 입증하지 않는다. [MIT 원문](https://opensource.org/license/mit)
+1. MIT: CLI와 네이티브 라이브러리의 넓은 재사용을 원하고 간단한 조건을 선호할 때 적합하다. 복사 또는 상당 부분 사용 시 저작권과 허락 고지를 보존해야 한다. rHWP와 같은 선택이지만 그 사실 자체가 HanX의 소스 권리를 입증하지 않는다. [MIT 원문](https://opensource.org/license/mit)
 2. Apache 2.0: 상업적 재사용을 열어 두면서 기여자의 명시적인 특허 허락과 특허 소송 관련 조건을 원할 때 검토할 선택이다. 라이선스 사본, 변경 고지, 적용되는 출처 및 NOTICE 보존 요건을 관리한다. 기여자에게 없는 한컴 또는 Microsoft 권리를 새로 부여하지 않는다. [Apache 2.0 원문](https://www.apache.org/licenses/LICENSE-2.0)
 3. MPL 2.0: 수정한 대상 파일을 배포할 때 그 파일의 소스 공개를 유지하고 별도 파일로 된 다른 구성요소와 결합할 수 있도록 하려면 검토한다. 실행 파일 배포 시 해당 소스를 구하는 방법도 안내한다. LibreOffice 코드를 실제 포함했다면 이 파일별 의무 등을 먼저 판별해야 하며 루트에 MIT를 붙여 대체할 수 없다. [MPL 2.0 원문](https://www.mozilla.org/en-US/MPL/2.0/)
 

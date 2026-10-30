@@ -10,7 +10,7 @@ enum EditingChecks {
         let d=SlideDocument(); d.undoManager?.groupsByEvent=false
         var sh=SlideShape(id:2,name:"회전과 비율",kind:.rightArrow,frame:Frame(x:150,y:120,w:200,h:100))
         sh.rotation=90; sh.lockAspect=true; sh.fill=RGB(r:40,g:100,b:210); sh.line = .black
-        sh.paragraphs=[Presentation.textParagraph("한워드",size:24,bold:true,align:.center,color:RGB(r:255,g:255,b:255))]
+        sh.paragraphs=[Presentation.textParagraph("HanX",size:24,bold:true,align:.center,color:RGB(r:255,g:255,b:255))]
         d.pres.slides=[Slide(shapes:[sh])]; d.makeWindowControllers()
         guard let wc=d.windowControllers.first as? SlideWindowController else { throw FormatError.invalid("slide window") }
         func action(_ fn:()->Void) { d.undoManager?.beginUndoGrouping(); fn(); d.undoManager?.endUndoGrouping() }
@@ -123,7 +123,7 @@ enum EditingChecks {
         let doc=HWDocument(); doc.undoManager?.groupsByEvent=false; doc.makeWindowControllers()
         func docAction(_ fn:()->Void) { doc.undoManager?.beginUndoGrouping(); fn(); doc.undoManager?.endUndoGrouping() }
         let editor=doc.windowControllers.first as! EditorWindowController, tv=editor.pages.firstTextView
-        docAction { tv.insertText("한워드 서식 시험\n다음 문단",replacementRange:NSRange(location:0,length:0)) }; tv.setSelectedRange(NSRange(location:0,length:3))
+        docAction { tv.insertText("HanX 서식 시험\n다음 문단",replacementRange:NSRange(location:0,length:0)) }; tv.setSelectedRange(NSRange(location:0,length:3))
         docAction { editor.ribbonCommand("size","22") }
         docAction { editor.ribbonCommand("bold","") }
         docAction { editor.ribbonCommand("charSpacing","1.5") }
@@ -146,7 +146,7 @@ enum EditingChecks {
         let docx=folder.appendingPathComponent("editing-check.docx")
         try doc.data(ofType:DocType.docx).write(to:docx)
         let docBack=try DocumentIO.load(url:docx)
-        try require(docBack.plainText.contains("한워드 서식 시험"),"docx text roundtrip")
+        try require(docBack.plainText.contains("HanX 서식 시험"),"docx text roundtrip")
         print("PASS document font, emphasis, character spacing, page orientation, DOCX save/reopen")
 
         let demo=Presentation(); demo.slides=[]
@@ -154,7 +154,7 @@ enum EditingChecks {
             var slide=Slide(); slide.background=i%2 == 0 ? RGB(r:20,g:43,b:76) : RGB(r:238,g:245,b:250)
             slide.transition.kind=kind; slide.transition.duration=1.2
             var title=SlideShape(id:2,name:"제목",kind:.text,frame:Frame(x:60,y:35,w:840,h:70))
-            title.paragraphs=[Presentation.textParagraph("한워드, "+kind.title,size:34,bold:true,color:i%2 == 0 ? RGB(r:255,g:255,b:255) : RGB(r:20,g:43,b:76))]
+            title.paragraphs=[Presentation.textParagraph("HanX, "+kind.title,size:34,bold:true,color:i%2 == 0 ? RGB(r:255,g:255,b:255) : RGB(r:20,g:43,b:76))]
             slide.shapes=[title]
             for (j,shape) in ShapeKind.allCases.filter({ ![.image,.table,.line,.text].contains($0) }).enumerated() {
                 var s=SlideShape(id:j+3,name:shape.title,kind:shape,frame:Frame(x:65+Double(j%5)*174,y:140+Double(j/5)*94,w:128,h:65))
@@ -163,7 +163,7 @@ enum EditingChecks {
             }
             demo.slides.append(slide)
         }
-        try PPTXWriter.write(demo).write(to:folder.appendingPathComponent("HanWord-Demo.pptx"))
+        try PPTXWriter.write(demo).write(to:folder.appendingPathComponent("HanX-Demo.pptx"))
         for (i,kind) in TransitionKind.allCases.enumerated() where kind != .none {
             guard let image=TransitionFilmstrip.render(demo,to:i) else { throw FormatError.invalid("filmstrip") }
             try NSBitmapImageRep(cgImage:image).representation(using:.png,properties:[:])?.write(to:folder.appendingPathComponent("transition-"+kind.rawValue+".png"))

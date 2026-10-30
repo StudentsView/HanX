@@ -35,7 +35,7 @@ enum AgentXML {
             p=n.parent
         }
         let declarations=namespaces.sorted {$0.key<$1.key}.map { key,value in " xmlns\(key.isEmpty ? "" : ":"+key)=\"\(XMLEscape.text(value))\"" }.joined()
-        let doc=try parse(Data("<hanwordFragment\(declarations)>\(xml)</hanwordFragment>".utf8))
+        let doc=try parse(Data("<hanxFragment\(declarations)>\(xml)</hanxFragment>".utf8))
         return (doc.rootElement()?.children ?? []).map { $0.copy() as! XMLNode }
     }
     static func patch(_ doc:XMLDocument,operations:[Any])throws->XMLDocument {

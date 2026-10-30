@@ -29,7 +29,7 @@ final class HWDocumentController: NSDocumentController {
     @objc func newPresentation(_ s: Any?) { create(.presentation) }
     @objc func newSpreadsheet(_ s: Any?) { create(.spreadsheet) }
 
-    /// Content types HanWord registers as the Finder default for.
+    /// Content types HanX registers as the Finder default for.
     static let defaultTypes = [DocType.hwp, DocType.hwpx, DocType.hwt, DocType.docx, DocType.xlsx, DocType.pptx]
 
     static func makeDefaultHandler(completion: @escaping ([String]) -> Void) {
@@ -62,9 +62,9 @@ final class HWDocumentController: NSDocumentController {
     @objc func setAsDefaultApp(_ s: Any?) {
         DefaultAppRegistration.shared.register { failed in
             let a = NSAlert()
-            a.messageText = failed.isEmpty ? "한워드가 기본 앱으로 설정되었습니다" : "일부 형식을 설정하지 못했습니다"
+            a.messageText = failed.isEmpty ? "HanX가 기본 앱으로 설정되었습니다" : "일부 형식을 설정하지 못했습니다"
             a.informativeText = failed.isEmpty
-                ? "Finder에서 hwp, hwpx, hwt, docx, xlsx, pptx 파일을 열면 한워드가 형식에 맞는 편집기로 엽니다.\n되돌리려면 파일의 '정보 가져오기의 다음으로 열기'에서 다른 앱을 고르고 '모두 변경'을 누르세요."
+                ? "Finder에서 hwp, hwpx, hwt, docx, xlsx, pptx 파일을 열면 HanX가 형식에 맞는 편집기로 엽니다.\n되돌리려면 파일의 '정보 가져오기의 다음으로 열기'에서 다른 앱을 고르고 '모두 변경'을 누르세요."
                 : failed.joined(separator: ", ")
             a.runModal()
         }
@@ -124,7 +124,7 @@ final class StartWindowController: NSWindowController {
         let icon = NSImageView(image: NSApp.applicationIconImage ?? NSImage())
         icon.imageScaling = .scaleProportionallyUpOrDown
         icon.translatesAutoresizingMaskIntoConstraints = false
-        let name = NSTextField(labelWithString: "한워드")
+        let name = NSTextField(labelWithString: "HanX")
         name.font = HWTheme.font(30,weight:.semibold)
         name.textColor=HWTheme.ink
         let tag = NSTextField(labelWithString: "문서 작성부터 발표까지")
@@ -150,7 +150,7 @@ final class StartWindowController: NSWindowController {
         makeDefaultButton.isBordered = true
         makeDefaultButton.font = HWTheme.font(12)
         makeDefaultButton.isHidden = defaultRegistration.isComplete
-        makeDefaultButton.toolTip = "한워드를 지원 문서 형식의 기본 앱으로 설정합니다."
+        makeDefaultButton.toolTip = "HanX를 지원 문서 형식의 기본 앱으로 설정합니다."
 
         for v in [brand, nav, makeDefaultButton] { v.translatesAutoresizingMaskIntoConstraints = false; side.addSubview(v) }
 

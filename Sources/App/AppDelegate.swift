@@ -40,11 +40,11 @@ enum MainMenu {
             return i
         }
 
-        let appName = "한워드"
+        let appName = "HanX"
         main.addItem(submenu(appName, [
             item("\(appName) 정보", #selector(NSApplication.orderFrontStandardAboutPanel(_:))),
             .separator(),
-            item("한워드를 기본 앱으로 설정…", #selector(HWDocumentController.setAsDefaultApp(_:))),
+            item("HanX를 기본 앱으로 설정…", #selector(HWDocumentController.setAsDefaultApp(_:))),
             .separator(),
             item("\(appName) 가리기", #selector(NSApplication.hide(_:)), "h"),
             item("기타 가리기", #selector(NSApplication.hideOtherApplications(_:)), "h", [.command, .option]),

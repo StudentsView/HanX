@@ -1,0 +1,9 @@
+{
+  "kind": "document",
+  "title": "업무 보고서",
+  "blocks": [
+    {"type": "paragraph", "text": "업무 보고서", "style": {"size": 22, "bold": true}, "alignment": "center"},
+    {"type": "paragraph", "runs": [{"text": "작성 내용: ", "bold": true}, {"text": "여기에 내용을 입력하세요."}]},
+    {"type": "table", "columnWidths": [160, 160], "rows": [["항목", "값"], ["합계", "100"]]}
+  ]
+}

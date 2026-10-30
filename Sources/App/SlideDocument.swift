@@ -27,7 +27,7 @@ final class SlideDocument: NSDocument {
 
     override func read(from url: URL, ofType typeName: String) throws {
         do { pres = try SlidesIO.load(url: url) } catch let e as FormatError {
-            throw NSError(domain: "HanWord", code: 1, userInfo: [NSLocalizedDescriptionKey: "문서를 열 수 없습니다", NSLocalizedFailureReasonErrorKey: e.description])
+            throw NSError(domain: "HanX", code: 1, userInfo: [NSLocalizedDescriptionKey: "문서를 열 수 없습니다", NSLocalizedFailureReasonErrorKey: e.description])
         }
     }
 
@@ -78,7 +78,7 @@ final class SlideDocument: NSDocument {
     }
 }
 
-extension Notification.Name { static let slidesChanged = Notification.Name("HanWordSlidesChanged") }
+extension Notification.Name { static let slidesChanged = Notification.Name("HanXSlidesChanged") }
 
 // MARK: - Canvas
 
@@ -301,7 +301,7 @@ final class SlideCanvasView: NSView, NSTextViewDelegate, NSMenuItemValidation {
     @objc func delete(_ sender: Any?) { deleteSelection(sender) }
 
     override func selectAll(_ sender: Any?) { endEditing(); select(Set(slide.shapes.filter { !$0.locked }.map(\.id))) }
-    static let shapePasteboardType=NSPasteboard.PasteboardType("org.hanword.slide-shapes")
+    static let shapePasteboardType=NSPasteboard.PasteboardType("org.hanx.slide-shapes")
     private func selectionPresentation()->Presentation? {
         endEditing(); guard !selectedIDs.isEmpty else { return nil }
         let p=Presentation(); p.width=pres.width; p.height=pres.height; p.images=pres.images
@@ -1085,8 +1085,8 @@ extension SlideWindowController {
 }
 
 extension SlideWindowController {
-    static let slidePasteboardType=NSPasteboard.PasteboardType("org.hanword.slides")
-    static let slideReorderType=NSPasteboard.PasteboardType("org.hanword.slide-reorder")
+    static let slidePasteboardType=NSPasteboard.PasteboardType("org.hanx.slides")
+    static let slideReorderType=NSPasteboard.PasteboardType("org.hanx.slide-reorder")
     private var selectedSlides:[Int] { slideSelection.filter { doc.pres.slides.indices.contains($0) } }
     private var canPasteSlides:Bool { NSPasteboard.general.data(forType:Self.slidePasteboardType) != nil }
     private func selectSlides(_ indices:IndexSet) {

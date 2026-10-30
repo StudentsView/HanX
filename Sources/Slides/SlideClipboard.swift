@@ -70,7 +70,7 @@ enum SlideClipboard {
         if let payload=try? PropertyListDecoder().decode(Payload.self,from:data),payload.version == 1,payload.width.isFinite,payload.height.isFinite,payload.width>0,payload.height>0 {
             let p=Presentation(); p.width=payload.width; p.height=payload.height; p.slides=payload.slides; p.images=payload.images; return p
         }
-        // Read clipboards written by earlier HanWord versions.
+        // Read clipboards written by earlier HanX versions.
         guard let zip=try? ZipReader(data:data) else { return nil }
         return try? PPTXReader(zip:zip).read()
     }

@@ -101,8 +101,8 @@ enum PPTXWriter {
         <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>\
         <Relationship Id="rId3" Type="\(relBase)/extended-properties" Target="docProps/app.xml"/></Relationships>
         """)
-        z.add("docProps/core.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><dc:creator>HanWord</dc:creator></cp:coreProperties>")
-        z.add("docProps/app.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\"><Application>HanWord</Application><Slides>\(pres.slides.count)</Slides></Properties>")
+        z.add("docProps/core.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><dc:creator>HanX</dc:creator></cp:coreProperties>")
+        z.add("docProps/app.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\"><Application>HanX</Application><Slides>\(pres.slides.count)</Slides></Properties>")
 
         var sldIds = "", presRels = "<Relationship Id=\"rId1\" Type=\"\(relBase)/slideMaster\" Target=\"slideMasters/slideMaster1.xml\"/>"
         for i in slideXML.indices {
@@ -396,15 +396,15 @@ enum PPTXWriter {
     }
 
     static let theme = """
-    <?xml version="1.0" encoding="UTF-8" standalone="yes"?><a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="HanWord"><a:themeElements>\
-    <a:clrScheme name="HanWord"><a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1><a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1>\
+    <?xml version="1.0" encoding="UTF-8" standalone="yes"?><a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="HanX"><a:themeElements>\
+    <a:clrScheme name="HanX"><a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1><a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1>\
     <a:dk2><a:srgbClr val="24364B"/></a:dk2><a:lt2><a:srgbClr val="F0F4F8"/></a:lt2><a:accent1><a:srgbClr val="2463A6"/></a:accent1>\
     <a:accent2><a:srgbClr val="B77A37"/></a:accent2><a:accent3><a:srgbClr val="6D8193"/></a:accent3><a:accent4><a:srgbClr val="C3A243"/></a:accent4>\
     <a:accent5><a:srgbClr val="368A9B"/></a:accent5><a:accent6><a:srgbClr val="588258"/></a:accent6><a:hlink><a:srgbClr val="245C99"/></a:hlink>\
     <a:folHlink><a:srgbClr val="725B95"/></a:folHlink></a:clrScheme>\
-    <a:fontScheme name="HanWord"><a:majorFont><a:latin typeface="Apple SD Gothic Neo"/><a:ea typeface="Apple SD Gothic Neo"/><a:cs typeface=""/></a:majorFont>\
+    <a:fontScheme name="HanX"><a:majorFont><a:latin typeface="Apple SD Gothic Neo"/><a:ea typeface="Apple SD Gothic Neo"/><a:cs typeface=""/></a:majorFont>\
     <a:minorFont><a:latin typeface="Apple SD Gothic Neo"/><a:ea typeface="Apple SD Gothic Neo"/><a:cs typeface=""/></a:minorFont></a:fontScheme>\
-    <a:fmtScheme name="HanWord"><a:fillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill>\
+    <a:fmtScheme name="HanX"><a:fillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill>\
     <a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:fillStyleLst><a:lnStyleLst><a:ln w="6350"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln>\
     <a:ln w="12700"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln><a:ln w="19050"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln></a:lnStyleLst>\
     <a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst>\

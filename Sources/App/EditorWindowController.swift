@@ -57,7 +57,7 @@ final class EditorWindowController: NSWindowController, NSTextViewDelegate, NSTo
         scrollView.documentView = pages
         if doc.textStorage.length == 0 { pages.firstTextView.typingAttributes = doc.defaultTypingAttributes() }
 
-        let toolbar = NSToolbar(identifier: "HanWordToolbar")
+        let toolbar = NSToolbar(identifier: "HanXToolbar")
         toolbar.delegate = self
         toolbar.displayMode = .iconOnly
         window.toolbar = toolbar

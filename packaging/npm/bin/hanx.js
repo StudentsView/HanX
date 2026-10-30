@@ -7,11 +7,11 @@ function fail(code, message) {
   process.stderr.write(JSON.stringify({ ok: false, error: { code, message } }) + '\n');
   process.exitCode = 1;
 }
-const binary = path.resolve(__dirname, '..', 'native', 'hanword');
+const binary = path.resolve(__dirname, '..', 'native', 'hanx');
 if (process.platform !== 'darwin' || !['arm64', 'x64'].includes(process.arch)) {
-  fail('unsupported_platform', 'HanWord requires macOS on Apple Silicon or Intel.');
+  fail('unsupported_platform', 'HanX requires macOS on Apple Silicon or Intel.');
 } else if (!fs.existsSync(binary)) {
-  fail('native_binary_missing', 'The HanWord native executable is missing. Reinstall the package.');
+  fail('native_binary_missing', 'The HanX native executable is missing. Reinstall the package.');
 } else {
   const child = spawn(binary, process.argv.slice(2), { stdio: 'inherit', shell: false });
   const handlers = new Map();

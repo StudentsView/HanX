@@ -25,7 +25,7 @@ enum RecentDocumentHistory {
 /// A successful request is remembered so the start screen offers setup once.
 final class DefaultAppRegistration: NSObject {
     static let shared = DefaultAppRegistration()
-    static let didComplete = Notification.Name("HanWordDefaultAppRegistrationDidComplete")
+    static let didComplete = Notification.Name("HanXDefaultAppRegistrationDidComplete")
     private static let completedKey = "HanWordDefaultAppRegistrationCompleted"
     private let preferences: UserDefaults
     private let handler: (@escaping ([String]) -> Void) -> Void

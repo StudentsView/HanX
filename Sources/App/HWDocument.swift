@@ -62,7 +62,7 @@ final class HWDocument: NSDocument {
         }
         let d: UDocument
         do { d = try DocumentIO.load(url: url) } catch let e as FormatError {
-            throw NSError(domain: "HanWord", code: 1, userInfo: [NSLocalizedDescriptionKey: "문서를 열 수 없습니다", NSLocalizedFailureReasonErrorKey: e.description])
+            throw NSError(domain: "HanX", code: 1, userInfo: [NSLocalizedDescriptionKey: "문서를 열 수 없습니다", NSLocalizedFailureReasonErrorKey: e.description])
         }
         model = d
         page = d.sections.first?.page ?? .a4Hwp
@@ -141,7 +141,7 @@ final class HWDocument: NSDocument {
         case .docx: return DOCXWriter(doc).write()
         case .hwpx: return HWPXWriter(doc).write()
         case .hwp: return HWP5Writer(doc).write()
-        case .unknown: throw NSError(domain: "HanWord", code: 2, userInfo: [NSLocalizedDescriptionKey: "이 형식으로는 저장할 수 없습니다"])
+        case .unknown: throw NSError(domain: "HanX", code: 2, userInfo: [NSLocalizedDescriptionKey: "이 형식으로는 저장할 수 없습니다"])
         }
     }
 
@@ -177,7 +177,7 @@ final class HWDocument: NSDocument {
 
     override func printOperation(withSettings printSettings: [NSPrintInfo.AttributeKey: Any]) throws -> NSPrintOperation {
         guard let view = (windowControllers.first as? EditorWindowController)?.pages else {
-            throw NSError(domain: "HanWord", code: 3, userInfo: [NSLocalizedDescriptionKey: "인쇄할 창이 없습니다"])
+            throw NSError(domain: "HanX", code: 3, userInfo: [NSLocalizedDescriptionKey: "인쇄할 창이 없습니다"])
         }
         let info = printInfo.copy() as! NSPrintInfo
         info.dictionary().addEntries(from: printSettings)

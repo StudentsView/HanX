@@ -1,6 +1,6 @@
 import json, os, pathlib, subprocess, tempfile, unittest, zipfile
 import xml.etree.ElementTree as ET
-BIN=pathlib.Path(os.environ.get('HANWORD_BIN','build/hanword-cli')).resolve()
+BIN=pathlib.Path(os.environ.get('HANX_BIN','build/hanx-cli')).resolve()
 NS={'s':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
 class Spreadsheets(unittest.TestCase):
     def setUp(self):

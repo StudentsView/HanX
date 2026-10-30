@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="한워드 CLI로 로컬 AI 에이전트에 엑셀 셀, 범위, 수식 작업을 맡기세요. macOS용 HWP, DOCX, XLSX, PPTX 편집기와 JSON, MCP 도구를 제공합니다.">
+  <meta name="description" content="HanX CLI로 로컬 AI 에이전트에 엑셀 셀, 범위, 수식 작업을 맡기세요. macOS용 HWP, DOCX, XLSX, PPTX 편집기와 JSON, MCP 도구를 제공합니다.">
   <meta name="theme-color" content="#234d76">
-  <title>한워드 | 에이전트를 위한 엑셀 CLI와 Mac 오피스</title>
+  <title>HanX | 에이전트를 위한 엑셀 CLI와 Mac 오피스</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <script defer src="./config.js"></script>
@@ -15,7 +15,7 @@
   <a class="skip-link" href="#main">본문으로 이동</a>
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="#" aria-label="한워드 처음으로"><span class="brand-mark" aria-hidden="true">한</span><span>한워드 <small>HanWord</small></span></a>
+      <a class="brand" href="#" aria-label="HanX 처음으로"><span class="brand-mark" aria-hidden="true">X</span><span>HanX <small>Mac 오피스</small></span></a>
       <nav aria-label="주요 메뉴">
         <a href="#install">설치</a><a href="#excel">엑셀 CLI</a><a href="#app">Mac 앱</a><a data-guide href="./cli/">CLI 안내</a><a data-repo hidden>GitHub</a>
       </nav>
@@ -26,18 +26,18 @@
       <div class="hero-copy">
         <p class="release-label">macOS 13 이상 <span>Apple Silicon / Intel</span></p>
         <h1 id="hero-title">CLI로 AI 에이전트에<br>엑셀 작업을 맡기세요</h1>
-        <p class="hero-description">로컬 에이전트가 한워드 CLI를 호출해 셀과 범위를 읽고, 수식을 계산하고, 수정한 파일을 저장합니다. XLSX부터 HWP와 DOCX까지 같은 도구로 다룹니다.</p>
+        <p class="hero-description">로컬 에이전트가 HanX CLI를 호출해 셀과 범위를 읽고, 수식을 계산하고, 수정한 파일을 저장합니다. XLSX부터 HWP와 DOCX까지 같은 도구로 다룹니다.</p>
         <div class="hero-actions"><a class="button primary" href="#install">CLI 설치하기</a><a class="button secondary" data-guide href="./cli/">명령어 살펴보기</a></div>
-        <p class="hero-note">한워드에는 언어 모델이 포함되어 있지 않습니다.<br>사용 중인 로컬 AI 에이전트가 CLI 또는 MCP로 도구를 호출합니다.</p>
+        <p class="hero-note">HanX에는 언어 모델이 포함되어 있지 않습니다.<br>사용 중인 로컬 AI 에이전트가 CLI 또는 MCP로 도구를 호출합니다.</p>
       </div>
       <div class="terminal" aria-label="셀 범위 조회와 수식 계산 명령 예제">
-        <div class="terminal-header"><span>한워드 CLI</span><span>명령 예제</span></div>
+        <div class="terminal-header"><span>HanX CLI</span><span>명령 예제</span></div>
         <div class="terminal-body">
           <p class="code-comment"># 매출 시트의 셀과 계산값 읽기</p>
-          <pre><code><span class="prompt">$</span> hanword spreadsheet read 매출.xlsx \
+          <pre><code><span class="prompt">$</span> hanx spreadsheet read 매출.xlsx \
     --sheet 매출 --range A1:D5 --pretty</code></pre>
           <p class="code-comment"># 파일을 수정하지 않고 수식 계산</p>
-          <pre><code><span class="prompt">$</span> hanword spreadsheet eval 매출.xlsx \
+          <pre><code><span class="prompt">$</span> hanx spreadsheet eval 매출.xlsx \
     --sheet 매출 \
     --formula '=SUM(D2:D4)' --pretty</code></pre>
           <div class="terminal-footer"><span>입력은 명령과 JSON</span><span>결과는 JSON</span></div>
@@ -47,7 +47,7 @@
 
     <section id="install" class="install-section" aria-labelledby="install-title">
       <div class="content-width install-layout">
-        <div><h2 id="install-title">에이전트가 쓸 도구부터 설치하세요</h2><p>설치 후 <code>hanword capabilities --pretty</code>로 지원 범위를 확인하세요. 에이전트에도 먼저 capabilities와 CLI 안내를 읽도록 요청하면 됩니다.</p><p class="muted">네이티브 실행 파일은 Mac에서 동작합니다. 앱과 CLI의 설치 경로는 배포 방식에 따라 다릅니다.</p></div>
+        <div><h2 id="install-title">에이전트가 쓸 도구부터 설치하세요</h2><p>설치 후 <code>hanx capabilities --pretty</code>로 지원 범위를 확인하세요. 에이전트에도 먼저 capabilities와 CLI 안내를 읽도록 요청하면 됩니다.</p><p class="muted">네이티브 실행 파일은 Mac에서 동작합니다. 앱과 CLI의 설치 경로는 배포 방식에 따라 다릅니다.</p></div>
         <div class="install-box">
           <div class="install-tabs" role="tablist" aria-label="설치 방법">
             <button id="tab-npm" type="button" role="tab" aria-selected="true" aria-controls="panel-npm" tabindex="0">npm</button>
@@ -76,7 +76,7 @@
     </section>
 
     <section id="excel" class="content-width page-section" aria-labelledby="excel-title">
-      <div class="section-heading"><div><h2 id="excel-title">셀을 읽고, 수식을 넣고, 다시 확인합니다</h2><p>엑셀 작업에 필요한 단위를 명령으로 노출합니다. Excel 앱을 실행하지 않고 한워드 계산 엔진이 수식을 평가합니다.</p></div><a class="text-link" data-guide href="./cli/">전체 입력 명세</a></div>
+      <div class="section-heading"><div><h2 id="excel-title">셀을 읽고, 수식을 넣고, 다시 확인합니다</h2><p>엑셀 작업에 필요한 단위를 명령으로 노출합니다. Excel 앱을 실행하지 않고 HanX 계산 엔진이 수식을 평가합니다.</p></div><a class="text-link" data-guide href="./cli/">전체 입력 명세</a></div>
       <div class="workflow">
         <article><span class="step">1</span><h3>필요한 범위 읽기</h3><p><code>A1:D5</code>처럼 범위를 지정합니다. 셀 주소, 입력한 수식, 계산값, 표시 문자열과 서식을 JSON으로 받습니다.</p><code class="inline-example">spreadsheet read --range A1:D5</code></article>
         <article><span class="step">2</span><h3>수식과 셀 수정하기</h3><p>JSON 작업으로 값을 바꾸거나 범위에 수식을 채웁니다. 상대 참조와 <code>$A$1</code> 같은 절대 참조를 구분합니다.</p><code class="inline-example">set_cell / set_range / fill_formula</code></article>
@@ -86,7 +86,7 @@
         <div><h3>익숙한 수식을 그대로</h3><p>합계, 조건, 조건별 집계와 조회를 지원합니다. 함수별 동작과 제한은 <code>spreadsheet functions</code>에서 확인하세요.</p></div>
         <dl><div><dt>합계</dt><dd><code>=SUM(D2:D10)</code></dd></div><div><dt>조건</dt><dd><code>=IF(D2&gt;=100000,"달성","진행")</code></dd></div><div><dt>조건별 집계</dt><dd><code>=SUMIFS(D2:D10,A2:A10,"서울")</code></dd></div><div><dt>값 조회</dt><dd><code>=XLOOKUP(F2,A2:A10,D2:D10)</code></dd></div></dl>
       </div>
-      <div class="agent-example"><div><h3>에이전트에게는 이렇게 요청하세요</h3><p>도구 사용과 저장할 결과를 함께 지정하면 작업 범위가 명확해집니다.</p></div><blockquote>한워드 capabilities와 CLI 안내를 읽어 줘. 매출.xlsx의 매출 시트에서 A1:D10을 확인하고, D11에 SUM 합계를 넣어 매출-수정.xlsx로 저장해 줘. 저장한 파일을 다시 읽어 수식과 계산값을 확인해 줘.</blockquote></div>
+      <div class="agent-example"><div><h3>에이전트에게는 이렇게 요청하세요</h3><p>도구 사용과 저장할 결과를 함께 지정하면 작업 범위가 명확해집니다.</p></div><blockquote>HanX capabilities와 CLI 안내를 읽어 줘. 매출.xlsx의 매출 시트에서 A1:D10을 확인하고, D11에 SUM 합계를 넣어 매출-수정.xlsx로 저장해 줘. 저장한 파일을 다시 읽어 수식과 계산값을 확인해 줘.</blockquote></div>
     </section>
 
     <section class="connection-section" aria-labelledby="connection-title"><div class="content-width connection-layout"><div><h2 id="connection-title">터미널과 MCP, 같은 엔진</h2><p>셸을 실행할 수 있는 에이전트는 CLI를 호출하고 JSON 응답을 읽습니다. MCP를 지원하는 클라이언트는 stdio 서버에 연결해 같은 읽기와 편집 기능을 도구로 호출할 수 있습니다.</p><p>입력 명세와 수정 작업은 JSON 파일 또는 표준 입력으로 전달합니다. 기존 출력 파일은 기본적으로 덮어쓰지 않습니다.</p><a class="text-link" data-guide href="./cli/">CLI와 MCP 연결 방법</a></div><div class="code-sample"><div class="code-sample-heading"><span>범위에 수식 채우기</span><button type="button" class="copy-button" data-copy="json-example" aria-label="수식 채우기 JSON 예제 복사">복사</button></div><pre><code id="json-example">[
@@ -96,21 +96,21 @@
     "range": "D2:D10",
     "formula": "=B2*C2"
   }
-]</code></pre><p><code>hanword edit 매출.xlsx --ops 작업.json --output 매출-수정.xlsx</code></p></div></div></section>
+]</code></pre><p><code>hanx edit 매출.xlsx --ops 작업.json --output 매출-수정.xlsx</code></p></div></div></section>
 
     <section id="app" class="content-width page-section" aria-labelledby="app-title">
-      <div class="section-heading"><div><h2 id="app-title">직접 편집할 때는 Mac 앱으로</h2><p>한워드는 문서, 도표, 프레젠테이션을 여는 macOS 네이티브 앱입니다. CLI로 만든 파일도 앱에서 열어 내용을 확인하고 편집할 수 있습니다.</p></div></div>
-      <figure class="app-overview screenshot-frame"><img src="./images/start.png" alt="한워드의 새 문서 선택 화면" width="1440" height="900" loading="lazy"><div class="screenshot-fallback" hidden><strong>한워드 시작 화면</strong><span>실제 앱 화면 이미지가 아직 추가되지 않았습니다.</span></div><figcaption>문서, 프레젠테이션, 도표를 선택해 새 파일을 만듭니다.</figcaption></figure>
+      <div class="section-heading"><div><h2 id="app-title">직접 편집할 때는 Mac 앱으로</h2><p>HanX는 문서, 도표, 프레젠테이션을 여는 macOS 네이티브 앱입니다. CLI로 만든 파일도 앱에서 열어 내용을 확인하고 편집할 수 있습니다.</p></div></div>
+      <figure class="app-overview screenshot-frame"><img src="./images/start.png" alt="HanX의 새 문서 선택 화면" width="1440" height="900" loading="lazy"><div class="screenshot-fallback" hidden><strong>HanX 시작 화면</strong><span>실제 앱 화면 이미지가 아직 추가되지 않았습니다.</span></div><figcaption>문서, 프레젠테이션, 도표를 선택해 새 파일을 만듭니다.</figcaption></figure>
       <div class="app-editors">
-        <article><figure class="screenshot-frame"><img src="./images/spreadsheet.png" alt="한워드에서 XLSX 셀과 수식을 편집하는 도표 화면" width="1440" height="900" loading="lazy"><div class="screenshot-fallback" hidden><strong>도표 편집 화면</strong><span>실제 앱 화면 이미지가 아직 추가되지 않았습니다.</span></div></figure><h3>도표</h3><p>XLSX, CSV, TSV의 셀과 수식을 편집합니다. 셀 서식, 시트, 병합과 기본 차트를 다룹니다.</p></article>
-        <article><figure class="screenshot-frame"><img src="./images/document.png" alt="한워드의 문서 편집 화면" width="1440" height="900" loading="lazy"><div class="screenshot-fallback" hidden><strong>문서 편집 화면</strong><span>실제 앱 화면 이미지가 아직 추가되지 않았습니다.</span></div></figure><h3>문서</h3><p>HWP, HWPX, DOCX를 읽고 편집합니다. 본문, 표, 그림과 문단 서식을 다룹니다.</p></article>
-        <article><figure class="screenshot-frame"><img src="./images/presentation.png" alt="한워드의 PPTX 프레젠테이션 편집 화면" width="1440" height="900" loading="lazy"><div class="screenshot-fallback" hidden><strong>프레젠테이션 편집 화면</strong><span>실제 앱 화면 이미지가 아직 추가되지 않았습니다.</span></div></figure><h3>프레젠테이션</h3><p>PPTX의 슬라이드를 편집합니다. 텍스트와 도형, 표, 그림을 배치하고 발표 화면으로 확인합니다.</p></article>
+        <article><figure class="screenshot-frame"><img src="./images/spreadsheet.png" alt="HanX에서 XLSX 셀과 수식을 편집하는 도표 화면" width="1440" height="900" loading="lazy"><div class="screenshot-fallback" hidden><strong>도표 편집 화면</strong><span>실제 앱 화면 이미지가 아직 추가되지 않았습니다.</span></div></figure><h3>도표</h3><p>XLSX, CSV, TSV의 셀과 수식을 편집합니다. 셀 서식, 시트, 병합과 기본 차트를 다룹니다.</p></article>
+        <article><figure class="screenshot-frame"><img src="./images/document.png" alt="HanX의 문서 편집 화면" width="1440" height="900" loading="lazy"><div class="screenshot-fallback" hidden><strong>문서 편집 화면</strong><span>실제 앱 화면 이미지가 아직 추가되지 않았습니다.</span></div></figure><h3>문서</h3><p>HWP, HWPX, DOCX를 읽고 편집합니다. 본문, 표, 그림과 문단 서식을 다룹니다.</p></article>
+        <article><figure class="screenshot-frame"><img src="./images/presentation.png" alt="HanX의 PPTX 프레젠테이션 편집 화면" width="1440" height="900" loading="lazy"><div class="screenshot-fallback" hidden><strong>프레젠테이션 편집 화면</strong><span>실제 앱 화면 이미지가 아직 추가되지 않았습니다.</span></div></figure><h3>프레젠테이션</h3><p>PPTX의 슬라이드를 편집합니다. 텍스트와 도형, 표, 그림을 배치하고 발표 화면으로 확인합니다.</p></article>
       </div>
     </section>
 
-    <section id="limits" class="limits-section"><div class="content-width limits-layout"><div><h2>작업 전에 확인할 범위</h2><p>지원 형식을 읽을 수 있어도 모든 개체와 동작을 재현하는 것은 아닙니다. 복잡한 원본은 복사본으로 작업하고 저장 결과를 확인하세요.</p></div><div class="limits-list"><details open><summary>Excel 호환 범위</summary><p>XLSX, CSV, TSV를 지원하며 구형 XLS 바이너리 파일은 지원하지 않습니다. 조건부 서식, 피벗, 필터와 일부 개체는 지원하지 않아 모델을 거쳐 저장하면 빠질 수 있습니다. 모든 함수가 Microsoft Excel과 동일하게 동작하는 것은 아닙니다.</p></details><details><summary>파일 보존과 외부 실행</summary><p>매크로와 외부 링크는 실행하지 않습니다. 미지원 요소를 보존해야 하는 OOXML 파일은 CLI 안내의 package patch 방식을 검토하세요. 암호화 문서와 일부 복잡한 문서 개체에도 제한이 있습니다.</p></details><details><summary>로컬 에이전트 연결</summary><p>한워드는 외부 AI 서비스에 자동으로 연결하지 않습니다. 에이전트의 파일 접근 권한과 실행 환경은 사용 중인 클라이언트에서 설정합니다. MCP를 쓸 때는 설치 안내에 나온 실행 파일의 절대 경로를 지정하세요.</p></details></div></div></section>
+    <section id="limits" class="limits-section"><div class="content-width limits-layout"><div><h2>작업 전에 확인할 범위</h2><p>지원 형식을 읽을 수 있어도 모든 개체와 동작을 재현하는 것은 아닙니다. 복잡한 원본은 복사본으로 작업하고 저장 결과를 확인하세요.</p></div><div class="limits-list"><details open><summary>Excel 호환 범위</summary><p>XLSX, CSV, TSV를 지원하며 구형 XLS 바이너리 파일은 지원하지 않습니다. 조건부 서식, 피벗, 필터와 일부 개체는 지원하지 않아 모델을 거쳐 저장하면 빠질 수 있습니다. 모든 함수가 Microsoft Excel과 동일하게 동작하는 것은 아닙니다.</p></details><details><summary>파일 보존과 외부 실행</summary><p>매크로와 외부 링크는 실행하지 않습니다. 미지원 요소를 보존해야 하는 OOXML 파일은 CLI 안내의 package patch 방식을 검토하세요. 암호화 문서와 일부 복잡한 문서 개체에도 제한이 있습니다.</p></details><details><summary>로컬 에이전트 연결</summary><p>HanX는 외부 AI 서비스에 자동으로 연결하지 않습니다. 에이전트의 파일 접근 권한과 실행 환경은 사용 중인 클라이언트에서 설정합니다. MCP를 쓸 때는 설치 안내에 나온 실행 파일의 절대 경로를 지정하세요.</p></details></div></div></section>
   </main>
-  <footer class="content-width site-footer"><div><a class="footer-brand" href="#">한워드 <span>HanWord</span></a><p>Mac에서 읽고 편집하는 문서 도구</p></div><nav aria-label="관련 문서"><a data-guide href="./cli/">CLI 안내</a><a data-repo hidden>소스 코드</a><a data-license hidden>라이선스</a><a data-provenance hidden>구현과 출처</a></nav><p class="footer-platform">macOS 13+<br>arm64 / x86_64</p></footer>
+  <footer class="content-width site-footer"><div><a class="footer-brand" href="#">HanX <span>Mac 오피스</span></a><p>Mac에서 읽고 편집하는 문서 도구</p></div><nav aria-label="관련 문서"><a data-guide href="./cli/">CLI 안내</a><a data-repo hidden>소스 코드</a><a data-license hidden>라이선스</a><a data-provenance hidden>구현과 출처</a></nav><p class="footer-platform">macOS 13+<br>arm64 / x86_64</p></footer>
   <div class="content-width legal-notice"><p>본 제품은 한컴의 HWP 문서 파일(.hwp) 공개 문서를 참고하여 개발하였습니다.</p><p>한글과컴퓨터 또는 Microsoft의 공식 제품이 아닙니다.</p></div>
   <div id="copy-status" class="copy-status" role="status" aria-live="polite"></div>
 </body>

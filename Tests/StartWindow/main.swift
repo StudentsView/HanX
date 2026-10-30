@@ -50,7 +50,7 @@ let longHistory = MemoryRecentDocuments([newest, removed, oldest,
 RecentDocumentHistory.remove(removed, from: longHistory)
 check(longHistory.recentDocumentURLs.map(\.lastPathComponent) == ["newest.docx", "oldest.docx", "fourth.docx", "fifth.docx", "sixth.docx", "seventh.docx"], "removal also preserves entries beyond the five visible rows")
 
-let preferencesName = "HanWordStartWindowTests." + UUID().uuidString
+let preferencesName = "HanXStartWindowTests." + UUID().uuidString
 let preferences = UserDefaults(suiteName: preferencesName)!
 defer { preferences.removePersistentDomain(forName: preferencesName) }
 var completeRegistration: (([String]) -> Void)?
@@ -86,9 +86,9 @@ let rows = descendants(content).compactMap { $0 as? RecentRow }
 check(rows.map(\.url) == [newest, removed, oldest], "start screen presents native recent order")
 if CommandLine.arguments.contains("--preview") {
     // Publication fixtures live only under this run's temporary directory.
-    // Their visible path is 문서/한워드 예제, with no personal file names.
+    // Their visible path is 문서/HanX 예제, with no personal file names.
     NSApp.applicationIconImage = NSImage(contentsOfFile: "Resources/AppIcon.icns")
-    let examples = fixtureDirectory.appendingPathComponent("문서/한워드 예제")
+    let examples = fixtureDirectory.appendingPathComponent("문서/HanX 예제")
     try FileManager.default.createDirectory(at: examples, withIntermediateDirectories: true)
     let exampleNames = ["월간 매출.xlsx", "작업 보고서.docx", "프로젝트 발표.pptx"]
     let exampleURLs = try exampleNames.enumerated().map { index, name -> URL in

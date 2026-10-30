@@ -6,7 +6,7 @@ import CoreFoundation
 enum AgentSheets {
     static let maxCells=100_000
     static let operations=["set_cell","set_range","fill_formula","style_range","clear_range","add_sheet","delete_sheet","merge","unmerge","freeze","set_column_width","set_row_height","define_name"]
-    static let warning="Spreadsheet model editing preserves supported cells, styles, merges, names and basic charts. Unsupported Excel objects, pivot tables, macros and connections can be omitted; use package patch to retain unrelated XML parts. Calculation uses HanWord's engine, not Microsoft Excel."
+    static let warning="Spreadsheet model editing preserves supported cells, styles, merges, names and basic charts. Unsupported Excel objects, pivot tables, macros and connections can be omitted; use package patch to retain unrelated XML parts. Calculation uses HanX's engine, not Microsoft Excel."
     static func keys(_ value:[String:Any],_ allowed:Set<String>)throws {
         for k in value.keys where !allowed.contains(k) { throw AgentError("invalid_argument","Unknown spreadsheet property: \(k)") }
     }

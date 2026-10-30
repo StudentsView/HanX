@@ -1,7 +1,7 @@
 (() => {
   'use strict';
-  const config = window.HANWORD_SITE || {};
-  const unresolved = value => !value || /HANWORD_/.test(value);
+  const config = window.HANX_SITE || {};
+  const unresolved = value => !value || /HANX_/.test(value);
   const repoReady = !unresolved(config.owner) && !unresolved(config.repository);
   const repository = repoReady ? `https://github.com/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repository)}` : null;
   function setLinks(selector, url) {
@@ -18,9 +18,9 @@
   setLinks('[data-provenance]', repository && `${repository}/blob/main/${config.provenancePath || 'PROVENANCE.md'}`);
 
   const channels = {
-    npm: { ready: config.npm?.available && !unresolved(config.npm.package), command: `npm install -g ${config.npm?.package || ''}`, title: 'npm으로 CLI 설치', pending: 'npm 배포 준비 중', detail: 'GitHub 릴리스의 npm 패키지를 직접 설치합니다. Node.js 18 이상이 필요하며 npm 레지스트리 로그인은 필요하지 않습니다.' },
+    npm: { ready: config.npm?.available && !unresolved(config.npm.package), command: `npm install -g ${config.npm?.package || ''}`, title: 'npm으로 CLI 설치', pending: 'npm 배포 준비 중', detail: 'npm 레지스트리에서 CLI를 설치합니다. Node.js 18 이상이 필요합니다.' },
     brew: { ready: config.brew?.available && !unresolved(config.brew.formula), command: `brew install ${config.brew?.formula || ''}`, title: 'Homebrew로 CLI 설치', pending: 'Homebrew 배포 준비 중', detail: 'Homebrew가 설치된 Mac에서 실행하세요. 설치한 명령의 지원 범위를 capabilities로 확인하세요.' },
-    pkg: { ready: config.pkg?.available && repoReady && !unresolved(config.pkg.asset), title: `한워드 ${config.version || ''} Mac 설치 패키지`, pending: '설치 패키지 배포 준비 중', detail: '설치 파일을 열고 안내를 따르세요. 릴리스 안내에서 앱과 CLI의 포함 여부를 확인하세요.' }
+    pkg: { ready: config.pkg?.available && repoReady && !unresolved(config.pkg.asset), title: `HanX ${config.version || ''} Mac 설치 패키지`, pending: '설치 패키지 배포 준비 중', detail: '설치 파일을 열고 안내를 따르세요. GUI 앱과 같은 버전의 CLI를 함께 설치합니다.' }
   };
   Object.entries(channels).forEach(([key, channel]) => {
     const status = document.querySelector(`[data-channel-status="${key}"]`);

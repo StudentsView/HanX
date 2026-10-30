@@ -12,7 +12,7 @@ if let i=args.firstIndex(of:"--editingchecks"), args.count>i+1 {
     catch { print("FAIL \(error)"); exit(1) }
 }
 
-// Headless verification: HanWord --render <file> <outdir> [pages]
+// Headless verification: HanX --render <file> <outdir> [pages]
 // Lays the document out exactly as the editor does and writes page PNGs.
 if let i = args.firstIndex(of: "--render"), args.count > i + 2 {
     app.setActivationPolicy(.prohibited)
@@ -44,7 +44,7 @@ if let i = args.firstIndex(of: "--render"), args.count > i + 2 {
     }
 }
 
-// Font diagnostics: HanWord --fonts <name>...
+// Font diagnostics: HanX --fonts <name>...
 if let i = args.firstIndex(of: "--fonts") {
     FontResolver.shared.registerBundledFonts()
     for n in args[(i + 1)...] {
@@ -71,7 +71,7 @@ if let i = args.firstIndex(of: "--bridge-convert"), args.count > i + 2 {
 }
 
 // Headless save-as through the real document classes:
-//   HanWord --export <in> <out>   (format chosen by the output extension)
+//   HanX --export <in> <out>   (format chosen by the output extension)
 if let i = args.firstIndex(of: "--export"), args.count > i + 2 {
     app.setActivationPolicy(.prohibited)
     FontResolver.shared.registerBundledFonts()
@@ -93,7 +93,7 @@ if let i = args.firstIndex(of: "--export"), args.count > i + 2 {
 }
 
 // UI verification without screen capture: builds the real window offscreen
-// and renders its content view.  HanWord --snapshot <file|start|new-sheet|new-slides> <out.png>
+// and renders its content view.  HanX --snapshot <file|start|new-sheet|new-slides> <out.png>
 if let i = args.firstIndex(of: "--snapshot"), args.count > i + 2 {
     app.setActivationPolicy(.prohibited)
     FontResolver.shared.registerBundledFonts()
@@ -147,7 +147,7 @@ if let i = args.firstIndex(of: "--snapshot"), args.count > i + 2 {
     }
 }
 
-// Slide show test: HanWord --showtest <pptx> <slide> <clicks> <out.png>
+// Slide show test: HanX --showtest <pptx> <slide> <clicks> <out.png>
 if let i = args.firstIndex(of: "--showtest"), args.count > i + 4 {
     app.setActivationPolicy(.prohibited)
     FontResolver.shared.registerBundledFonts()
@@ -162,7 +162,7 @@ if let i = args.firstIndex(of: "--showtest"), args.count > i + 4 {
     } catch { print("error: \(error)"); exit(1) }
 }
 
-// Transition filmstrip: HanWord --transitionframes <pptx> <toSlide> <out.png>
+// Transition filmstrip: HanX --transitionframes <pptx> <toSlide> <out.png>
 // Renders the real transition animation at 0, 20, 40, 60, 80, 100 % with CARenderer.
 if let i = args.firstIndex(of: "--transitionframes"), args.count > i + 3 {
     app.setActivationPolicy(.prohibited)
@@ -177,7 +177,7 @@ if let i = args.firstIndex(of: "--transitionframes"), args.count > i + 3 {
     } catch { print("error: \(error)"); exit(1) }
 }
 
-// Transition test: HanWord --transitiontest <pptx> <fromSlide>
+// Transition test: HanX --transitiontest <pptx> <fromSlide>
 if let i = args.firstIndex(of: "--transitiontest"), args.count > i + 2 {
     app.setActivationPolicy(.prohibited)
     do {
@@ -188,7 +188,7 @@ if let i = args.firstIndex(of: "--transitiontest"), args.count > i + 2 {
     } catch { print("error: \(error)"); exit(1) }
 }
 
-// Finder association: HanWord --set-default-handlers
+// Finder association: HanX --set-default-handlers
 if args.contains("--set-default-handlers") {
     HWDocumentController.makeDefaultHandler { failed in
         print(failed.isEmpty ? "ok" : "failed: \(failed)")

@@ -3,24 +3,24 @@ import Foundation
 enum AgentCLI {
     static let commands:Set<String>=["--help","-h","help","--version","version","capabilities","schema","read","create","edit","convert","xml","package","spreadsheet","mcp","serve"]
     static let help="""
-    HanWord CLI \(AgentIO.version)
+    HanX CLI \(AgentIO.version)
     Local document tools for agents. JSON on stdout; errors have nonzero exit codes.
 
-    hanword capabilities
-    hanword create --spec document.json --output report.hwp
-    hanword read report.hwp [--text | --no-model] [--pretty]
-    hanword edit report.docx --ops edits.json --output updated.docx
-    hanword convert report.hwp --output report.docx
-    hanword xml read data.xml [--xpath '//*[local-name()="item"]']
-    hanword xml edit data.xml --ops edits.json --output updated.xml
-    hanword package list deck.pptx
-    hanword package read deck.pptx --part ppt/slides/slide1.xml [--xpath ...]
-    hanword package patch deck.pptx --part ppt/slides/slide1.xml --ops edits.json --output updated.pptx
-    hanword spreadsheet read book.xlsx --sheet 매출 --range A1:D10
-    hanword spreadsheet eval book.xlsx --sheet 매출 --formula '=SUM(D2:D10)'
-    hanword spreadsheet recalculate book.xlsx --output calculated.xlsx
-    hanword spreadsheet functions
-    hanword mcp
+    hanx capabilities
+    hanx create --spec document.json --output report.hwp
+    hanx read report.hwp [--text | --no-model] [--pretty]
+    hanx edit report.docx --ops edits.json --output updated.docx
+    hanx convert report.hwp --output report.docx
+    hanx xml read data.xml [--xpath '//*[local-name()="item"]']
+    hanx xml edit data.xml --ops edits.json --output updated.xml
+    hanx package list deck.pptx
+    hanx package read deck.pptx --part ppt/slides/slide1.xml [--xpath ...]
+    hanx package patch deck.pptx --part ppt/slides/slide1.xml --ops edits.json --output updated.pptx
+    hanx spreadsheet read book.xlsx --sheet 매출 --range A1:D10
+    hanx spreadsheet eval book.xlsx --sheet 매출 --formula '=SUM(D2:D10)'
+    hanx spreadsheet recalculate book.xlsx --output calculated.xlsx
+    hanx spreadsheet functions
+    hanx mcp
 
     --spec - and --ops - read JSON from stdin. Output files are never overwritten
     unless --force is explicit. Indices are zero-based; dimensions are in points.
@@ -35,7 +35,7 @@ enum AgentCLI {
         let guides=[exe.deletingLastPathComponent().appendingPathComponent("README.md"),exe.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("docs/cli/README.md")]
         let guide=guides.first { FileManager.default.fileExists(atPath:$0.path) }
         return [
-            "name":"HanWord","version":AgentIO.version,"notices":[LegalNotices.hwp,LegalNotices.independence],
+            "name":"HanX","version":AgentIO.version,"notices":[LegalNotices.hwp,LegalNotices.independence],
             "guidePath":guide?.path ?? "",
             "formats":["document":["hwp","hwpx","docx","hml","txt","md","json"],"presentation":["pptx","json"],"spreadsheet":["xlsx","csv","tsv","json"],"xml":["generic XML with XPath","HWPML 2.x","Flat OPC","DOCX/PPTX/HWPX/XLSX package XML"]],
             "spreadsheetFunctions":FunctionLibrary.table.keys.sorted(),
@@ -49,11 +49,11 @@ enum AgentCLI {
                 "slideEdits":[["op":"duplicate_slide","slide":0],["op":"set_transition","slide":1,"kind":"push","duration":0.8]],
                 "xmlEdits":[["op":"set_text","xpath":"//*[local-name()='title']","text":"새 제목"]]
             ],
-            "limits":[AgentSheets.warning,"Model-based HWP/DOCX/PPTX conversion supports the existing HanWord model; unsupported controls can be omitted. Read warnings and use package patch to preserve other OOXML parts.","HWPML model conversion supports text, basic styles, tables, page setup, headers/footers and embedded images. Other controls remain editable through xml edit.","XML DTD/external entity expansion and macros/scripts are not executed.","Generic XML has no automatic semantic conversion to office documents; use HWPML, Flat OPC, or a document specification.","ChatGPT web needs a local execution bridge or connector; installing this CLI alone does not grant cloud chats access to the Mac."]
+            "limits":[AgentSheets.warning,"Model-based HWP/DOCX/PPTX conversion supports the existing HanX model; unsupported controls can be omitted. Read warnings and use package patch to preserve other OOXML parts.","HWPML model conversion supports text, basic styles, tables, page setup, headers/footers and embedded images. Other controls remain editable through xml edit.","XML DTD/external entity expansion and macros/scripts are not executed.","Generic XML has no automatic semantic conversion to office documents; use HWPML, Flat OPC, or a document specification.","ChatGPT web needs a local execution bridge or connector; installing this CLI alone does not grant cloud chats access to the Mac."]
         ]
     }
     static func parse(_ argv:[String])throws->(String,[String:Any]) {
-        guard let first=argv.first else { throw AgentError("invalid_argument","Missing command. Run hanword --help.") }
+        guard let first=argv.first else { throw AgentError("invalid_argument","Missing command. Run hanx --help.") }
         var args=Array(argv.dropFirst()),command=first,options:[String:Any]=[:],positionals:[String]=[]
         if ["xml","package","spreadsheet"].contains(first) {
             guard !args.isEmpty else { throw AgentError("invalid_argument","Missing \(first) subcommand") }
@@ -140,7 +140,7 @@ enum AgentCLI {
             let file=try AgentFile.load(input())
             let edited=try AgentDocuments.edit(file,operations:operations(),directory:directory)
             let ext=AgentIO.url(try AgentIO.string(args["output"],"output")).pathExtension.lowercased()
-            let warnings=["Model editing preserves supported HanWord properties. Use package patch for part-preserving OOXML edits."]
+            let warnings=["Model editing preserves supported HanX properties. Use package patch for part-preserving OOXML edits."]
             if case .spreadsheet(let b)=edited { var r=try save(edited.data(for:ext),kind:edited.kind,warnings:[AgentSheets.warning]); r["formulaErrors"]=AgentSheets.errors(b); return r }
             return try save(edited.data(for:ext),kind:edited.kind,warnings:warnings)
         case "convert":

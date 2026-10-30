@@ -1,0 +1,8 @@
+[
+  {"op": "set_cell", "sheet": "매출", "cell": "B2", "value": 5},
+  {"op": "set_range", "sheet": "매출", "start": "B3", "values": [[4, 2500], [6, 500]]},
+  {"op": "fill_formula", "sheet": "매출", "range": "D2:D4", "formula": "=B2*C2"},
+  {"op": "style_range", "sheet": "매출", "range": "A1:D1", "style": {"bold": true, "fill": "DBEAFE", "border": true}},
+  {"op": "style_range", "sheet": "매출", "range": "C2:D5", "style": {"numberFormat": "#,##0"}},
+  {"op": "freeze", "sheet": "매출", "rows": 1, "columns": 1}
+]

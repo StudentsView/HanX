@@ -62,7 +62,7 @@ final class DOCXWriter {
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" \
         xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>\(XMLEscape.text(doc.title ?? ""))</dc:title>\
-        <dc:creator>HanWord</dc:creator></cp:coreProperties>
+        <dc:creator>HanX</dc:creator></cp:coreProperties>
         """)
         z.add("word/document.xml", documentXML)
         z.add("word/styles.xml", stylesXML(base))
@@ -200,7 +200,7 @@ final class DOCXWriter {
         return s + "</w:rPr>"
     }
 
-    /// HanWord style names ↔ WordprocessingML built-in style ids.
+    /// HanX style names ↔ WordprocessingML built-in style ids.
     static let styleIDs: [String: (id: String, name: String, outline: Int?)] = [
         "제목": ("Title", "Title", nil), "부제목": ("Subtitle", "Subtitle", nil),
         "제목 1": ("Heading1", "heading 1", 0), "제목 2": ("Heading2", "heading 2", 1), "제목 3": ("Heading3", "heading 3", 2),

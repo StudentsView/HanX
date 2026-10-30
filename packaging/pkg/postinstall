@@ -3,12 +3,19 @@
 # remain owned by that channel. Installer passes the target volume as $3.
 set -eu
 hw_volume=${3:-/}
-hw_payload=/Applications/HanWord.app/Contents/Resources/CLI/hanword
+hw_payload=/Applications/HanX.app/Contents/Resources/CLI/hanx
 hw_embedded="${hw_volume%/}$hw_payload"
-[ -f "$hw_embedded" ] || { printf '%s\n' 'HanWord embedded CLI is missing.' >&2; exit 1; }
+[ -f "$hw_embedded" ] || { printf '%s\n' 'HanX embedded CLI is missing.' >&2; exit 1; }
 hw_bin="${hw_volume%/}/usr/local/bin"
 mkdir -p "$hw_bin"
-for hw_name in hanword hanword-cli; do
+# Retire only the exact command links installed by the former pkg.
+for hw_legacy in hanword hanword-cli; do
+  hw_old="$hw_bin/$hw_legacy"
+  if [ -L "$hw_old" ] && [ "$(readlink "$hw_old")" = "/Applications/HanWord.app/Contents/Resources/CLI/hanword" ]; then
+    rm "$hw_old"
+  fi
+done
+for hw_name in hanx hanx-cli; do
   hw_command="$hw_bin/$hw_name"
   if [ -L "$hw_command" ] && [ "$(readlink "$hw_command")" = "$hw_payload" ]; then
     continue

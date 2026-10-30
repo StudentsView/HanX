@@ -26,7 +26,7 @@ func runChecks() {
 let doc=SlideDocument(); dc.addDocument(doc); doc.undoManager?.groupsByEvent=false; doc.makeWindowControllers()
 let wc=doc.windowControllers.first as! SlideWindowController
 let window=wc.window!, list=wc.debugSlideList, canvas=wc.debugCanvas
-window.title="한워드 동작 검사"
+window.title="HanX 동작 검사"
 window.makeKeyAndOrderFront(nil); app.activate(ignoringOtherApps:true); spin()
 func reset(_ selection:IndexSet=IndexSet(integer:1)) {
     action { canvas.endEditing() }
