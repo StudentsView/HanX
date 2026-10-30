@@ -1,5 +1,5 @@
 {
-  "name": "hanx",
+  "name": "@juyoungsuh/hanx",
   "version": "2.7.0",
   "description": "Local macOS office CLI and MCP tools for spreadsheet formulas, HWP, DOCX and PPTX",
   "license": "MIT",

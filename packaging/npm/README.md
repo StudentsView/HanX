@@ -2,6 +2,10 @@
 
 로컬 AI 에이전트가 XLSX의 셀과 수식을 읽고 수정하고 계산하도록 연결하는 CLI입니다. HWP, DOCX, PPTX, XML도 지원합니다. macOS 13 이상, Apple Silicon과 Intel에서 실행합니다.
 
+```sh
+npm install -g @juyoungsuh/hanx
+```
+
 설치 후 `hanx --help`, `hanx capabilities --pretty`로 시작하세요. npm 설치에는 Node.js 18 이상이 필요하고, 네이티브 실행 파일은 이 패키지에 포함되어 있습니다. 설치 후 추가 바이너리를 내려받는 스크립트는 없습니다.
 
 ```sh
