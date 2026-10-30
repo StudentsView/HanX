@@ -1,7 +1,8 @@
 # HanX
 
 HWP, 문서, 도표, 프레젠테이션과 모두 호환되는 새로운 macOS용 사무 도구입니다 :)
-macOS 13 이상, Apple Silicon과 Intel을 지원합니다. 현재 버전은 2.7.0입니다.
+
+macOS 13 이상, Apple Silicon과 Intel을 지원합니다.
 
 .pkg형 설치 GUI 프로그램 뿐만 아니라 CLI형 프로그램도 제공하며
 AI 에이전트 ChatGPT, Claude 등을 이용해 모든 작업을 진행할 수 있습니다.
