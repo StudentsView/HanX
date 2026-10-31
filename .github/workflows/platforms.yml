@@ -39,8 +39,15 @@ jobs:
         with:
           python-version: '3.10'
       - uses: swift-actions/setup-swift@v2
+        if: runner.os == 'Linux'
         with:
           swift-version: '6.2.1'
+      - name: Install official Windows Swift toolchain
+        uses: compnerd/gha-setup-swift@57fe462cd3c7b05ae8fcff79b00719312e305257
+        if: runner.os == 'Windows'
+        with:
+          swift-version: swift-6.2.1-release
+          swift-build: 6.2.1-RELEASE
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -50,10 +57,11 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           python3 packaging/linux/stage-cli.py
-          cp packaging/linux/install-cli.sh build/platform/cli/
+          cp packaging/linux/install-cli.sh packaging/linux/install-gui.sh build/platform/cli/
           python3 packaging/smoke-cli.py build/platform/cli/hanx --pdf
           mkdir -p build/distribution
-          tar -C build/platform/cli -czf build/distribution/hanx-cli-linux-x64.tar.gz .
+          version=$(node -p "require('./packaging/npm/package.json').version")
+          tar -C build/platform/cli -czf "build/distribution/HanX-CLI-$version-linux-x64.tar.gz" .
       - name: Windows runtime staging and PATH tests
         if: runner.os == 'Windows'
         shell: pwsh
@@ -62,14 +70,15 @@ jobs:
           ./packaging/windows/test-path.ps1
           python packaging/smoke-cli.py build/platform/cli/hanx.exe --pdf
           New-Item -ItemType Directory -Path build/distribution -Force
-          Compress-Archive -Path build/platform/cli/* -DestinationPath build/distribution/hanx-cli-win32-x64.zip
+          $version = (Get-Content packaging/npm/package.json | ConvertFrom-Json).version
+          Compress-Archive -Path build/platform/cli/* -DestinationPath "build/distribution/HanX-CLI-$version-win32-x64.zip"
       - name: CLI and MCP regression suite
         shell: bash
         env:
           PYTHONUTF8: '1'
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
-            export HANX_BIN="$PWD/build/platform/cli/hanx.exe"
+            export HANX_BIN="$(cygpath -w "$PWD")\build\platform\cli\hanx.exe"
           else
             export HANX_BIN="$PWD/build/platform/cli/hanx"
           fi
@@ -85,14 +94,37 @@ jobs:
           npm test --prefix packaging/npm
           npm pack ./packaging/npm --ignore-scripts --pack-destination build/distribution
           node packaging/npm/bin/hanx.js --version
-      - name: Test and package desktop
+      - name: Configure native desktop engine
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            echo "HANX_CLI_PATH=$GITHUB_WORKSPACE/build/platform/cli/hanx.exe" >> "$GITHUB_ENV"
+          else
+            echo "HANX_CLI_PATH=$GITHUB_WORKSPACE/build/platform/cli/hanx" >> "$GITHUB_ENV"
+          fi
+      - name: Test desktop native integration
         working-directory: desktop
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: |
           npm install --no-audit --no-fund
           npm test
-          npx electron-builder --publish never
+      - name: Linux renderer smoke
+        if: runner.os == 'Linux'
+        working-directory: desktop
+        run: xvfb-run -a node_modules/.bin/electron . --no-sandbox --smoke-test
+      - name: Windows renderer smoke
+        if: runner.os == 'Windows'
+        working-directory: desktop
+        shell: pwsh
+        run: |
+          & .\node_modules\.bin\electron.cmd . --smoke-test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build desktop installers
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder --publish never
       - uses: actions/upload-artifact@v4
         with:
           name: hanx-${{ runner.os }}-x64

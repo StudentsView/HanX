@@ -38,3 +38,13 @@ test('native slide duplication, geometry, notes and transitions survive PPTX',as
 test('slide clipboard remains usable after deleting its source',async()=>{
  const s=await new Session(executable).init();try{await s.create('presentation');await s.edit([{op:'set_notes',slide:0,text:'복사한 슬라이드'}]);await s.copySlide(0);await s.edit([{op:'delete_slide',slide:0}]);await s.pasteSlide(0);assert.equal((await s.read()).model.slides[0].notes,'복사한 슬라이드');await s.undo();assert.equal((await s.read()).model.slides.length,0);}finally{await s.close();}
 });
+test('text edits preserve paragraph layout and reject edits that would remove embedded objects',async()=>{
+ const {runEngine}=require('../engine.cjs');const s=await new Session(executable).init();try{await s.create('document');const d=await s.read(),p=d.model.sections[0].blocks[0].paragraph._0;p.props.spaceBefore=18;p.props.firstLine=12;p.props.alignment='right';await runEngine(executable,['create','--spec','-','--output',s.file,'--force'],{kind:'document',model:d.model});await s.edit([{op:'set_paragraph',section:0,block:0,text:'서식 유지'}]);assert.equal((await s.read()).model.sections[0].blocks[0].paragraph._0.props.spaceBefore,18);assert.equal((await s.read()).model.sections[0].blocks[0].paragraph._0.props.alignment,'right');
+ const original=await s.read();original.model.sections[0].blocks[0].paragraph._0.inlines.push({image:{id:'fixture',width:20,height:20}});original.model.images.fixture={name:'fixture.png',data:'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lZ8AAAAASUVORK5CYII='};await runEngine(executable,['create','--spec','-','--output',s.file,'--force'],{kind:'document',model:original.model});await assert.rejects(()=>s.edit([{op:'set_paragraph',section:0,block:0,text:'loses image'}]),/그림|object/);
+ }finally{await s.close();}
+});
+test('technical conversion warnings have a short Korean summary',()=>{
+ assert.match(M.warningSummary(['Spreadsheet model editing preserves supported cells']),/Excel/);
+ assert.match(M.warningSummary(['PDF selectable text has no layout reconstruction']),/PDF/);
+ assert.equal(M.warningSummary([]),'');
+});

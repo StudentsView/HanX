@@ -48,3 +48,25 @@ test('interactive arrow selection restores raw mode and cursor on accept and can
     assert.ok(printed.includes('\u001b[?25h'));
   }
 });
+test('GUI-only retains bootstrap, disables native commands and removes downloaded CLI', async t => {
+  const { setup, paths } = require('../lib/setup.js');
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'hanx-components-'));
+  const old=process.env.XDG_DATA_HOME; process.env.XDG_DATA_HOME=dir;
+  t.after(()=>{ if(old===undefined) delete process.env.XDG_DATA_HOME; else process.env.XDG_DATA_HOME=old; fs.rmSync(dir,{recursive:true,force:true}); });
+  const locations=paths(); const gui=path.join(dir,'HanX.app'); fs.mkdirSync(gui);
+  fs.mkdirSync(locations.cli,{recursive:true}); fs.writeFileSync(path.join(locations.cli,'hanx'),'downloaded native');
+  fs.writeFileSync(locations.state,JSON.stringify({gui}));
+  await setup(['--components','gui','--yes']);
+  assert.equal(fs.existsSync(locations.cli),false);
+  assert.equal(JSON.parse(fs.readFileSync(locations.state)).components,'gui');
+  assert.equal(fs.existsSync(path.join(__dirname,'..','bin','hanx.js')),true);
+  const result=require('node:child_process').spawnSync(process.execPath,[path.join(__dirname,'..','bin','hanx.js'),'--version'],{encoding:'utf8'});
+  assert.equal(result.status,1); assert.match(result.stderr,/cli_not_selected/);
+});
+test('nonTTY postinstall exits without hanging or fetching a GUI', t => {
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'hanx-postinstall-')); t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+  const child=require('node:child_process').spawnSync(process.execPath,[path.join(__dirname,'..','bin','postinstall.js')],{input:'',encoding:'utf8',timeout:10000,env:{...process.env,XDG_DATA_HOME:dir}});
+  assert.equal(child.status,0,child.stderr);
+  assert.match(child.stdout,/hanx setup/); assert.match(child.stdout,/CLI only selected/);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(dir,'HanX','setup.json'))).components,'cli');
+});

@@ -1,7 +1,7 @@
 {
   "name": "@juyoungsuh/hanx",
-  "version": "2.8.0",
-  "description": "Local macOS office CLI and MCP tools for spreadsheet formulas, HWP, DOCX and PPTX",
+  "version": "2.9.0",
+  "description": "Local office CLI and MCP tools for spreadsheet formulas, HWP, DOCX and PPTX",
   "license": "MIT",
   "homepage": "https://studentsview.github.io/HanX/",
   "repository": {
@@ -16,15 +16,17 @@
     "hanx-cli": "bin/hanx.js"
   },
   "files": [
-    "bin/hanx.js",
-    "native/hanx",
-    "native/README.md",
-    "native/examples",
+    "bin/",
+    "lib/",
+    "native/",
     "LICENSE",
-    "NOTICE"
+    "NOTICE",
+    "README.md"
   ],
   "os": [
-    "darwin"
+    "darwin",
+    "linux",
+    "win32"
   ],
   "cpu": [
     "arm64",
@@ -44,6 +46,12 @@
     "mcp",
     "spreadsheet",
     "cli",
-    "macos"
-  ]
+    "macos",
+    "windows",
+    "linux"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "postinstall": "node bin/postinstall.js"
+  }
 }

@@ -17,7 +17,7 @@ try {
   $key.SetValue('Path', $baseline + $entry, $kind)
   & $script -Action Install -CliDirectory $entry
   & $script -Action Remove -CliDirectory $entry
-  if ($key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames) -cne ($baseline + ';' + $entry)) { throw 'Preexisting entry must not be removed' }
+  if ($key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames) -cne ($baseline + $entry)) { throw 'Preexisting entry must not be removed' }
   Write-Output 'PATH install/remove, idempotency, and ownership checks passed.'
 } finally {
   if ($null -eq $original) { $key.DeleteValue('Path', $false) } else { $key.SetValue('Path', $original, $kind) }

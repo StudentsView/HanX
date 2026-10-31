@@ -17,10 +17,21 @@ function resolveBinary(root, platform, arch, exists = fs.existsSync) {
   if (platform === 'darwin' && exists(legacy)) return legacy;
   throw Object.assign(new Error(`HanX native executable is missing for ${platform}-${arch}: ${binary}. This package must include a native build for your platform; reinstall a matching package or use the standalone CLI archive.`), { code: 'native_binary_missing' });
 }
-function main() {
+async function main() {
+  const setup = require('../lib/setup.js');
+  const command = process.argv[2];
+  try {
+    if (command === 'setup') { await setup.setup(process.argv.slice(3)); return; }
+    if (command === 'gui') { await setup.launchGUI(); return; }
+    if (setup.readState().components === 'gui') { fail('cli_not_selected', 'GUI only is selected. Run hanx setup --components cli --yes (or all) to enable terminal commands.'); return; }
+  } catch(error) { fail('setup_failed', error.message); return; }
   let binary;
   try { binary = resolveBinary(path.resolve(__dirname, '..'), process.platform, process.arch); }
-  catch (error) { fail(error.code, error.message); return; }
+  catch (error) {
+    if (error.code !== 'native_binary_missing') { fail(error.code, error.message); return; }
+    try { binary = setup.optionalBinary() || await setup.installCLI(); }
+    catch (installError) { fail('native_install_failed', installError.message); return; }
+  }
   const child = spawn(binary, process.argv.slice(2), { stdio: 'inherit', shell: false });
   const handlers = new Map();
   for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
@@ -37,4 +48,4 @@ function main() {
   });
 }
 module.exports = { resolveBinary };
-if (require.main === module) main();
+if (require.main === module) main().catch(error => fail('launcher_failed', error.message));

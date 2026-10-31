@@ -1,15 +1,107 @@
 {
   "name": "hanx-desktop",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "description": "Local HanX document, spreadsheet and presentation editor",
   "main": "main.cjs",
   "private": true,
   "scripts": {
     "start": "electron .",
-    "test": "node --test test/*.test.cjs"
+    "test": "node --test test/*.test.cjs",
+    "dist": "electron-builder --publish never"
   },
   "devDependencies": {
     "electron": "45.2.1",
     "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "org.studentsview.hanx",
+    "productName": "HanX",
+    "executableName": "HanX",
+    "copyright": "Copyright \u00a9 HanX contributors",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "*.cjs",
+      "*.js",
+      "*.html",
+      "*.css",
+      "assets/**",
+      "!test/**"
+    ],
+    "extraResources": [
+      {
+        "from": "../build/platform/cli",
+        "to": "cli",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../packaging/windows/manage-path.ps1",
+        "to": "manage-path.ps1"
+      },
+      {
+        "from": "../NOTICE",
+        "to": "NOTICE"
+      },
+      {
+        "from": "../LICENSE",
+        "to": "LICENSE"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "HanX-${version}-win32-${arch}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": false,
+      "include": "../packaging/windows/installer.nsh",
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": false,
+      "deleteAppDataOnUninstall": false
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Office",
+      "artifactName": "HanX-${version}-linux-${arch}.${ext}",
+      "maintainer": "HanX contributors",
+      "desktop": {
+        "entry": {
+          "Name": "HanX",
+          "Comment": "Local document editor",
+          "MimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.openxmlformats-officedocument.presentationml.presentation;"
+        }
+      }
+    },
+    "deb": {
+      "afterInstall": "../packaging/linux/deb-postinstall.sh",
+      "afterRemove": "../packaging/linux/deb-postremove.sh"
+    },
+    "publish": null
   }
 }

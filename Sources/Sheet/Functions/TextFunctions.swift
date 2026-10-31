@@ -1,4 +1,5 @@
 import Foundation
+import CoreFoundation
 #if canImport(FoundationXML)
 import FoundationXML
 #endif
@@ -127,14 +128,12 @@ enum TextFunctions {
             return .string(out)
         }
         r.scalar("ASC", min: 1, max: 1) { s in
-            let m = NSMutableString(string: try s.str(0))
-            CFStringTransform(m, nil, kCFStringTransformFullwidthHalfwidth, false)
-            return .string(m as String)
+            let text = try s.str(0)
+            return .string(text.applyingTransform(.fullwidthToHalfwidth, reverse: false) ?? text)
         }
         r.scalar("DBCS", "JIS", min: 1, max: 1) { s in
-            let m = NSMutableString(string: try s.str(0))
-            CFStringTransform(m, nil, kCFStringTransformFullwidthHalfwidth, true)
-            return .string(m as String)
+            let text = try s.str(0)
+            return .string(text.applyingTransform(.fullwidthToHalfwidth, reverse: true) ?? text)
         }
         r.raw("PHONETIC", min: 1, max: 1) { a in .string(a.value(0).text) }
 
