@@ -31,7 +31,7 @@ hanx edit 매출.xlsx --ops 작업.json --output 수정.xlsx
 hanx mcp
 ```
 
-PDF 렌더링은 선택적 로컬 LibreOffice와 Poppler가 필요할 수 있습니다. `hanx capabilities --pretty`로 현재 사용 가능한 도구를 확인하세요. `hanx setup --pdf-dependencies --components cli --yes`는 필요한 도구의 설치 안내만 표시하며 추가 프로그램을 자동 설치하지 않습니다. Windows에서 런타임 오류가 나타나면 Microsoft의 공식 Visual C++ 2015–2022 재배포 패키지를 직접 설치하세요.
+PDF 렌더링은 선택적 로컬 LibreOffice와 Poppler가 필요할 수 있습니다. `hanx capabilities --pretty`로 현재 사용 가능한 도구를 확인하세요. `hanx setup --pdf-dependencies --components cli --yes`는 명시적으로 선택한 LibreOffice와 Poppler를 설치합니다. 대화형 설정에서는 기본 해제된 설치 질문에 동의한 경우만 진행합니다. 패키지 관리자가 필요한 권한을 요청할 수 있습니다. Windows에서 런타임 오류가 나타나면 Microsoft의 공식 Visual C++ 2015–2022 재배포 패키지를 직접 설치하세요.
 
 출력 경로를 명시하며 기본적으로 원본을 덮어쓰지 않습니다. 모든 함수와 개체가 Microsoft Excel과 같은 것은 아닙니다. CLI의 capabilities 응답에서 guidePath를 읽어 전체 작업 명세와 제한을 확인하세요.
 

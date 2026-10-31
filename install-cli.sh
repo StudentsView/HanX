@@ -2,7 +2,7 @@
 # Install only the standalone CLI and docs. This does not build a pkg or change HanX.app.
 set -eu
 hw_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
-hw_prefix="$HOME/Library/Application Support/HanX/CLI/2.8.0"
+hw_prefix="$HOME/Library/Application Support/HanX/CLI/2.9.0"
 hw_bin_dir="$HOME/.local/bin"
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -48,7 +48,7 @@ else
   cp "$hw_root/README.md" "$hw_stage/README.md"
   cp -R "$hw_root/examples" "$hw_stage/examples"
 fi
-printf '%s\n' '2.8.0' > "$hw_stage/HANX-CLI-VERSION"
+printf '%s\n' '2.9.0' > "$hw_stage/HANX-CLI-VERSION"
 "$hw_stage/hanx" --version >/dev/null
 if [ -e "$hw_prefix" ]; then
   hw_backup=$(mktemp -d "$hw_parent/.hanx-cli-backup.XXXXXX")

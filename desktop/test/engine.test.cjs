@@ -48,3 +48,29 @@ test('technical conversion warnings have a short Korean summary',()=>{
  assert.match(M.warningSummary(['PDF selectable text has no layout reconstruction']),/PDF/);
  assert.equal(M.warningSummary([]),'');
 });
+const {runEngine}=require('../engine.cjs');
+const {deflateSync}=require('node:zlib');
+function pngPixel(red,green,blue){
+ const chunk=(type,data)=>{const name=Buffer.from(type),payload=Buffer.concat([name,data]);let crc=0xffffffff;for(const byte of payload){crc^=byte;for(let i=0;i<8;i++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);}const size=Buffer.alloc(4),sum=Buffer.alloc(4);size.writeUInt32BE(data.length);sum.writeUInt32BE((crc^0xffffffff)>>>0);return Buffer.concat([size,payload,sum]);};
+ const header=Buffer.alloc(13);header.writeUInt32BE(1,0);header.writeUInt32BE(1,4);header[8]=8;header[9]=6;
+ return Buffer.concat([Buffer.from('89504e470d0a1a0a','hex'),chunk('IHDR',header),chunk('IDAT',deflateSync(Buffer.from([0,red,green,blue,255]))),chunk('IEND',Buffer.alloc(0))]).toString('base64');
+}
+async function writeModel(s,kind,model){await runEngine(executable,['create','--spec','-','--output',s.file,'--force'],{kind,model});}
+for(const object of ['image','field','nested table'])test(`table cell ${object} survives a rejected text edit without changing session history`,async()=>{
+ const s=await new Session(executable).init();try{await s.create('document');await s.edit([{op:'append_block',section:0,block:{type:'table',rows:[['그림 설명']]} }]);const d=await s.read(),table=d.model.sections[0].blocks[1].table._0,cell=table.rows[0][0],p=cell.blocks[0].paragraph._0;
+ if(object==='image'){p.inlines.push({image:{id:'caption-image',width:20,height:20}});d.model.images['caption-image']={name:'caption.png',data:pngPixel(20,90,170)};}
+ else if(object==='field')p.inlines.push({field:{_0:'page',_1:structuredClone(p.markProps)}});
+ else cell.blocks.push({table:{_0:structuredClone(table)}});
+ await writeModel(s,'document',d.model);const before=await s.read(),file=s.file,history=[...s.history];
+ await assert.rejects(()=>s.edit([{op:'set_cell',section:0,block:1,row:0,column:0,text:'새 설명'}]),/읽기 전용/);
+ assert.equal(s.file,file);assert.deepEqual(s.history,history);assert.deepEqual((await s.read()).model,before.model);
+ }finally{await s.close();}
+});
+test('cross-deck slide paste remaps colliding image IDs and preserves both images through PPTX',async()=>{
+ const s=await new Session(executable).init();try{await s.create('presentation');const source=await s.read();source.model.images={'image1.png':{name:'image1.png',data:pngPixel(255,0,0)},'unused.png':{name:'unused.png',data:pngPixel(0,255,0)}};
+ Object.assign(source.model.slides[0].shapes[0],{kind:'image',imageID:'image1.png',paragraphs:[]});source.model.slides[0].notes='source';await writeModel(s,'presentation',source.model);await s.copySlide(0);
+ await s.create('presentation');const destination=await s.read();destination.model.images={'image1.png':{name:'image1.png',data:pngPixel(0,0,255)}};Object.assign(destination.model.slides[0].shapes[0],{kind:'image',imageID:'image1.png',paragraphs:[]});destination.model.slides[0].notes='destination';await writeModel(s,'presentation',destination.model);
+ await s.pasteSlide(1);const pasted=await s.read(),oldID=pasted.model.slides[0].shapes[0].imageID,newID=pasted.model.slides[1].shapes[0].imageID;assert.equal(oldID,'image1.png');assert.notEqual(newID,oldID);assert.equal(pasted.model.images[oldID].data,destination.model.images['image1.png'].data);assert.equal(pasted.model.images[newID].data,source.model.images['image1.png'].data);assert.equal(Object.keys(pasted.model.images).length,2);
+ const output=path.join(s.directory,'two-decks.pptx');await s.save(output);await s.open(output);const roundtrip=await s.read();const first=roundtrip.model.slides.find(slide=>slide.notes==='destination'),second=roundtrip.model.slides.find(slide=>slide.notes==='source');assert.equal(roundtrip.model.images[first.shapes[0].imageID].data,destination.model.images['image1.png'].data);assert.equal(roundtrip.model.images[second.shapes[0].imageID].data,source.model.images['image1.png'].data);
+ }finally{await s.close();}
+});

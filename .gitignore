@@ -13,3 +13,7 @@ work/
 *.key
 .env
 .env.*
+
+.build/
+desktop/node_modules/
+desktop/dist/

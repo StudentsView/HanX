@@ -3,6 +3,8 @@
 import pathlib, re, shutil, subprocess, sys, urllib.request
 binary = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else '.build/release/hanx').resolve()
 out = pathlib.Path('build/platform/cli')
+if out.exists():
+    shutil.rmtree(out)
 out.mkdir(parents=True, exist_ok=True)
 shutil.copy2(binary, out / 'hanx-engine')
 libs = out / 'lib'
@@ -31,7 +33,8 @@ for line in result.splitlines():
                 license_dir.mkdir(exist_ok=True)
                 shutil.copy2(copyright_file, license_dir / (package + '-copyright.txt'))
 (out / 'hanx').write_text('''#!/bin/sh
-cli_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+cli_path=$(readlink -f -- "$0") || exit 1
+cli_dir=$(CDPATH= cd -- "$(dirname -- "$cli_path")" && pwd)
 export LD_LIBRARY_PATH="$cli_dir/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 exec "$cli_dir/hanx-engine" "$@"
 ''')

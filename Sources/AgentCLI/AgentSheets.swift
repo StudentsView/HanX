@@ -1,12 +1,10 @@
 import Foundation
-import CoreFoundation
 #if canImport(FoundationXML)
 import FoundationXML
 #endif
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-import CoreFoundation
 
 /// Agent-facing spreadsheet operations share the GUI model and calculation engine.
 /// All mutations happen before the caller atomically publishes a new file.
@@ -47,7 +45,7 @@ enum AgentSheets {
             return (!explicitValue && s.hasPrefix("=")) ? s : "'"+s
         }
         if let n=value as? NSNumber {
-            if CFGetTypeID(n)==CFBooleanGetTypeID() { return n.boolValue ? "TRUE" : "FALSE" }
+            if AgentIO.isBoolean(n) { return n.boolValue ? "TRUE" : "FALSE" }
             guard n.doubleValue.isFinite else { throw AgentError("invalid_argument","Cell number must be finite") }; return n.stringValue
         }
         throw AgentError("invalid_argument","Cell value must be text, a number, boolean or null")

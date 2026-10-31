@@ -27,7 +27,7 @@ app.whenReady().then(async()=>{
  Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'파일',submenu:[{label:'열기…',accelerator:'CmdOrCtrl+O',click:()=>win.webContents.send('hanx:action','open')},{label:'저장',accelerator:'CmdOrCtrl+S',click:()=>win.webContents.send('hanx:action','save')},{label:'다른 이름으로 저장…',accelerator:'CmdOrCtrl+Shift+S',click:()=>win.webContents.send('hanx:action','saveAs')},{type:'separator'},{role:'quit'}]},{label:'편집',submenu:[{label:'실행 취소',accelerator:'CmdOrCtrl+Z',click:()=>win.webContents.send('hanx:action','undo')},{label:'다시 실행',accelerator:'CmdOrCtrl+Shift+Z',click:()=>win.webContents.send('hanx:action','redo')},{type:'separator'},{role:'cut'},{role:'copy'},{role:'paste'},{role:'selectAll'}]},{label:'보기',submenu:[{role:'resetZoom'},{role:'zoomIn'},{role:'zoomOut'},{role:'togglefullscreen'}]}]));
  win.on('close',e=>{if(!quitting&&session?.dirty){e.preventDefault();queue.then(async()=>{if(await confirmDiscard()){quitting=true;win.close();}});}});
  await win.loadFile(path.join(__dirname,'index.html'));
- if(smoke){try{await require('./test/smoke.cjs')(win,session);quitting=true;await session.close();app.exit(0);}catch(error){console.error('HANX_GUI_SMOKE_FAILED',error);quitting=true;app.exit(1);}}
+ if(smoke){try{await require('./smoke.cjs')(win,session);quitting=true;await session.close();app.exit(0);}catch(error){console.error('HANX_GUI_SMOKE_FAILED',error);quitting=true;app.exit(1);}}
 });
 app.on('window-all-closed',()=>app.quit());
 app.on('will-quit',()=>{session?.close();});

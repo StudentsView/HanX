@@ -1,6 +1,7 @@
 param([string]$Binary = '.build/release/hanx.exe', [string[]]$RuntimeDirectories = @())
 $ErrorActionPreference = 'Stop'
 $destination = Join-Path $PWD 'build/platform/cli'
+if (Test-Path -LiteralPath $destination) { Remove-Item -LiteralPath $destination -Recurse -Force }
 New-Item -ItemType Directory -Path $destination -Force | Out-Null
 Copy-Item -LiteralPath $Binary -Destination (Join-Path $destination 'hanx.exe')
 $target = (& swift -print-target-info | ConvertFrom-Json)

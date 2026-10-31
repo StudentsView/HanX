@@ -48,6 +48,10 @@
       {
         "from": "../LICENSE",
         "to": "LICENSE"
+      },
+      {
+        "from": "../packaging/npm/lib/install-pdf.ps1",
+        "to": "install-pdf.ps1"
       }
     ],
     "win": {
@@ -70,7 +74,11 @@
       "createDesktopShortcut": false,
       "createStartMenuShortcut": true,
       "runAfterFinish": false,
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "installerLanguages": [
+        "ko_KR",
+        "en_US"
+      ]
     },
     "linux": {
       "target": [

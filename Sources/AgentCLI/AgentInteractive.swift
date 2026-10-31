@@ -9,6 +9,8 @@ import FoundationNetworking
 import Darwin
 #elseif canImport(Glibc)
 import Glibc
+#elseif os(Windows)
+import WinSDK
 #endif
 
 /// Interactive prompts stay outside the JSON/stdio agent protocol.
@@ -24,7 +26,7 @@ enum AgentInteractive {
     │  에이전트 연결 hanx mcp                      │
     └──────────────────────────────────────────────┘
     """
-    private enum Key { case byte(UInt8), up, down, escape, pasteStart, pasteEnd, end }
+    private enum Key { case byte(UInt8), utf16(UInt16), up, down, escape, pasteStart, pasteEnd, end }
     #if !os(Windows)
     private final class Terminal {
         var saved = termios()
@@ -113,19 +115,89 @@ enum AgentInteractive {
     }
     #else
     private final class Terminal {
-        init() throws {}
-        func activate() throws {}
-        func restore() {}
-        func output(_ text: String) { print(text, terminator: "") }
+        private let input: HANDLE
+        private let outputHandle: HANDLE
+        private var savedInput: DWORD = 0
+        private var savedOutput: DWORD = 0
+        init() throws {
+            guard let input = GetStdHandle(STD_INPUT_HANDLE), let output = GetStdHandle(STD_OUTPUT_HANDLE) else {
+                throw AgentError("terminal_required", "터미널에서 hanx --convert를 실행하세요.")
+            }
+            self.input = input; self.outputHandle = output
+            guard GetConsoleMode(input, &savedInput), GetConsoleMode(output, &savedOutput) else {
+                throw AgentError("terminal_required", "터미널에서 hanx --convert를 실행하세요. 자동화: hanx convert 원본.hwp --output 결과.docx")
+            }
+            try activate()
+        }
+        func activate() throws {
+            let inputMode = (savedInput | DWORD(ENABLE_EXTENDED_FLAGS)) & ~DWORD(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_QUICK_EDIT_MODE)
+            guard SetConsoleMode(input, inputMode), SetConsoleMode(outputHandle, savedOutput | DWORD(ENABLE_VIRTUAL_TERMINAL_PROCESSING)) else {
+                restore()
+                throw AgentError("io_error", "터미널 입력을 설정할 수 없습니다.")
+            }
+        }
+        func restore() { _ = SetConsoleMode(input, savedInput); _ = SetConsoleMode(outputHandle, savedOutput) }
+        deinit { restore() }
+        func output(_ text: String) {
+            let units = Array(text.utf16)
+            var count: DWORD = 0
+            units.withUnsafeBufferPointer { buffer in
+                _ = WriteConsoleW(outputHandle, buffer.baseAddress, DWORD(buffer.count), &count, nil)
+            }
+        }
+        private func key() -> Key {
+            while true {
+                var record = INPUT_RECORD(), count: DWORD = 0
+                guard ReadConsoleInputW(input, &record, 1, &count), count == 1 else { return .end }
+                guard record.EventType == WORD(KEY_EVENT), record.Event.KeyEvent.bKeyDown.boolValue else { continue }
+                let event = record.Event.KeyEvent
+                switch Int32(event.wVirtualKeyCode) {
+                case VK_UP: return .up
+                case VK_DOWN: return .down
+                case VK_ESCAPE: return .escape
+                case VK_RETURN: return .byte(13)
+                case VK_BACK: return .byte(8)
+                default:
+                    let unit = event.uChar.UnicodeChar
+                    if unit == 3 || unit == 4 { return .byte(UInt8(unit)) }
+                    if unit >= 32 { return .utf16(unit) }
+                }
+            }
+        }
         func path() throws -> String {
-            output("Input file path: ")
-            guard let value = readLine(), !value.isEmpty else { throw AgentError("cancelled", "Conversion cancelled") }
-            return value
+            output("여기에 파일을 드래그 드롭한 후 Enter 키를 눌러주세요.\n› ")
+            var units: [UInt16] = []
+            while true {
+                switch key() {
+                case .byte(13): output("\n"); return String(decoding: units, as: UTF16.self)
+                case .byte(3), .byte(4), .escape, .end: throw AgentError("cancelled", "변환을 취소했습니다.")
+                case .byte(8):
+                    var text = String(decoding: units, as: UTF16.self)
+                    if !text.isEmpty { text.removeLast(); units = Array(text.utf16); output("\r\u{1b}[2K› " + text) }
+                case .utf16(let unit):
+                    guard units.count < 32768 else { continue }
+                    units.append(unit)
+                    // Redraw complete UTF-16 so surrogate pairs stay intact.
+                    output("\r\u{1b}[2K› " + String(decoding: units, as: UTF16.self))
+                default: continue
+                }
+            }
         }
         func choose(_ choices: [String]) throws -> String {
-            for (i, choice) in choices.enumerated() { print("\(i + 1). \(choice.uppercased())") }
-            guard let line = readLine(), let n = Int(line), choices.indices.contains(n - 1) else { throw AgentError("cancelled", "Conversion cancelled") }
-            return choices[n - 1]
+            var selected = 0, drawn = false
+            while true {
+                if drawn { output("\u{1b}[\(choices.count + 1)A") }
+                for (index, ext) in choices.enumerated() { output("\r\u{1b}[2K  \(index == selected ? "❯" : " ") \(ext.uppercased())\n") }
+                output("\r\u{1b}[2K  ↑ ↓ 선택   Enter 변환   Esc / Ctrl-C 취소\n")
+                drawn = true
+                switch key() {
+                case .up: selected = (selected + choices.count - 1) % choices.count
+                case .down: selected = (selected + 1) % choices.count
+                case .byte(13): return choices[selected]
+                case .byte(3), .byte(4), .utf16(113), .escape, .end: throw AgentError("cancelled", "변환을 취소했습니다.")
+                default: continue
+                }
+            }
         }
     }
     #endif

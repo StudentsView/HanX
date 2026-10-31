@@ -24,6 +24,16 @@ enum AgentPath {
         if FileManager.default.fileExists(atPath: literalURL(value).path) { return literalURL(value) }
         if value.hasPrefix("file://"), let url = URL(string: value), url.isFileURL,
            url.host == nil || url.host == "" || url.host == "localhost" { return url.standardizedFileURL }
+        #if os(Windows)
+        // Explorer/Windows Terminal quote a complete path. Backslashes are path
+        // separators here, never POSIX escapes; preserve Unicode and UNC paths.
+        var path = value.trimmingCharacters(in: .whitespaces)
+        if path.count >= 2, let first = path.first, first == "\"" || first == "'", path.last == first {
+            path.removeFirst(); path.removeLast()
+        }
+        guard !path.isEmpty, !path.contains("\"") else { throw AgentError("invalid_argument", "파일을 한 개만 드롭해 주세요.") }
+        return literalURL(path)
+        #else
         var tokens: [String] = [], token = "", quote: Character?, escaped = false, started = false
         for c in value {
             if escaped { token.append(c); escaped = false; started = true; continue }
@@ -40,5 +50,6 @@ enum AgentPath {
         if started { tokens.append(token) }
         guard tokens.count == 1, let path = tokens.first, !path.isEmpty else { throw AgentError("invalid_argument", "파일을 한 개만 드롭해 주세요.") }
         return literalURL(path)
+        #endif
     }
 }

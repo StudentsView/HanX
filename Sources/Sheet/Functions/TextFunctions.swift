@@ -1,5 +1,4 @@
 import Foundation
-import CoreFoundation
 #if canImport(FoundationXML)
 import FoundationXML
 #endif
@@ -21,7 +20,7 @@ enum TextFunctions {
         return .string(s)
     }
 
-    static let cp949 = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.dosKorean.rawValue)))
+    static let cp949 = String.Encoding(rawValue: 0x80000422)
     static let cp1252 = String.Encoding.windowsCP1252
 
     static func register(_ r: inout Registry) {

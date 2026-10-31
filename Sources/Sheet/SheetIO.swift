@@ -1,5 +1,4 @@
 import Foundation
-import CoreFoundation
 #if canImport(FoundationXML)
 import FoundationXML
 #endif
@@ -477,7 +476,7 @@ enum DelimitedText {
         if data.starts(with: [0xFF, 0xFE]) { return String(data: data, encoding: .utf16LittleEndian) ?? "" }
         if let s = String(data: data, encoding: .utf8) { return s }
         // Korean Excel exports CSV in CP949 (EUC-KR superset).
-        let cp949 = CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.dosKorean.rawValue))
+        let cp949 = UInt(0x80000422)
         return String(data: data, encoding: String.Encoding(rawValue: cp949)) ?? String(decoding: data, as: UTF8.self)
     }
 

@@ -33,15 +33,15 @@ function parseOptions(args) {
 }
 async function chooseComponents({input=process.stdin,output=process.stdout}={}) {
   if (!input.isTTY || !output.isTTY || typeof input.setRawMode !== 'function') return 'cli';
-  const items=[['cli','CLI only','Terminal commands and MCP tools'],['gui','GUI only','Desktop app; minimal setup launcher remains'],['all','GUI + CLI','Desktop app and terminal commands']];
+  const items=[['cli','CLI만 설치','터미널 명령과 MCP 도구'],['gui','GUI만 설치','문서 편집 앱 · 작은 설정 실행기 유지'],['all','GUI + CLI','문서 편집 앱과 터미널 명령']];
   return new Promise((resolve,reject)=>{
     let selected=0; const wasRaw=Boolean(input.isRaw); const wasPaused=input.isPaused(); let done=false;
-    const draw=()=> { output.write('\r\u001b[JChoose HanX components (↑/↓, Enter; Esc cancels)\n'); for (let i=0;i<items.length;i++) output.write(`${i===selected?'❯':' '} ${items[i][1].padEnd(12)} ${items[i][2]}\n`); output.write('\u001b[4A'); };
-    const cleanup=()=>{ if(done) return; done=true; input.removeListener('keypress',onKey); input.removeListener('end',onEnd); input.removeListener('error',onError); process.removeListener('SIGTERM',onTerminate); input.setRawMode(wasRaw); if(wasPaused) input.pause(); output.write('\r\u001b[J\u001b[?25h'); };
+    const draw=()=> { output.write('\r\u001b[JHanX 설치 항목 선택 (↑/↓ 이동, Enter 선택, Esc 취소)\n'); for (let i=0;i<items.length;i++) output.write(`${i===selected?'❯':' '} ${items[i][1].padEnd(12)} │ ${items[i][2]}\n`); output.write('\u001b[4A'); };
+    const cleanup=()=>{ if(done) return; done=true; input.removeListener('keypress',onKey); input.removeListener('end',onEnd); input.removeListener('error',onError); for(const signal of ['SIGTERM','SIGINT','SIGHUP']) process.removeListener(signal,onTerminate); input.setRawMode(wasRaw); if(wasPaused) input.pause(); output.write('\r\u001b[J\u001b[?25h'); };
     const cancel=()=>{cleanup(); reject(new Error('HanX setup cancelled; no components changed.'));};
     const onEnd=()=>cancel(); const onError=error=>{cleanup();reject(error);}; const onTerminate=()=>cancel();
     const onKey=(str,key={})=>{ if(key.name==='up') selected=(selected+2)%3; else if(key.name==='down') selected=(selected+1)%3; else if(key.name==='return') { const value=items[selected][0]; cleanup(); resolve(value); return; } else if(key.name==='escape'||(key.ctrl&&key.name==='c')) {cancel();return;} else return; draw(); };
-    readline.emitKeypressEvents(input); input.setRawMode(true); input.resume(); output.write('\u001b[?25l'); draw(); input.on('keypress',onKey); input.on('end',onEnd); input.on('error',onError); process.once('SIGTERM',onTerminate);
+    readline.emitKeypressEvents(input); input.setRawMode(true); input.resume(); output.write('\u001b[?25l'); draw(); input.on('keypress',onKey); input.on('end',onEnd); input.on('error',onError); for(const signal of ['SIGTERM','SIGINT','SIGHUP']) process.once(signal,onTerminate);
   });
 }
 function validateManifest(value,version=VERSION) {
@@ -121,36 +121,71 @@ async function installCLI() {
     return binary;
   } finally { fs.rmSync(staging,{recursive:true,force:true}); }
 }
+function installedGUI(state=readState()) { return state.guiVersion===VERSION && typeof state.gui==='string' && fs.existsSync(state.gui)?state.gui:null; }
 async function installGUI(components='gui', yes=false) {
   const state=readState();
-  if(state.gui && fs.existsSync(state.gui)) return state.gui;
+  if(installedGUI(state)&&(process.platform!=='win32'||state.guiComponents===components)) return state.gui;
   const file=await download(selectAsset(await releaseManifest(),'gui'));
   let installed;
   if(process.platform==='darwin') {
     const parent=path.join(os.homedir(),'Applications'); const destination=path.join(parent,'HanX.app');
-    if(fs.existsSync(destination)) throw new Error(`Refusing to overwrite ${destination}. Move the existing app before installing this version.`);
+    const owned=state.gui===destination && typeof state.guiVersion==='string';
+    if(fs.existsSync(destination)&&!owned) throw new Error(`Refusing to overwrite unowned ${destination}. Move the existing app before installing this version.`);
     fs.mkdirSync(parent,{recursive:true}); const staging=fs.mkdtempSync(path.join(paths().downloads,'gui-'));
-    try {await extract(file,staging); const app=fs.existsSync(path.join(staging,'HanX.app'))?path.join(staging,'HanX.app'):null; if(!app) throw new Error('GUI archive does not contain HanX.app.'); await run('/usr/bin/ditto',[app,destination]); installed=destination;} finally {fs.rmSync(staging,{recursive:true,force:true});}
+    const replacement=path.join(parent,`.HanX-${crypto.randomUUID()}.app`); const backup=path.join(parent,`.HanX-backup-${crypto.randomUUID()}.app`); let backedUp=false;
+    try {
+      await extract(file,staging); const app=fs.existsSync(path.join(staging,'HanX.app'))?path.join(staging,'HanX.app'):null;
+      if(!app) throw new Error('GUI archive does not contain HanX.app.');
+      fs.mkdirSync(replacement); await run('/usr/bin/ditto',[app,replacement]);
+      if(fs.existsSync(destination)) { if(!owned) throw new Error(`Refusing to overwrite ${destination}.`); fs.renameSync(destination,backup); backedUp=true; }
+      try { fs.renameSync(replacement,destination); } catch(error) {if(backedUp) fs.renameSync(backup,destination); throw error;}
+      if(backedUp) fs.rmSync(backup,{recursive:true,force:true}); installed=destination;
+    } finally {fs.rmSync(staging,{recursive:true,force:true}); fs.rmSync(replacement,{recursive:true,force:true});}
   } else if(process.platform==='win32') {
     // NSIS waits for the user's per-user component wizard unless --yes was supplied by its caller.
     await run(file,[`/COMPONENTS=${components}`, ...(yes?['/S']:[])]); installed=path.join(process.env.LOCALAPPDATA||path.join(os.homedir(),'AppData','Local'),'Programs','HanX','HanX.exe');
     if(!fs.existsSync(installed)) throw new Error('The desktop installer did not finish at its default per-user location. Run hanx gui after completing installation.');
   } else {
     const destination=path.join(paths().root,VERSION,platformKey(),'HanX.AppImage');
-    fs.mkdirSync(path.dirname(destination),{recursive:true}); fs.copyFileSync(file,destination,fs.constants.COPYFILE_EXCL); fs.chmodSync(destination,0o755); installed=destination;
     const applications=path.join(os.homedir(),'.local','share','applications'); fs.mkdirSync(applications,{recursive:true});
-    const desktop=path.join(applications,'hanx.desktop'); if(!fs.existsSync(desktop)) fs.writeFileSync(desktop,`[Desktop Entry]\nType=Application\nName=HanX\nComment=Local document editor\nExec="${installed.replace(/["\\`$]/g,'\\$&')}" %F\nTerminal=false\nCategories=Office;\n`,{flag:'wx'});
+    const desktop=path.join(applications,'hanx.desktop');
+    const desktopExists=fs.existsSync(desktop);
+    const ownedDesktop=state.desktop===desktop && desktopExists && fs.readFileSync(desktop,'utf8').includes('X-HanX-Managed=true');
+    if(desktopExists&&!ownedDesktop) throw new Error(`Refusing to overwrite unowned desktop entry: ${desktop}`);
+    fs.mkdirSync(path.dirname(destination),{recursive:true}); fs.copyFileSync(file,destination,fs.constants.COPYFILE_EXCL); fs.chmodSync(destination,0o755); installed=destination;
+    const contents=`[Desktop Entry]\nType=Application\nName=HanX\nComment=Local document editor\nExec="${installed.replace(/["\\`$]/g,'\\$&')}" %F\nTerminal=false\nCategories=Office;\nX-HanX-Managed=true\n`;
+    if(ownedDesktop) {const temporary=desktop+'.'+crypto.randomUUID(); fs.writeFileSync(temporary,contents,{flag:'wx'}); fs.renameSync(temporary,desktop);}
+    else fs.writeFileSync(desktop,contents,{flag:'wx'});
+    saveState({...readState(),desktop});
   }
-  saveState({...readState(),gui:installed}); return installed;
+  saveState({...readState(),gui:installed,guiVersion:VERSION,guiComponents:components}); return installed;
 }
 function pdfGuide() {
   console.log('PDF rendering uses optional local LibreOffice (soffice) and Poppler (pdfinfo/pdftotext). HanX does not install them automatically.');
   console.log(process.platform==='darwin'?'Optional install: brew install --cask libreoffice; brew install poppler':process.platform==='linux'?'Optional Debian/Ubuntu install: sudo apt-get install libreoffice poppler-utils':'Optional install: winget install --id TheDocumentFoundation.LibreOffice; install Poppler from a trusted distribution and add its bin directory to your user PATH.');
   console.log('Run hanx capabilities --pretty to check availability, then retry PDF export.');
 }
+async function installPDF() {
+  console.log('선택한 PDF 도구 설치: LibreOffice와 Poppler. 별도 애플리케이션이며 설치 관리자가 권한을 요청할 수 있습니다.');
+  if(process.platform==='win32') await run('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'install-pdf.ps1'),'-Install']);
+  else if(process.platform==='darwin') { await run('brew',['install','--cask','libreoffice']); await run('brew',['install','poppler']); }
+  else {
+    const apt=fs.existsSync('/usr/bin/apt-get'); const dnf=fs.existsSync('/usr/bin/dnf');
+    if(!apt&&!dnf) { pdfGuide(); throw new Error('이 배포판은 PDF 도구를 직접 설치한 뒤 다시 시도하세요.'); }
+    const args=apt?['apt-get','install','-y','libreoffice','poppler-utils']:['dnf','install','-y','libreoffice','poppler-utils'];
+    if(process.getuid&&process.getuid()===0) await run(args.shift(),args); else await run('sudo',args);
+  }
+  console.log('PDF 도구 설치를 마쳤습니다. 새 터미널 또는 앱에서 hanx capabilities --pretty로 확인하세요.');
+}
+async function askPDF() {
+  if(!process.stdin.isTTY||!process.stdout.isTTY) return false;
+  const rl=readline.createInterface({input:process.stdin,output:process.stdout});
+  try {return await new Promise((resolve,reject)=>{rl.once('SIGINT',()=>reject(new Error('HanX setup cancelled.'))); rl.question('PDF 변환 도구(LibreOffice, Poppler)도 설치할까요? [y/N] ',answer=>resolve(/^y(es)?$/i.test(answer.trim())));});} finally {rl.close();}
+}
 async function setup(args=[],context={}) {
   const options=parseOptions(args); const components=options.components || (options.yes?'cli':await chooseComponents());
-  const state=readState(); const root=context.packageRoot||path.resolve(__dirname,'..');
+  const installPDFTools=options.pdf || (!options.yes && !options.components && await askPDF());
+  const root=context.packageRoot||path.resolve(__dirname,'..');
   if(components==='cli'||components==='all') {
     let bundled=false; try {require('../bin/hanx.js').resolveBinary(root,process.platform,process.arch);bundled=true;} catch {}
     if(!bundled && !optionalBinary()) await installCLI();
@@ -158,15 +193,15 @@ async function setup(args=[],context={}) {
   if(components==='gui'||components==='all') await installGUI(components,options.yes);
   if(components==='gui') fs.rmSync(paths().cli,{recursive:true,force:true});
   saveState({...readState(),components,version:VERSION});
-  console.log(`HanX ${VERSION}: ${components==='all'?'GUI + CLI':components.toUpperCase()+' only'} selected.`);
-  if(components==='gui') console.log('The hanx setup / hanx gui launcher remains; native terminal commands are disabled. The desktop app contains its own internal engine.');
-  if(components==='cli') console.log('Run hanx setup to add the desktop app later.');
-  if(options.pdf) pdfGuide();
+  console.log(`HanX ${VERSION}: ${components==='all'?'GUI + CLI':components==='cli'?'CLI만 설치':'GUI만 설치'} 선택 완료.`);
+  if(components==='gui') console.log('작은 hanx setup / hanx gui 실행기만 유지합니다. 터미널 문서 명령은 비활성화되며 GUI는 내부 엔진을 사용합니다.');
+  if(components==='cli') console.log('나중에 GUI 앱을 추가하려면 hanx setup을 실행하세요.');
+  if(installPDFTools) await installPDF();
   return {components};
 }
 async function launchGUI() {
-  const state=readState(); const gui=state.gui && fs.existsSync(state.gui)?state.gui:await installGUI('gui');
+  const state=readState(); const gui=installedGUI(state)||await installGUI('gui');
   if(process.platform==='darwin') await run('/usr/bin/open',[gui]);
   else { const child=spawn(gui,[],{detached:true,stdio:'ignore',shell:false}); await new Promise((resolve,reject)=>{child.once('spawn',resolve);child.once('error',reject);}); child.unref(); }
 }
-module.exports={VERSION,RELEASE,paths,readState,parseOptions,chooseComponents,validateManifest,selectAsset,expectedName,verifyFile,writeExclusive,platformKey,optionalBinary,installCLI,setup,launchGUI,pdfGuide,releaseManifest};
+module.exports={VERSION,RELEASE,paths,readState,parseOptions,chooseComponents,validateManifest,selectAsset,expectedName,verifyFile,writeExclusive,download,platformKey,optionalBinary,installCLI,installGUI,installedGUI,setup,launchGUI,pdfGuide,installPDF,releaseManifest};

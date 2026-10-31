@@ -13,6 +13,8 @@ permissions:
 jobs:
   native-packages:
     timeout-minutes: 60
+    env:
+      HANX_SMOKE_OUTPUT_DIR: ${{ github.workspace }}/build/gui-smoke
     strategy:
       fail-fast: false
       matrix:
@@ -57,8 +59,13 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           python3 packaging/linux/stage-cli.py
+          python3 packaging/linux/test-installer.py
           cp packaging/linux/install-cli.sh packaging/linux/install-gui.sh build/platform/cli/
           python3 packaging/smoke-cli.py build/platform/cli/hanx --pdf
+          install_prefix=$(mktemp -d)
+          build/platform/cli/install-cli.sh --components cli --yes --prefix "$install_prefix"
+          PATH=/usr/bin:/bin "$install_prefix/bin/hanx" --version
+          PATH=/usr/bin:/bin "$install_prefix/bin/hanx-cli" capabilities
           mkdir -p build/distribution
           version=$(node -p "require('./packaging/npm/package.json').version")
           tar -C build/platform/cli -czf "build/distribution/HanX-CLI-$version-linux-x64.tar.gz" .
@@ -68,6 +75,7 @@ jobs:
         run: |
           ./packaging/windows/stage-cli.ps1
           ./packaging/windows/test-path.ps1
+          python packaging/windows/test-console.py build/platform/cli/hanx.exe
           python packaging/smoke-cli.py build/platform/cli/hanx.exe --pdf
           New-Item -ItemType Directory -Path build/distribution -Force
           $version = (Get-Content packaging/npm/package.json | ConvertFrom-Json).version
@@ -125,6 +133,19 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: npx electron-builder --publish never
+      - name: Windows installer choices, PATH and uninstall integration
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem desktop/dist/*Setup.exe | Select-Object -First 1
+          if (-not $installer) { throw 'Windows Setup executable was not built' }
+          ./packaging/windows/test-installer.ps1 -Installer $installer.FullName
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hanx-${{ runner.os }}-gui-proof
+          path: build/gui-smoke/**
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: hanx-${{ runner.os }}-x64

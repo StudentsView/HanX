@@ -5,7 +5,9 @@ import FoundationXML
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
+#if canImport(CoreFoundation)
 import CoreFoundation
+#endif
 #if canImport(Darwin)
 import Darwin
 #elseif canImport(Glibc)
@@ -24,6 +26,16 @@ struct AgentError: Error {
 
 enum AgentIO {
     static let version="2.9.0"
+    static func isBoolean(_ number: NSNumber) -> Bool {
+        #if canImport(CoreFoundation)
+        return CFGetTypeID(number) == CFBooleanGetTypeID()
+        #else
+        // Windows Foundation has no public CoreFoundation module. JSON number
+        // tokens use integer/double encodings; Boolean NSNumber uses c or B.
+        let type = String(cString: number.objCType)
+        return type == "c" || type == "B"
+        #endif
+    }
     static func object(_ data:Data)->Any? { try? JSONSerialization.jsonObject(with:data,options:[.fragmentsAllowed]) }
     static func json(_ value:Any,pretty:Bool=false)throws->Data {
         try JSONSerialization.data(withJSONObject:value,options:pretty ? [.sortedKeys,.prettyPrinted,.fragmentsAllowed] : [.sortedKeys,.fragmentsAllowed])
@@ -31,7 +43,7 @@ enum AgentIO {
     static func encode<T:Encodable>(_ value:T)throws->Any { try JSONSerialization.jsonObject(with:JSONEncoder().encode(value)) }
     static func decode<T:Decodable>(_ type:T.Type,_ value:Any)throws->T { try JSONDecoder().decode(type,from:json(value)) }
     static func validateNumbers(_ value:Any)throws {
-        if let n=value as? NSNumber,CFGetTypeID(n) != CFBooleanGetTypeID() {
+        if let n=value as? NSNumber,!isBoolean(n) {
             guard n.doubleValue.isFinite,abs(n.doubleValue)<=10_000_000 else { throw AgentError("invalid_argument","Numeric value exceeds supported bounds (absolute maximum 10000000)") }
         } else if let a=value as? [Any] { for item in a { try validateNumbers(item) } }
         else if let d=value as? [String:Any] { for item in d.values { try validateNumbers(item) } }
@@ -44,16 +56,16 @@ enum AgentIO {
     }
     static func index(_ value:Any?,_ label:String,default fallback:Int?=nil)throws->Int {
         if value == nil,let fallback { return fallback }
-        guard let n=value as? NSNumber,CFGetTypeID(n) != CFBooleanGetTypeID(),n.doubleValue.isFinite,n.doubleValue.rounded() == n.doubleValue,n.doubleValue>=0,n.doubleValue<=10_000_000 else { throw AgentError("invalid_argument","Invalid zero-based \(label)") }
+        guard let n=value as? NSNumber,!isBoolean(n),n.doubleValue.isFinite,n.doubleValue.rounded() == n.doubleValue,n.doubleValue>=0,n.doubleValue<=10_000_000 else { throw AgentError("invalid_argument","Invalid zero-based \(label)") }
         return n.intValue
     }
     static func number(_ value:Any?,_ label:String,default fallback:Double?=nil)throws->Double {
         if value == nil,let fallback { return fallback }
-        guard let n=value as? NSNumber,CFGetTypeID(n) != CFBooleanGetTypeID(),n.doubleValue.isFinite,abs(n.doubleValue)<=10_000_000 else { throw AgentError("invalid_argument","Invalid \(label) number") }; return n.doubleValue
+        guard let n=value as? NSNumber,!isBoolean(n),n.doubleValue.isFinite,abs(n.doubleValue)<=10_000_000 else { throw AgentError("invalid_argument","Invalid \(label) number") }; return n.doubleValue
     }
     static func bool(_ value:Any?,_ label:String,default fallback:Bool=false)throws->Bool {
         guard let value else { return fallback }
-        guard let n=value as? NSNumber,CFGetTypeID(n) == CFBooleanGetTypeID() else { throw AgentError("invalid_argument","Invalid \(label) boolean") }; return n.boolValue
+        guard let n=value as? NSNumber,isBoolean(n) else { throw AgentError("invalid_argument","Invalid \(label) boolean") }; return n.boolValue
     }
     static func url(_ path:String)->URL { AgentPath.literalURL(path) }
     static func read(_ path:String)throws->Data {
