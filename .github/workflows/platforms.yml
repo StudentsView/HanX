@@ -1,0 +1,104 @@
+name: Native Windows and Linux packages
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Package.swift'
+      - 'desktop/**'
+      - 'packaging/**'
+      - '.github/workflows/platforms.yml'
+permissions:
+  contents: read
+jobs:
+  native-packages:
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Linux build and Electron dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libicu-dev libcurl4-openssl-dev libxml2-dev libsqlite3-dev libssl-dev libasound2 libnss3 libgtk-3-0 libgbm1 libfuse2 rpm xvfb libreoffice poppler-utils fonts-noto-cjk
+      - name: Windows PDF renderer and text extraction
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install libreoffice-fresh poppler -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'PDF dependencies could not be installed' }
+          'C:\Program Files\LibreOffice\program' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          Get-ChildItem 'C:\ProgramData\chocolatey\lib\poppler' -Filter pdfinfo.exe -Recurse | ForEach-Object {
+            $_.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '6.2.1'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build native engine
+        run: swift build -c release
+      - name: Linux runtime staging
+        if: runner.os == 'Linux'
+        run: |
+          python3 packaging/linux/stage-cli.py
+          cp packaging/linux/install-cli.sh build/platform/cli/
+          python3 packaging/smoke-cli.py build/platform/cli/hanx --pdf
+          mkdir -p build/distribution
+          tar -C build/platform/cli -czf build/distribution/hanx-cli-linux-x64.tar.gz .
+      - name: Windows runtime staging and PATH tests
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./packaging/windows/stage-cli.ps1
+          ./packaging/windows/test-path.ps1
+          python packaging/smoke-cli.py build/platform/cli/hanx.exe --pdf
+          New-Item -ItemType Directory -Path build/distribution -Force
+          Compress-Archive -Path build/platform/cli/* -DestinationPath build/distribution/hanx-cli-win32-x64.zip
+      - name: CLI and MCP regression suite
+        shell: bash
+        env:
+          PYTHONUTF8: '1'
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            export HANX_BIN="$PWD/build/platform/cli/hanx.exe"
+          else
+            export HANX_BIN="$PWD/build/platform/cli/hanx"
+          fi
+          python -m unittest discover -s Tests/AgentCLI -p test_cli.py
+          python -m unittest discover -s Tests/AgentCLI -p test_spreadsheets.py
+          python -m unittest discover -s Tests/AgentCLI -p test_mcp.py
+      - name: Stage npm platform binary
+        shell: bash
+        run: |
+          platform=$(node -p 'process.platform + "-" + process.arch')
+          mkdir -p "packaging/npm/native/$platform"
+          cp -R build/platform/cli/. "packaging/npm/native/$platform/"
+          npm test --prefix packaging/npm
+          npm pack ./packaging/npm --ignore-scripts --pack-destination build/distribution
+          node packaging/npm/bin/hanx.js --version
+      - name: Test and package desktop
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+          npx electron-builder --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hanx-${{ runner.os }}-x64
+          path: |
+            build/distribution/*
+            desktop/dist/*.exe
+            desktop/dist/*.AppImage
+            desktop/dist/*.deb
+          if-no-files-found: error
