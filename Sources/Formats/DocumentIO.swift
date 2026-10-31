@@ -6,7 +6,9 @@ enum DocumentIO {
         let data = try Data(contentsOf: url)
         let ext = url.pathExtension.lowercased()
         let doc: UDocument
-        if CFBReader.isCFB(data) {
+        if PDFReader.isPDF(data) || ext == "pdf" {
+            doc = try PDFReader.read(data)
+        } else if CFBReader.isCFB(data) {
             doc = try HWP5Reader(data: data).read()
         } else if ZipReader.isZip(data) {
             let zip = try ZipReader(data: data)
@@ -18,7 +20,7 @@ enum DocumentIO {
                 throw FormatError.unsupported("알 수 없는 ZIP 기반 문서")
             }
         } else {
-            throw FormatError.unsupported("hwp, hwpx, docx 형식만 열 수 있습니다")
+            throw FormatError.unsupported("hwp, hwpx, docx, pdf 형식만 열 수 있습니다")
         }
         if doc.sections.isEmpty { doc.sections = [Section(page: doc.source == .docx ? .letterWord : .a4Hwp, blocks: [.paragraph(Paragraph())])] }
         for i in doc.sections.indices where doc.sections[i].blocks.isEmpty { doc.sections[i].blocks = [.paragraph(Paragraph())] }

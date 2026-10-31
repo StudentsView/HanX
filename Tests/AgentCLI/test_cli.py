@@ -20,6 +20,17 @@ class CLI(unittest.TestCase):
             {'type':'paragraph','runs':[{'text':'빨강','color':'FF0000'},{'text':' 파랑','color':'0000FF'}]},
             {'type':'table','rows':[['이름','값'],['합계','10']]}]})
         out=self.root/('문서.'+ext); self.runcli('create','--spec',spec,'--output',out); return out
+    def test_whitespace_only_runs_between_korean_words_survive_docx(self):
+        spec=self.spec('spaces.json',{'kind':'document','blocks':[{'type':'paragraph','runs':[{'text':'한글','font':'Apple SD Gothic Neo'},{'text':' ','font':'Arial'},{'text':'사이','font':'Apple SD Gothic Neo'},{'text':'  ','font':'Arial'},{'text':'공백','font':'Apple SD Gothic Neo'}]}]})
+        out=self.root/'공백.docx';self.runcli('create','--spec',spec,'--output',out)
+        self.assertIn('한글 사이  공백',self.runcli('read',out)['text'])
+    def test_docx_literal_xml_inside_cdata_stays_literal(self):
+        source=self.make_doc();parts={name:zipfile.ZipFile(source).read(name) for name in zipfile.ZipFile(source).namelist()}
+        text=parts['word/document.xml'].decode();start=text.index('<w:body>')+len('<w:body>');text=text[:start]+'<w:p><w:r><w:t><![CDATA[<w:t> </w:t>]]></w:t></w:r></w:p>'+text[start:];parts['word/document.xml']=text.encode()
+        out=self.root/'cdata.docx'
+        with zipfile.ZipFile(out,'w') as archive:
+            for name,data in parts.items():archive.writestr(name,data)
+        self.assertIn('<w:t> </w:t>',self.runcli('read',out)['text'])
     def test_capabilities_discover_operations(self):
         d=self.runcli('capabilities'); self.assertIn('hwp',d['formats']['document']); self.assertIn('pptx',d['formats']['presentation']); self.assertIn('replace_text',d['operations']['document'])
     def test_hwp_docx_hwpx_create_read_convert(self):

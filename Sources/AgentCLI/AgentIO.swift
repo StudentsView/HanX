@@ -10,7 +10,7 @@ struct AgentError: Error {
 }
 
 enum AgentIO {
-    static let version="2.7.0"
+    static let version="2.8.0"
     static func object(_ data:Data)->Any? { try? JSONSerialization.jsonObject(with:data,options:[.fragmentsAllowed]) }
     static func json(_ value:Any,pretty:Bool=false)throws->Data {
         try JSONSerialization.data(withJSONObject:value,options:pretty ? [.sortedKeys,.prettyPrinted,.fragmentsAllowed] : [.sortedKeys,.fragmentsAllowed])
@@ -42,10 +42,10 @@ enum AgentIO {
         guard let value else { return fallback }
         guard let n=value as? NSNumber,CFGetTypeID(n) == CFBooleanGetTypeID() else { throw AgentError("invalid_argument","Invalid \(label) boolean") }; return n.boolValue
     }
-    static func url(_ path:String)->URL { URL(fileURLWithPath:(path as NSString).expandingTildeInPath).standardizedFileURL }
+    static func url(_ path:String)->URL { AgentPath.literalURL(path) }
     static func read(_ path:String)throws->Data {
         if path == "-" { return FileHandle.standardInput.readDataToEndOfFile() }
-        do { return try Data(contentsOf:url(path)) } catch { throw AgentError("io_error","Cannot read \(path): \(error.localizedDescription)") }
+        do { return try Data(contentsOf:AgentPath.inputURL(path)) } catch { throw AgentError("io_error","Cannot read \(path): \(error.localizedDescription)") }
     }
     static func readJSON(_ path:String)throws->Any {
         guard let value=object(try read(path)) else { throw AgentError("invalid_json","Invalid JSON: \(path)") }; return value
@@ -108,7 +108,8 @@ enum AgentFile {
         return result
     }
     static func load(_ path:String)throws->AgentFile {
-        let data=try AgentIO.read(path),url=AgentIO.url(path),ext=url.pathExtension.lowercased()
+        let data=try AgentIO.read(path),url=AgentPath.inputURL(path),ext=url.pathExtension.lowercased()
+        if PDFReader.isPDF(data) || ext == "pdf" { return .document(try DocumentIO.load(url:url)) }
         if ZipReader.isZip(data) {
             let zip=try ZipReader(data:data)
             if zip.has("xl/workbook.xml") { let b=try XLSXReader.read(zip); try AgentSheets.validate(b); return .spreadsheet(b) }
@@ -127,12 +128,13 @@ enum AgentFile {
             return try AgentDocuments.create(spec,base:url.deletingLastPathComponent())
         }
         if ["txt","md"].contains(ext),let text=String(data:data,encoding:.utf8) { return .document(UDocument.plain(text,char:CharProps())) }
-        throw AgentError("unsupported_format","Expected HWP, HWPX, DOCX, PPTX, XLSX, CSV, TSV, HWPML, XML, JSON or UTF-8 text")
+        throw AgentError("unsupported_format","Expected PDF, HWP, HWPX, DOCX, PPTX, XLSX, CSV, TSV, HWPML, XML, JSON or UTF-8 text")
     }
     func data(for ext:String)throws->Data {
         // Native model import and XML readers also pass this boundary before
         // numeric values enter binary format writers.
         try AgentValidation.file(self,format:ext)
+        if ext == "pdf" { return try AgentPDF.data(self) }
         switch self {
         case .document(let d):
             switch ext {

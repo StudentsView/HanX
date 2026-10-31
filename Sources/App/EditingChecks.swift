@@ -149,6 +149,26 @@ enum EditingChecks {
         try require(docBack.plainText.contains("HanX 서식 시험"),"docx text roundtrip")
         print("PASS document font, emphasis, character spacing, page orientation, DOCX save/reopen")
 
+        let pdfURL=folder.appendingPathComponent("editing-check.pdf")
+        try doc.pdfData().write(to:pdfURL)
+        try require(HWDocument.readableTypes.contains(DocType.pdf),"app advertises PDF input")
+        let pdfDoc=HWDocument()
+        try pdfDoc.read(from:pdfURL,ofType:DocType.pdf)
+        try require(pdfDoc.textStorage.string.contains("HanX 서식 시험"),"PDF selectable Korean text import")
+        try require(near(pdfDoc.page.width,doc.page.width) && near(pdfDoc.page.height,doc.page.height),"PDF page dimensions import")
+        try require(pdfDoc.model.warnings.contains(where:{$0.contains("OCR")}),"PDF extraction limits available")
+        pdfDoc.makeWindowControllers()
+        let pdfEditor=pdfDoc.windowControllers.first as! EditorWindowController
+        pdfEditor.updateStatus()
+        let pdfLabels=descendants(pdfEditor.window!.contentView!).compactMap({$0 as? NSTextField})
+        try require(pdfLabels.contains(where:{$0.stringValue.contains("PDF 텍스트 가져오기") && ($0.toolTip?.contains("OCR") ?? false)}),"PDF extraction notice visible in editor status")
+        let pdfDocx=folder.appendingPathComponent("editing-check-from-pdf.docx")
+        try pdfDoc.data(ofType:DocType.docx).write(to:pdfDocx)
+        let pdfBack=try DocumentIO.load(url:pdfDocx)
+        try require(pdfBack.plainText.contains("HanX 서식 시험"),"PDF text saves as editable DOCX")
+        pdfEditor.close()
+        print("PASS app PDF import, Korean text, page dimensions, extraction notice, DOCX save/reopen")
+
         let demo=Presentation(); demo.slides=[]
         for (i,kind) in TransitionKind.allCases.enumerated() {
             var slide=Slide(); slide.background=i%2 == 0 ? RGB(r:20,g:43,b:76) : RGB(r:238,g:245,b:250)

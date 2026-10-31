@@ -1,17 +1,6 @@
 import AppKit
 import PDFKit
 
-enum PDFMerge {
-    static func merge(_ pages: [Data]) -> Data {
-        let out = PDFDocument()
-        for d in pages {
-            guard let doc = PDFDocument(data: d) else { continue }
-            for i in 0..<doc.pageCount { if let p = doc.page(at: i) { out.insert(p, at: out.pageCount) } }
-        }
-        return out.dataRepresentation() ?? Data()
-    }
-}
-
 extension DocType {
     static let xlsx = "org.openxmlformats.spreadsheetml.sheet"
     static let csv = "public.comma-separated-values-text"
@@ -53,7 +42,7 @@ final class SheetDocument: NSDocument {
             for ws in book.sheets {
                 let v = SheetGridView(sheet: ws, engine: engine)
                 v.printMode = true
-                pages += v.pdfPages(pageSize: NSSize(width: 842 - 72, height: 595 - 72))
+                pages += try v.pdfPages(pageSize: NSSize(width: 842 - 72, height: 595 - 72))
             }
             return PDFMerge.merge(pages)
         default: return XLSXWriter.write(book)

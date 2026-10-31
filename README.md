@@ -40,6 +40,8 @@ hanx --version
 hanx capabilities --pretty
 ```
 
+터미널에서 `hanx`를 실행하면 시작 화면을 표시합니다. `hanx --convert`를 실행하고 파일을 드롭한 뒤 방향키로 출력 형식을 선택하면 같은 폴더에 변환본을 저장합니다. 문서, 엑셀, 슬라이드의 PDF 출력도 지원합니다.
+
 AI 에이전트의 MCP 연결에는 `hanx mcp`를 사용합니다. [CLI 안내](docs/cli/README.md)에서 연결과 엑셀 작업 예제를 확인하세요.
 
 ### 업데이트
@@ -53,7 +55,7 @@ brew upgrade StudentsView/tap/hanx
 
 ### macOS 앱 설치
 
-앱과 CLI를 함께 설치하려면 [릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.7.0)의 `HanX-2.7.0.pkg`를 사용하세요. npm과 Homebrew는 CLI를 설치합니다.
+앱과 CLI를 함께 설치하려면 [릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.8.0)의 `HanX-2.8.0.pkg`를 사용하세요. npm과 Homebrew는 CLI를 설치합니다.
 
 ## 엑셀 CLI
 

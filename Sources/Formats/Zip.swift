@@ -65,9 +65,30 @@ final class ZipReader {
         }
     }
 
+    private static let textWhitespacePattern = #"<((?:[A-Za-z_][A-Za-z0-9_.-]*:)?t)\b([^<>]*)>([ \t\r\n]+)</\1\s*>"#
+    private var officeTextWhitespace: NSRegularExpression? { Self.textWhitespaceRegex }
+    private static let textWhitespaceRegex = try? NSRegularExpression(pattern: textWhitespacePattern)
+    private static let protectedXMLRegex = try? NSRegularExpression(pattern: #"<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->|<\?[\s\S]*?\?>"#)
+
     func xml(_ name: String) -> XMLDocument? {
         guard let d = read(name) else { return nil }
-        return try? XMLDocument(data: d, options: [.nodePreserveWhitespace])
+        // Foundation on macOS can drop whitespace-only text even with
+        // nodePreserveWhitespace and xml:space=preserve. Office <*:t> nodes
+        // are semantic text runs; CDATA retains their literal spaces/tabs.
+        var source = d
+        if let xml = String(data: d, encoding: .utf8), let regex = officeTextWhitespace {
+            let full = NSRange(xml.startIndex..., in: xml)
+            let protected = Self.protectedXMLRegex?.matches(in: xml, range: full).map(\.range) ?? []
+            let result = NSMutableString(string: xml)
+            for match in regex.matches(in: xml, range: full).reversed() {
+                guard !protected.contains(where: { NSIntersectionRange($0, match.range).length > 0 }) else { continue }
+                let replacement = regex.replacementString(for: match, in: xml, offset: 0,
+                    template: "<$1$2><![CDATA[$3]]></$1>")
+                result.replaceCharacters(in: match.range, with: replacement)
+            }
+            source = Data((result as String).utf8)
+        }
+        return try? XMLDocument(data: source, options: [.nodePreserveWhitespace, .nodePreserveCDATA])
     }
 }
 

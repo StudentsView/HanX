@@ -38,7 +38,7 @@ class MCP(unittest.TestCase):
         self.assertEqual(self.call('ping')['result'],{})
     def test_no_argument_tool_call_and_malformed_create_keep_connection_alive(self):
         self.initialize(); r=self.call('tools/call',{'name':'hanx_capabilities'})
-        self.assertIn('result',r); self.assertFalse(r.get('result',{}).get('isError',False)); self.assertEqual(json.loads(r['result']['content'][0]['text'])['data']['version'],'2.7.0')
+        self.assertIn('result',r); self.assertFalse(r.get('result',{}).get('isError',False)); self.assertEqual(json.loads(r['result']['content'][0]['text'])['data']['version'],'2.8.0')
         r=self.call('tools/call',{'name':'hanx_create','arguments':{'output':str(pathlib.Path(self.temp.name)/'bad.hwp'),'spec':{'kind':'document','blocks':[{'text':'x','style':{'font':'a'*65536}}]}}})
         self.assertTrue(r['result']['isError']); self.assertEqual(self.call('ping')['result'],{})
 

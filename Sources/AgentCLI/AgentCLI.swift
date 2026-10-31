@@ -1,43 +1,81 @@
 import Foundation
 
 enum AgentCLI {
-    static let commands:Set<String>=["--help","-h","help","--version","version","capabilities","schema","read","create","edit","convert","xml","package","spreadsheet","mcp","serve"]
-    static let help="""
-    HanX CLI \(AgentIO.version)
-    Local document tools for agents. JSON on stdout; errors have nonzero exit codes.
-
-    hanx capabilities
-    hanx create --spec document.json --output report.hwp
-    hanx read report.hwp [--text | --no-model] [--pretty]
-    hanx edit report.docx --ops edits.json --output updated.docx
-    hanx convert report.hwp --output report.docx
-    hanx xml read data.xml [--xpath '//*[local-name()="item"]']
-    hanx xml edit data.xml --ops edits.json --output updated.xml
-    hanx package list deck.pptx
-    hanx package read deck.pptx --part ppt/slides/slide1.xml [--xpath ...]
-    hanx package patch deck.pptx --part ppt/slides/slide1.xml --ops edits.json --output updated.pptx
-    hanx spreadsheet read book.xlsx --sheet 매출 --range A1:D10
-    hanx spreadsheet eval book.xlsx --sheet 매출 --formula '=SUM(D2:D10)'
-    hanx spreadsheet recalculate book.xlsx --output calculated.xlsx
-    hanx spreadsheet functions
-    hanx mcp
-
-    --spec - and --ops - read JSON from stdin. Output files are never overwritten
-    unless --force is explicit. Indices are zero-based; dimensions are in points.
-    DOCX/PPTX/HWPX -> .xml uses Flat OPC, preserving the complete package.
-    HWP -> .xml and document creation as .hml/.xml use HWPML.
-    Use --xml-format hwpml to convert DOCX/HWPX to HWPML instead.
-    본 제품은 한컴의 HWP 문서 파일(.hwp) 공개 문서를 참고하여 개발하였습니다.
-    Existing diagnostic commands (dump, sheet, slides, eval, formula-suite) remain.
-    """
+    static let commands:Set<String>=["--convert","--help","-h","help","--version","version","capabilities","schema","read","create","edit","convert","xml","package","spreadsheet","mcp","serve"]
+    static var help: String {
+        let rows: [(String, String)] = [
+            ("시작 화면", "hanx"),
+            ("파일 변환", "hanx --convert  (드롭 → ↑ ↓ 선택 → Enter)"),
+            ("도움말", "hanx --help"),
+            ("버전", "hanx --version"),
+            ("지원 기능", "hanx capabilities --pretty"),
+            ("변환", "hanx convert 원본.hwp --output 결과.docx"),
+            ("본문 읽기", "hanx read 문서.docx --text"),
+            ("문서 생성", "hanx create --spec 문서.json --output 결과.hwp"),
+            ("문서 수정", "hanx edit 원본.docx --ops 수정.json --output 결과.docx"),
+            ("셀 조회", "hanx spreadsheet read 매출.xlsx --sheet 매출 --range A1:D10"),
+            ("수식 계산", "hanx spreadsheet eval 매출.xlsx --formula '=SUM(D2:D10)'"),
+            ("재계산", "hanx spreadsheet recalculate 원본.xlsx --output 결과.xlsx"),
+            ("함수 목록", "hanx spreadsheet functions"),
+            ("XML 조회", "hanx xml read 원본.xml"),
+            ("XML 수정", "hanx xml edit 원본.xml --ops 수정.json --output 결과.xml"),
+            ("내부 파일", "hanx package list 발표.pptx"),
+            ("내부 조회", "hanx package read 발표.pptx --part ppt/slides/slide1.xml"),
+            ("내부 수정", "hanx package patch 원본.docx --part word/document.xml"),
+            ("수정 옵션", "  --ops 수정.json --output 결과.docx"),
+            ("MCP 연결", "hanx mcp")
+        ]
+        let options: [(String, String)] = [
+            ("입력 경로", "원본.hwp 또는 /Users/me/Documents/원본.hwp"),
+            ("공백 경로", "hanx convert \"원본 문서.hwp\" --output \"결과 문서.docx\""),
+            ("저장 경로", "--output 결과.docx  (파일명과 확장자 포함)"),
+            ("덮어쓰기", "--force"),
+            ("JSON 정렬", "--pretty"),
+            ("표준 입력", "--spec - / --ops -"),
+            ("HWPML 출력", "--xml-format hwpml"),
+            ("PDF 입력", "텍스트 추출 / 배치 복원 / OCR 미지원"),
+            ("문서 형식", "HWP / DOCX / HWPX / HWPML / PDF / TXT / MD / JSON"),
+            ("엑셀 형식", "XLSX / CSV / TSV / PDF / JSON"),
+            ("슬라이드", "PPTX / PDF / JSON"),
+            ("XML 형식", "일반 XML / HWPML / Flat OPC"),
+            ("변환 범위", "같은 문서 종류의 지원 형식 간 변환"),
+            ("상대 경로", "현재 터미널 폴더 기준"),
+            ("출력", "JSON / 본문 읽기: --text / 오류: 종료 코드 != 0")
+        ]
+        func width(_ text: String) -> Int {
+            text.unicodeScalars.reduce(0) { total, scalar in
+                let v = scalar.value
+                let wide = (0x1100...0x115f).contains(v) || (0x2e80...0xa4cf).contains(v) || (0xac00...0xd7a3).contains(v) || (0xf900...0xfaff).contains(v) || (0xff01...0xff60).contains(v)
+                return total + (wide ? 2 : 1)
+            }
+        }
+        let left = 12
+        let right = (rows + options).map { width($0.1) }.max() ?? 60
+        func pad(_ text: String, _ count: Int) -> String {
+            text + String(repeating: " ", count: max(0, count - width(text)))
+        }
+        func rule(_ start: String, _ middle: String, _ end: String) -> String {
+            start + String(repeating: "─", count: left + 2) + middle + String(repeating: "─", count: right + 2) + end
+        }
+        func row(_ label: String, _ value: String) -> String {
+            "│ " + pad(label, left) + " │ " + pad(value, right) + " │"
+        }
+        var lines = ["HanX CLI \(AgentIO.version)", "", rule("┌", "┬", "┐"), row("기능", "실행 예시"), rule("├", "┼", "┤")]
+        lines += rows.map { row($0.0, $0.1) }
+        lines += [rule("├", "┼", "┤"), row("옵션 / 형식", "값 / 사용법"), rule("├", "┼", "┤")]
+        lines += options.map { row($0.0, $0.1) }
+        lines += [rule("└", "┴", "┘")]
+        return lines.joined(separator: "\n")
+    }
     static func capabilities()->[String:Any] {
         let exe=(Bundle.main.executableURL ?? AgentIO.url(CommandLine.arguments[0])).resolvingSymlinksInPath()
         let guides=[exe.deletingLastPathComponent().appendingPathComponent("README.md"),exe.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("docs/cli/README.md")]
         let guide=guides.first { FileManager.default.fileExists(atPath:$0.path) }
         return [
-            "name":"HanX","version":AgentIO.version,"notices":[LegalNotices.hwp,LegalNotices.independence],
+            "name":"HanX","version":AgentIO.version,"notices":[LegalNotices.independence],
             "guidePath":guide?.path ?? "",
-            "formats":["document":["hwp","hwpx","docx","hml","txt","md","json"],"presentation":["pptx","json"],"spreadsheet":["xlsx","csv","tsv","json"],"xml":["generic XML with XPath","HWPML 2.x","Flat OPC","DOCX/PPTX/HWPX/XLSX package XML"]],
+            "formats":["document":["pdf","hwp","hwpx","docx","hml","txt","md","json"],"presentation":["pptx","json","pdf"],"spreadsheet":["xlsx","csv","tsv","json","pdf"],"xml":["generic XML with XPath","HWPML 2.x","Flat OPC","DOCX/PPTX/HWPX/XLSX package XML"]],
+            "pdf":["input":"Selectable text as document; no layout reconstruction or OCR", "output":"Documents, spreadsheets, presentations using HanX renderers"],
             "spreadsheetFunctions":FunctionLibrary.table.keys.sorted(),
             "operations":["spreadsheet":AgentSheets.operations,"document":AgentDocuments.documentOps,"presentation":AgentDocuments.slideOps,"xml":["set_text","set_attribute","append_xml","replace_xml","delete"]],
             "commands":["read","create","edit","convert","xml read","xml edit","package list","package read","package patch","spreadsheet read","spreadsheet eval","spreadsheet recalculate","spreadsheet functions","mcp"],
@@ -106,7 +144,10 @@ enum AgentCLI {
         if command == "sheet_functions" { return ["functions":FunctionLibrary.table.keys.sorted(),"blockedExternalIO":["WEBSERVICE","IMPORTCSV","IMPORTTEXT"],"note":"Registered function names include offline/external stubs. No guarantee of complete Excel parity."] }
         let directory=AgentIO.url(args["baseDirectory"] as? String ?? FileManager.default.currentDirectoryPath)
         let force=try AgentIO.bool(args["force"],"force")
-        func input()throws->String { try AgentIO.string(args["input"],"input") }
+        func input()throws->String {
+            let path = try AgentIO.string(args["input"],"input")
+            return path == "-" ? path : AgentPath.inputURL(path).path
+        }
         func operations()throws->[Any] {
             guard let ops=args["operations"] as? [Any],!ops.isEmpty else { throw AgentError("invalid_argument","operations must be a nonempty JSON array") }; return ops
         }
@@ -151,7 +192,9 @@ enum AgentCLI {
             let file=try AgentFile.load(path)
             if case .xml(let xml)=file,xml.rootElement()?.local == "package",["pptx","docx","hwpx","xlsx"].contains(ext) { return try save(AgentXML.unflatten(xml,extension:ext),kind:"package") }
             if AgentIO.url(path).pathExtension.lowercased() == ext { return try save(data,kind:file.kind) }
-            return try save(file.data(for:ext),kind:file.kind,warnings:(try file.result()["warnings"]) as? [String] ?? [])
+            var warnings = (try file.result()["warnings"]) as? [String] ?? []
+            if ext == "pdf" { warnings.append("PDF는 HanX의 지원 개체를 기준으로 렌더링합니다. 슬라이드 전환과 애니메이션은 정지된 페이지로 저장합니다.") }
+            return try save(file.data(for:ext),kind:file.kind,warnings:warnings)
         case "xml_read":return try AgentXML.query(AgentXML.parse(AgentIO.read(input())),xpath:args["xpath"] as? String)
         case "xml_edit":
             let doc=try AgentXML.patch(AgentXML.parse(AgentIO.read(input())),operations:operations())
@@ -164,7 +207,9 @@ enum AgentCLI {
         }
     }
     static func run(_ argv:[String])->Int32 {
-        if argv.isEmpty || ["--help","-h","help"].contains(argv[0]) { print(help); return 0 }
+        if argv.isEmpty { print(AgentInteractive.welcome); return 0 }
+        if ["--help","-h","help"].contains(argv[0]) || argv.contains("--help") || argv.contains("-h") { print(help); return 0 }
+        if argv[0] == "--convert" { return AgentInteractive.run(Array(argv.dropFirst())) }
         if ["mcp","serve"].contains(argv[0]) {
             if argv.count != 1 { print("{\"ok\":false,\"error\":{\"code\":\"invalid_argument\",\"message\":\"mcp takes no arguments\"}}"); return 2 }
             return AgentMCP.serve()

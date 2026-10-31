@@ -17,7 +17,6 @@ hanx mcp
 
 출력 경로를 명시하며 기본적으로 원본을 덮어쓰지 않습니다. 모든 함수와 개체가 Microsoft Excel과 같은 것은 아닙니다. CLI의 capabilities 응답에서 guidePath를 읽어 전체 작업 명세와 제한을 확인하세요.
 
-본 제품은 한컴의 HWP 문서 파일(.hwp) 공개 문서를 참고하여 개발하였습니다.
 
 한글과컴퓨터 또는 Microsoft의 공식 제품이 아닙니다. 독립 작성 코드는 MIT 라이선스입니다. LICENSE와 NOTICE를 함께 확인하세요.
 

@@ -44,7 +44,7 @@ final class HWDocument: NSDocument {
     }
 
     override class var autosavesInPlace: Bool { false }
-    override class var readableTypes: [String] { [DocType.hwp, DocType.hwpx, DocType.docx, DocType.hwt, DocType.dotx, DocType.txt, DocType.rtf, DocType.md, DocType.html] }
+    override class var readableTypes: [String] { [DocType.hwp, DocType.hwpx, DocType.docx, DocType.hwt, DocType.dotx, DocType.txt, DocType.rtf, DocType.md, DocType.html, DocType.pdf] }
     override class var writableTypes: [String] { [DocType.hwp, DocType.hwpx, DocType.docx, DocType.pdf, DocType.html, DocType.txt, DocType.rtf, DocType.md] }
     override class func isNativeType(_ type: String) -> Bool { writableTypes.contains(type) }
 

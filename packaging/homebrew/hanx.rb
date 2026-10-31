@@ -1,9 +1,9 @@
 class Hanx < Formula
   desc "Local macOS office CLI and MCP tools for spreadsheet formulas and documents"
   homepage "https://studentsview.github.io/HanX/"
-  url "https://github.com/StudentsView/HanX/releases/download/v2.7.0/HanX-CLI-2.7.0-macOS.zip"
-  version "2.7.0"
-  sha256 "3d93611062f7d12c5d66e70ec119b62881bb44efca7401c08fc1a43e9da8d69b"
+  url "https://github.com/StudentsView/HanX/releases/download/v2.8.0/HanX-CLI-2.8.0-macOS.zip"
+  version "2.8.0"
+  sha256 "a70daf25cf260d2fa7f7d896fea78c0478e29072b8fdedb1573404a0e89a2269"
   license "MIT"
   depends_on :macos => :ventura
 

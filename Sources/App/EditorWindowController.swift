@@ -102,6 +102,9 @@ final class EditorWindowController: NSWindowController, NSTextViewDelegate, NSTo
         let p = hwDocument.page
         let paper = String(format: "%.0f×%.0fmm", p.width / 72 * 25.4, p.height / 72 * 25.4)
         status.stringValue = "\(current)/\(pages.pageCount)쪽  ,   \(chars.formatted())자  ,   \(fmt)  ,   \(paper)  ,   \(Int((scrollView.magnification * 100).rounded()))%"
+        let pdfImport = hwDocument.model.warnings.contains { $0.hasPrefix("PDF import extracts") }
+        if pdfImport { status.stringValue += "  ,   PDF 텍스트 가져오기 (OCR 미지원)" }
+        status.toolTip = pdfImport ? "PDF에서 선택 가능한 텍스트를 가져왔습니다. 원본 배치, 표, 이미지, 주석은 재구성하지 않으며 OCR은 지원하지 않습니다.\n" + hwDocument.model.warnings.joined(separator: "\n") : nil
     }
 
     func textViewDidChangeSelection(_ notification: Notification) {

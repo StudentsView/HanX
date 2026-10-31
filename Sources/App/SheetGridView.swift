@@ -402,13 +402,19 @@ final class SheetGridView: NSView, NSTextFieldDelegate {
             let item=NSMenuItem(title:title,action:action,keyEquivalent:key); item.target=self; menu.addItem(item)
         }
         menu.addItem(.separator())
+        #if !HANX_CLI
         for (title,action) in [("행 삽입",#selector(SheetWindowController.insertRow(_:))),("행 삭제",#selector(SheetWindowController.deleteRow(_:))),("열 삽입",#selector(SheetWindowController.insertColumn(_:))),("열 삭제",#selector(SheetWindowController.deleteColumn(_:))),("셀 병합 / 해제",#selector(SheetWindowController.mergeCells(_:))),("열 너비 자동 맞춤",#selector(autoFitFromMenu(_:)))] {
             let item=NSMenuItem(title:title,action:action,keyEquivalent:""); if action == #selector(autoFitFromMenu(_:)) { item.target=self }; menu.addItem(item)
         }
+        #endif
         return menu
     }
     @objc private func editSelectedChart(_ sender:Any?) { if let selectedChart { delegate?.gridEditChart(selectedChart) } }
-    @objc private func autoFitFromMenu(_ sender:Any?) { (window?.windowController as? SheetWindowController)?.ribbonCommand("autofit","") }
+    @objc private func autoFitFromMenu(_ sender:Any?) {
+        #if !HANX_CLI
+        (window?.windowController as? SheetWindowController)?.ribbonCommand("autofit","")
+        #endif
+    }
 
     override func keyDown(with event: NSEvent) {
         let shift = event.modifierFlags.contains(.shift)
@@ -535,27 +541,63 @@ final class SheetGridView: NSView, NSTextFieldDelegate {
     /// Hides headers and selection so the view can be rendered to PDF.
     var printMode = false { didSet { reloadSize(); needsDisplay = true } }
 
-    /// One PDF page per slice of the used range, each at most `pageSize`.
-    func pdfPages(pageSize: NSSize) -> [Data] {
-        guard let used = sheet.usedRange else { return [] }
-        let full = rect(of: CellRange(CellRef(row: 0, col: 0), used.end))
-        var pages: [Data] = []
+    /// One PDF page per slice of cells and charts, each at most `pageSize`.
+    func pdfPages(pageSize: NSSize) throws -> [Data] {
+        let maxPages = 1000
+        guard pageSize.width.isFinite, pageSize.height.isFinite, pageSize.width > 0, pageSize.height > 0 else {
+            throw FormatError.invalid("Invalid PDF page size")
+        }
+        let used = sheet.usedRange
+        var full = used.map { rect(of: CellRange(CellRef(row: 0, col: 0), $0.end)) }
+            ?? NSRect(x: headerW, y: headerH, width: 0, height: 0)
+        for chart in sheet.charts {
+            let r = chartRect(chart)
+            guard r.minX.isFinite, r.minY.isFinite, r.maxX.isFinite, r.maxY.isFinite, r.width > 0, r.height > 0 else {
+                throw FormatError.invalid("Invalid PDF chart dimensions")
+            }
+            full = full.union(r)
+        }
+        guard full.width > 0, full.height > 0 else { return [] }
+        // Reject excessive output before walking cell boundaries or allocating
+        // pages. Cell-aligned slices can increase the final count further.
+        let minimumPages = ceil(full.width / pageSize.width) * ceil(full.height / pageSize.height)
+        guard minimumPages.isFinite, minimumPages <= CGFloat(maxPages) else {
+            throw FormatError.unsupported("Spreadsheet PDF pagination limit is \(maxPages) pages")
+        }
+        var rows: [(CGFloat, CGFloat)] = [], columns: [(CGFloat, CGFloat)] = []
         var top = full.minY
         while top < full.maxY - 0.5 {
             var bottom = top
             var r = cell(at: NSPoint(x: headerW + 1, y: top + 0.5)).row
-            while r <= used.end.row && y(ofRow: r) + CGFloat(sheet.height(r)) - top <= pageSize.height { bottom = y(ofRow: r) + CGFloat(sheet.height(r)); r += 1 }
+            while r <= (used?.end.row ?? -1) && y(ofRow: r) + CGFloat(sheet.height(r)) - top <= pageSize.height { bottom = y(ofRow: r) + CGFloat(sheet.height(r)); r += 1 }
+            if r > (used?.end.row ?? -1) { bottom = min(full.maxY, top + pageSize.height) }
             if bottom <= top { bottom = min(full.maxY, top + pageSize.height) }
-            var left = full.minX
-            while left < full.maxX - 0.5 {
-                var right = left
-                var c = cell(at: NSPoint(x: left + 0.5, y: headerH + 1)).col
-                while c <= used.end.col && x(ofCol: c) + CGFloat(sheet.width(c)) - left <= pageSize.width { right = x(ofCol: c) + CGFloat(sheet.width(c)); c += 1 }
-                if right <= left { right = min(full.maxX, left + pageSize.width) }
-                pages.append(dataWithPDF(inside: NSRect(x: left, y: top, width: right - left, height: bottom - top)))
-                left = right
-            }
+            rows.append((top, bottom))
+            guard rows.count <= maxPages else { throw FormatError.unsupported("Spreadsheet PDF pagination limit is \(maxPages) pages") }
             top = bottom
+        }
+        var left = full.minX
+        while left < full.maxX - 0.5 {
+            var right = left
+            var c = cell(at: NSPoint(x: left + 0.5, y: headerH + 1)).col
+            while c <= (used?.end.col ?? -1) && x(ofCol: c) + CGFloat(sheet.width(c)) - left <= pageSize.width { right = x(ofCol: c) + CGFloat(sheet.width(c)); c += 1 }
+            if c > (used?.end.col ?? -1) { right = min(full.maxX, left + pageSize.width) }
+            if right <= left { right = min(full.maxX, left + pageSize.width) }
+            columns.append((left, right))
+            guard columns.count <= maxPages / max(1, rows.count) else {
+                throw FormatError.unsupported("Spreadsheet PDF pagination limit is \(maxPages) pages")
+            }
+            left = right
+        }
+        // Charts may lie beyond the interactive grid's initial view frame.
+        let originalSize = frame.size
+        if printMode { setFrameSize(NSSize(width: max(frame.width, full.maxX), height: max(frame.height, full.maxY))) }
+        defer { if printMode { setFrameSize(originalSize) } }
+        var pages: [Data] = []
+        for (top, bottom) in rows {
+            for (left, right) in columns {
+                pages.append(dataWithPDF(inside: NSRect(x: left, y: top, width: right - left, height: bottom - top)))
+            }
         }
         return pages
     }

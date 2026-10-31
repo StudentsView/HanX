@@ -1,6 +1,23 @@
-# HanX CLI 2.7.0
+# HanX CLI 2.8.0
 
 로컬 AI 에이전트가 CLI 또는 MCP로 엑셀 파일의 셀과 범위를 읽고 수정하고 수식을 계산합니다. HWP, DOCX, HWPX, HWPML, PPTX와 XML도 읽고 생성하고 수정하고 변환합니다. Swift 실행 파일 하나로 동작하며 Word나 한글을 실행할 필요가 없습니다. 네이티브 CLI 실행에는 Python, Node.js, AI API 키와 추가 유료 라이브러리가 필요하지 않습니다. npm으로 설치하는 경우에는 Node.js 18 이상이 필요합니다.
+
+## 터미널에서 파일 변환
+
+```sh
+hanx
+hanx --help
+hanx --convert
+```
+
+`hanx --convert`에서 파일을 한 개 드롭하고 Enter를 누릅니다. 방향키 ↑ ↓로 형식을 고른 뒤 Enter를 누르면 같은 폴더에 기존 파일명과 새 확장자로 저장합니다. Esc 또는 Ctrl-C로 취소하며 같은 이름의 출력이 있으면 보존하고 중단합니다. 한글, 공백, 따옴표가 포함된 경로와 Finder/Terminal의 이스케이프 경로를 지원합니다. 자동화에는 기존 명령을 사용하세요.
+
+```sh
+hanx convert "원본 문서.hwp" --output "변환 문서.docx"
+hanx convert "매출.xlsx" --output "매출.pdf"
+```
+
+문서, 엑셀, 슬라이드의 PDF 출력은 HanX 앱의 렌더러를 사용합니다. 슬라이드는 장당 한 페이지로 저장하고 전환과 애니메이션은 정지된 상태로 저장합니다. PDF 입력은 선택 가능한 텍스트를 문서로 가져옵니다. 표, 그림, 주석과 원본 배치는 재구성하지 않으며 스캔 PDF의 OCR은 지원하지 않습니다. 일반 XML은 의미를 추정해 문서로 변환하지 않고 HWPML 또는 Flat OPC의 실제 형식에 맞는 변환만 제공합니다.
 
 ## 설치와 시작
 
@@ -12,9 +29,9 @@ npm install -g @juyoungsuh/hanx
 brew install StudentsView/tap/hanx
 ```
 
-GUI 앱과 CLI를 함께 설치하려면 [HanX 릴리스](https://github.com/StudentsView/HanX/releases)의 `HanX-2.7.0.pkg`를 사용하세요. pkg는 앱을 `/Applications/HanX.app`에 설치하고 `/usr/local/bin`의 비어 있는 `hanx`와 `hanx-cli` 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.
+GUI 앱과 CLI를 함께 설치하려면 [HanX 릴리스](https://github.com/StudentsView/HanX/releases)의 `HanX-2.8.0.pkg`를 사용하세요. pkg는 앱을 `/Applications/HanX.app`에 설치하고 `/usr/local/bin`의 비어 있는 `hanx`와 `hanx-cli` 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.
 
-독립 CLI는 릴리스의 `HanX-CLI-2.7.0-macOS.zip`으로도 제공합니다. ZIP을 풀고 해당 폴더에서 `./install-cli.sh`를 실행하세요. 설치 없이 `./hanx --help`로 바로 실행할 수도 있습니다. 기본 설치 위치는 `~/Library/Application Support/HanX/CLI/2.7.0`이며 `~/.local/bin/hanx`와 `hanx-cli` 명령을 연결합니다.
+독립 CLI는 릴리스의 `HanX-CLI-2.8.0-macOS.zip`으로도 제공합니다. ZIP을 풀고 해당 폴더에서 `./install-cli.sh`를 실행하세요. 설치 없이 `./hanx --help`로 바로 실행할 수도 있습니다. 기본 설치 위치는 `~/Library/Application Support/HanX/CLI/2.8.0`이며 `~/.local/bin/hanx`와 `hanx-cli` 명령을 연결합니다.
 
 설치 후 터미널에서 `hanx --help` 또는 `hanx capabilities --pretty`를 실행하세요. CLI 사용에는 PATH의 `hanx`를 쓰고, MCP 설정에는 설치 시 출력한 절대 경로를 쓰세요. PATH에 사용자 bin 폴더가 없으면 현재 셸에서 `export PATH="$HOME/.local/bin:$PATH"`를 실행할 수 있습니다.
 
@@ -29,7 +46,7 @@ hanx create --spec examples/presentation.json --output 발표.pptx
 
 예제 파일: [문서 명세](examples/document.json), [문서 수정](examples/document-edits.json), [엑셀 명세](examples/spreadsheet.json), [엑셀 수정](examples/spreadsheet-edits.json), [프레젠테이션](examples/presentation.json), [XML 수정](examples/xml-edits.json). 예제를 내려받고 명령의 경로를 해당 파일 위치에 맞추세요.
 
-명세와 작업은 JSON 파일로 주거나 `--spec -`, `--ops -`로 표준 입력에서 받습니다. 보통 응답은 `{"ok":true,"version":"2.7.0","data":...}` 형식입니다. 실패는 `{"ok":false,"error":{"code":...,"message":...}}`와 0이 아닌 종료 코드로 알립니다. `read --text`는 텍스트만 출력합니다. `--no-model`은 큰 native model 및 내장 그림의 base64를 응답에서 제외합니다.
+명세와 작업은 JSON 파일로 주거나 `--spec -`, `--ops -`로 표준 입력에서 받습니다. 보통 응답은 `{"ok":true,"version":"2.8.0","data":...}` 형식입니다. 실패는 `{"ok":false,"error":{"code":...,"message":...}}`와 0이 아닌 종료 코드로 알립니다. `read --text`는 텍스트만 출력합니다. `--no-model`은 큰 native model 및 내장 그림의 base64를 응답에서 제외합니다.
 
 파일은 output에 저장합니다. 기존 출력이 있으면 기본적으로 거부하며 `--force`를 명시했을 때만 교체합니다. `--force`와 원본 경로를 함께 지정하면 원본도 교체할 수 있으니 에이전트에는 새 경로를 주는 것이 좋습니다. 한 번의 edit 작업이 실패하면 결과를 저장하지 않습니다. 숫자 인덱스는 0부터 시작하며 길이는 pt, 시간은 초, 색은 RRGGBB입니다.
 
@@ -196,6 +213,5 @@ MCP 도구는 `hanx_capabilities`, `hanx_read`, `hanx_create`, `hanx_edit`, `han
 
 ## 출처와 라이선스
 
-본 제품은 한컴의 HWP 문서 파일(.hwp) 공개 문서를 참고하여 개발하였습니다.
 
 독립 작성 소스는 MIT 라이선스로 배포합니다. 자세한 조건은 LICENSE와 NOTICE를 확인하세요. 이 프로젝트는 한글과컴퓨터 또는 Microsoft의 공식 제품이 아닙니다. 시스템에 설치된 글꼴을 사용합니다. 공개 명세와 파일 호환성 조사 내역은 docs/legal/RESEARCH.md에 정리했습니다.

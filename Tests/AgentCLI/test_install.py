@@ -6,7 +6,7 @@ class Install(unittest.TestCase):
             root=pathlib.Path(d); prefix=root/'Application Support'/'HanX'; commands=root/'bin'
             p=subprocess.run(['/bin/sh',str(ROOT/'install-cli.sh'),'--prefix',str(prefix),'--bin-dir',str(commands)],capture_output=True,text=True)
             self.assertEqual(p.returncode,0,(p.stdout,p.stderr))
-            result=subprocess.check_output([str(commands/'hanx'),'--version'],text=True); self.assertEqual(json.loads(result)['data']['version'],'2.7.0')
+            result=subprocess.check_output([str(commands/'hanx'),'--version'],text=True); self.assertEqual(json.loads(result)['data']['version'],'2.8.0')
             cap=json.loads(subprocess.check_output([str(commands/'hanx'),'capabilities'],text=True))['data']; self.assertIn('guidePath',cap); self.assertTrue(pathlib.Path(cap['guidePath']).is_file()); self.assertTrue((prefix/'README.md').exists()); self.assertTrue((prefix/'examples'/'document.json').exists())
             commands.joinpath('hanx').unlink(); commands.joinpath('hanx').write_text('user command')
             p=subprocess.run(['/bin/sh',str(ROOT/'install-cli.sh'),'--prefix',str(root/'other'),'--bin-dir',str(commands)],capture_output=True,text=True)
