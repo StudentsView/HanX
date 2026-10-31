@@ -1,55 +1,64 @@
 # Windows and Linux distribution
 
-This source tree contains Windows and Linux build and packaging support. Installer binaries are produced by native CI jobs; the presence of these scripts does not mean a Windows or Linux build has been executed successfully. macOS packaging continues to use the existing build scripts.
+HanX 2.9 uses the same local Swift document, spreadsheet, conversion and MCP engine on macOS, Windows and Linux. macOS retains its native AppKit application. Windows and Linux use an Electron application with a sandboxed renderer and a narrow IPC interface to the native engine.
 
-## Windows
+## Install
 
-The Electron desktop package uses an NSIS installation wizard with destination selection and a per-user installation. The bundled `resources/cli/hanx.exe` works independently of the GUI. The installer appends that folder to the current user's PATH; open a new terminal after installation. Uninstallation removes the entry only if HanX added it. Existing PATH values, variable references, machine PATH and unrelated entries are preserved. An existing user entry is left intact. Installer warnings explain manual PATH recovery if the helper cannot run.
+```sh
+npm install -g @juyoungsuh/hanx
+hanx setup
+```
 
-A standalone `hanx-cli-win32-x64.zip` contains the same CLI and runtime DLLs. Extract the entire archive to a permanent folder and add that folder to your user PATH through Windows Settings. Do not copy only `hanx.exe`: Swift runtime DLLs must stay next to it. No developer toolchain is needed to run the staged CLI. x64 is the first CI target; ARM64 launcher support requires a separately built native archive.
+The setup screen offers CLI, GUI or both. Use `hanx setup --components all --yes` for unattended installation; `cli` and `gui` are also accepted. Ordinary npm lifecycle output is usually not a terminal, so it installs the CLI and prints the setup command rather than waiting for invisible input. Homebrew uses the same setup launcher after `brew install StudentsView/tap/hanx`. Homebrew is available on macOS and Linux; Windows uses npm or the native setup wizard.
 
-For local builds, install the [Swift Windows prerequisites](https://www.swift.org/install/windows/manual/) (Visual Studio C++ build tools, Windows SDK, Python 3.10 and Git), Swift 6.2.1 or compatible, and Node.js 22. Then run in PowerShell from the source root:
+GUI-only retains the small `hanx setup` / `hanx gui` launcher and disables terminal document commands. The GUI keeps its private native engine for editing and AI connections. Setup downloads matching versioned release files and verifies SHA256 before installation. Existing unowned files are preserved.
+
+## Windows x64
+
+`HanX-2.9.0-win32-x64-Setup.exe` is a per-user NSIS wizard with GUI/CLI/both selection. Silent installation accepts `/S /COMPONENTS=cli`, `gui` or `all`. CLI-only omits Electron. GUI-only does not expose the private engine on PATH. Uninstall removes only PATH entries owned by HanX and preserves unrelated entries. Open a new terminal after installation.
+
+`HanX-CLI-2.9.0-win32-x64.zip` contains the standalone CLI, Swift runtime DLLs, documentation and notices. Extract the whole archive to a permanent folder and add that folder to user PATH. Runtime DLLs must stay beside `hanx.exe`; no Swift developer toolchain is required. Windows packages are unsigned.
+
+For a native build, install Swift 6.2.1 with its Windows prerequisites and Node.js 22, then run:
 
 ```powershell
 swift build -c release
 ./packaging/windows/stage-cli.ps1
 ./packaging/windows/test-path.ps1
-python packaging/smoke-cli.py build/platform/cli/hanx.exe
+python packaging/windows/test-console.py build/platform/cli/hanx.exe
+python packaging/smoke-cli.py build/platform/cli/hanx.exe --pdf
 cd desktop
-npm install
+npm ci
 npm test
 npx electron-builder --win nsis --publish never
 ```
 
-Staging gathers runtime DLLs from Swift's reported runtime paths and Swift directories on PATH. If your toolchain stores them elsewhere, supply `-RuntimeDirectories @('C:\path\to\runtime\bin')`. Staging fails if `swiftCore.dll` is missing or the executable cannot run with the developer toolchain removed from PATH. The wizard uses `packaging/windows/installer.nsh` and `manage-path.ps1`; both are configured in the desktop builder. Windows packages are unsigned until a maintainer separately arranges code signing.
+Staging includes the runtime dependency closure and tests execution with developer tools removed from PATH. Native CI also checks console arrows, Korean dropped paths, cancellation, all installer component choices, PATH ownership and uninstall.
 
-## Linux
+## Linux x64
 
-CI targets Ubuntu 22.04 x64, producing an AppImage, a Debian package and an independent CLI tarball. Use a distribution at least as new as the build host because glibc remains a system dependency. The desktop requires the usual Electron system libraries; AppImage may additionally require FUSE 2 (`libfuse2` on Ubuntu 22.04). AppImages are executable files; use `chmod +x HanX*.AppImage` after downloading. Install Debian packages using your package manager so system dependencies are resolved.
+The initial build targets Ubuntu 22.04 x64 or a compatible newer system. glibc and Electron system libraries remain system dependencies. AppImage may require FUSE 2 (`libfuse2` on Ubuntu 22.04). The release contains `HanX-2.9.0-linux-x64.AppImage`, a `.deb`, and `HanX-CLI-2.9.0-linux-x64.tar.gz`. ARM64 Windows/Linux binaries are not included in this release.
 
-For the standalone CLI, extract `hanx-cli-linux-x64.tar.gz`, run `./hanx --version` from the extracted folder, or run `./install-cli.sh` to install under `~/.local`. Ensure `~/.local/bin` is on PATH. An optional prefix argument supports another location. The installer refuses to overwrite an existing CLI. It prints exact uninstall locations. Keep the `hanx` launcher, `hanx-engine` and `lib/` together: the launcher sets the private library search path without changing your shell configuration.
-
-Native Linux build:
+Extract the CLI archive and run `./install-cli.sh`; it offers CLI, GUI or both. Unattended CLI installation accepts `--components cli --yes --prefix /path/to/prefix`. The default prefix is `~/.local`; add `~/.local/bin` to PATH. Keep the launcher, `hanx-engine` and `lib/` together. The launcher resolves installed symlinks and selects its own runtime libraries. GUI setup installs a per-user AppImage and desktop entry. Debian packages install the desktop and private engine; independent CLI installation remains available through setup.
 
 ```sh
 swift build -c release
 python3 packaging/linux/stage-cli.py
-cp packaging/linux/install-cli.sh build/platform/cli/
-python3 packaging/smoke-cli.py build/platform/cli/hanx
+python3 packaging/linux/test-installer.py
+python3 packaging/smoke-cli.py build/platform/cli/hanx --pdf
 cd desktop
-npm install
+npm ci
 npm test
+xvfb-run -a node_modules/.bin/electron . --no-sandbox --smoke-test
 npx electron-builder --linux AppImage deb --publish never
 ```
 
-Linux staging copies resolved non-glibc libraries, including the Swift runtime, beside the binary. Missing libraries cause staging to fail. Builds and smoke tests must run on Linux; macOS cannot produce a verified Linux Swift executable. Runtime dependencies and their applicable licenses must be audited before publicly distributing newly generated bundles.
+## PDF and AI tools
 
-## Optional PDF features
+Windows/Linux PDF output uses a local LibreOffice installation. PDF text import uses Poppler (`pdfinfo`, `pdftotext`). They are separate optional applications. Setup installs them only when selected, or with `--pdf-dependencies`; Debian/Ubuntu users can also run `sudo apt-get install libreoffice poppler-utils fonts-noto-cjk`. Use `hanx capabilities --pretty` to check availability. macOS native builds include their existing PDF processing.
 
-Portable office editing and spreadsheet formulas do not require LibreOffice. PDF export uses LibreOffice's headless conversion; PDF extraction uses Poppler `pdftotext` and `pdfinfo`. Install these separately and ensure the executables are on PATH (Ubuntu: `sudo apt-get install libreoffice poppler-utils`). On Windows, use trusted LibreOffice and Poppler installations and add their executable folders to your user PATH. These applications are not bundled. Capabilities report unavailable features; unsupported rendering is not silently substituted. The original macOS rendering remains available through the macOS application.
+`hanx mcp` and the desktop AI connection panel expose the local engine to compatible AI agents. No cloud document upload or built-in model account is required. The CLI archive includes its guide and examples so MCP guide paths work outside the source checkout.
 
-## npm and CI artifacts
+## Verification and release
 
-The npm launcher selects `native/<platform>-<architecture>/hanx` (`hanx.exe` on Windows), with adjacent runtime files. Supported selectors are `darwin`, `linux`, `win32` and `x64`, `arm64`. Selector support does not imply every binary is present: missing builds produce a JSON `native_binary_missing` error identifying the exact expected path. The legacy macOS universal `native/hanx` fallback remains intact. No post-install downloader or cross-platform placeholder executable is used.
-
-The `Native Windows and Linux packages` workflow runs on matching pull requests or manual dispatch. It builds native Swift code, stages runtimes, checks office round trips/conversion and MCP, tests Windows PATH ownership and the npm launcher, and packages the desktop. Artifacts are uploaded to the workflow run, never automatically published as releases or to npm. Each job's npm tarball contains its own built platform; combining platform directories into one npm package is a separate maintainer step. Review Windows wizard install/uninstall and Linux desktop opening/editing/saving on native machines before release. The workflow requires this source checkout to be placed in an authorized GitHub repository before it can run.
+`.github/workflows/platforms.yml` builds on Windows 2022 and Ubuntu 22.04. It verifies office round trips, Korean paths, PDF conversion, formulas, MCP, native GUI editing/saving, runtime staging and installation choices before producing release candidates. `verify-release.yml` checks the published npm installation and downloaded GUI on the same platforms. Public assets and `hanx-install-manifest.json` must share the exact package version and filenames; Homebrew hashes are generated from those tested assets.

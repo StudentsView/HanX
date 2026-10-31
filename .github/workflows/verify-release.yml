@@ -1,0 +1,60 @@
+name: Verify published installers
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  install-public-release:
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    env:
+      HANX_SMOKE_OUTPUT_DIR: ${{ github.workspace }}/build/published-gui-proof
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Linux PDF and desktop dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 libnss3 libgtk-3-0 libgbm1 xvfb libreoffice poppler-utils fonts-noto-cjk
+      - name: Windows PDF tools
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install libreoffice-fresh poppler -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'PDF tool installation failed' }
+          'C:\Program Files\LibreOffice\program' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          Get-ChildItem 'C:\ProgramData\chocolatey\lib\poppler' -Filter pdfinfo.exe -Recurse | ForEach-Object {
+            $_.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
+      - name: Install the public npm version
+        shell: bash
+        run: |
+          version=$(node -p "require('./packaging/npm/package.json').version")
+          npm install --prefix build/published --foreground-scripts --no-audit --no-fund "@juyoungsuh/hanx@$version"
+      - name: Verify installed components, editing, conversion and AI tools
+        run: node packaging/verify-published.cjs build/published
+      - uses: Homebrew/actions/setup-homebrew@c262868c096d909fc278daa87ed9772967331ea3
+        if: runner.os == 'Linux'
+      - name: Verify the public Homebrew formula
+        if: runner.os == 'Linux'
+        run: |
+          brew install StudentsView/tap/hanx
+          brew test StudentsView/tap/hanx
+          hanx setup --components cli --yes
+          hanx --version
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: published-${{ runner.os }}-gui-proof
+          path: build/published-gui-proof/**
+          if-no-files-found: ignore

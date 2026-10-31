@@ -1,35 +1,37 @@
 # HanX
 
-HWP, 문서, 도표, 프레젠테이션과 모두 호환되는 새로운 macOS용 사무 도구입니다 :)
-macOS 13 이상, Apple Silicon과 Intel을 지원합니다.
+HWP, 문서, 도표, 프레젠테이션과 모두 호환되는 새로운 사무 도구입니다 :)
+macOS 13 이상(Apple Silicon/Intel), Windows x64, Ubuntu 22.04 이상 x64를 대상으로 합니다.
 
 .pkg형 설치 GUI 프로그램 뿐만 아니라 CLI형 프로그램도 제공하며
 AI 에이전트 ChatGPT, Claude 등을 이용해 모든 작업을 진행할 수 있습니다.
 
-GUI 프로그램은 완전한 형태로 제공중이며, CLI 프로그램은 도표 함수 관련 내용만
-우선적으로 호환성을 확보하여 배포중입니다.
+GUI에서 문서, 도표와 프레젠테이션을 편집하고 CLI와 MCP로 같은 엔진을 호출합니다.
+형식별 지원 범위와 제한은 CLI 안내에서 확인할 수 있습니다.
 
 [설치와 화면 보기](https://studentsview.github.io/HanX/) | [CLI 안내](docs/cli/README.md) | [릴리스](https://github.com/StudentsView/HanX/releases)
 
 ## 설치
 
-CLI는 npm과 Homebrew 설치를 지원합니다. macOS 13 이상, Apple Silicon과 Intel을 지원합니다.
+CLI는 npm과 Homebrew 설치를 지원합니다. macOS 13 이상(Apple Silicon/Intel), Windows x64, Ubuntu 22.04 이상 x64를 대상으로 합니다.
 
 ### npm
 
 ```sh
-npm install -g https://github.com/StudentsView/HanX/releases/download/v2.8.0/juyoungsuh-hanx-2.8.0.tgz
+npm install -g @juyoungsuh/hanx
+hanx setup
 ```
 
-Node.js 18 이상이 필요합니다. npm 레지스트리의 2.8.0 게시 인증을 갱신 중이므로 위 명령은 GitHub 릴리스 패키지를 직접 설치합니다. [공개 npm 패키지](https://www.npmjs.com/package/@juyoungsuh/hanx)에도 순차 반영합니다.
+Node.js 18 이상이 필요합니다. 설치 화면에서 GUI만, CLI만, 둘 다를 선택합니다. [공개 npm 패키지](https://www.npmjs.com/package/@juyoungsuh/hanx)에서 버전을 확인하세요.
 
 ### Homebrew
 
 ```sh
 brew install StudentsView/tap/hanx
+hanx setup
 ```
 
-[공개 tap](https://github.com/StudentsView/homebrew-tap)에서 CLI를 설치하며 Node.js는 필요하지 않습니다.
+[공개 tap](https://github.com/StudentsView/homebrew-tap)은 macOS와 Linux를 지원하며 설정 실행기에 Node.js를 사용합니다. Windows에서는 npm 또는 Setup.exe를 사용하세요.
 
 ### 설치 확인
 
@@ -55,7 +57,13 @@ brew upgrade StudentsView/tap/hanx
 
 ### macOS 앱 설치
 
-앱과 CLI를 함께 설치하려면 [릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.8.0)의 `HanX-2.8.0.pkg`를 사용하세요. npm과 Homebrew는 CLI를 설치합니다.
+앱과 CLI를 함께 설치하려면 [릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.9.0)의 `HanX-2.9.0.pkg`를 사용하세요. npm과 Homebrew는 `hanx setup`에서 GUI와 CLI 구성을 선택합니다.
+
+## Windows와 Linux 앱 설치
+
+[릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.9.0)에서 Windows Setup.exe, Linux AppImage 또는 Debian 패키지를 제공합니다. Windows 설치 마법사에서는 GUI와 CLI를 선택할 수 있습니다. Linux CLI 압축 파일의 `install-cli.sh`에서도 구성을 고릅니다.
+
+Windows/Linux PDF 출력에는 로컬 LibreOffice, PDF 읽기에는 Poppler가 필요합니다. 설치 화면에서 PDF 도구를 선택한 경우에만 추가 설치합니다. macOS 기본 네이티브 배포판은 PDF 처리를 포함합니다.
 
 ## 엑셀 CLI
 

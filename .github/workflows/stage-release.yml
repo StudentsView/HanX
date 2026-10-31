@@ -1,0 +1,38 @@
+name: Stage verified release assets
+on:
+  workflow_dispatch:
+    inputs:
+      native-run:
+        description: Successful native Windows and Linux workflow run ID
+        required: true
+      native-commit:
+        description: Exact tested native commit SHA
+        required: true
+permissions:
+  contents: write
+  actions: read
+jobs:
+  stage-draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.native-run }}
+          github-token: ${{ github.token }}
+          pattern: hanx-*-x64
+          path: build/candidates
+      - name: Verify and upload to the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NATIVE_RUN: ${{ inputs.native-run }}
+          NATIVE_COMMIT: ${{ inputs.native-commit }}
+        run: python packaging/stage-release.py "$NATIVE_RUN" "$NATIVE_COMMIT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: staged-release-metadata
+          path: build/release-metadata/*

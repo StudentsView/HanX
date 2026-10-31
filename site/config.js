@@ -1,7 +1,8 @@
 window.HANX_SITE = {
-  owner: 'StudentsView', repository: 'HanX', version: '2.8.0',
+  owner: 'StudentsView', repository: 'HanX', version: '2.9.0',
   guide: './cli/', licensePath: 'LICENSE', provenancePath: 'PROVENANCE.md',
-  npm: { available: true, package: 'https://github.com/StudentsView/HanX/releases/download/v2.8.0/juyoungsuh-hanx-2.8.0.tgz' },
+  npm: { available: true, package: '@juyoungsuh/hanx' },
   brew: { available: true, formula: 'StudentsView/tap/hanx' },
-  pkg: { available: true, asset: 'HanX-2.8.0.pkg' }
+  downloads: { windows: 'HanX-2.9.0-win32-x64-Setup.exe', linux: 'HanX-2.9.0-linux-x64.AppImage', deb: 'HanX-2.9.0-linux-x64.deb' },
+  pkg: { available: true, asset: 'HanX-2.9.0.pkg' }
 };
