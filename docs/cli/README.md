@@ -21,10 +21,10 @@ hanx convert "매출.xlsx" --output "매출.pdf"
 
 ## 설치와 시작
 
-macOS 13 이상에서 Apple Silicon과 Intel을 지원합니다. 공개 설치 채널의 현재 상태는 [HanX 설치 페이지](https://studentsview.github.io/HanX/#install)에서 확인하세요. npm 패키지 이름은 `@juyoungsuh/hanx`, Homebrew formula는 `StudentsView/tap/hanx`입니다. 공개 배포가 확인된 채널에서 다음 명령으로 CLI를 설치합니다.
+macOS 13 이상에서 Apple Silicon과 Intel을 지원합니다. 공개 설치 채널의 현재 상태는 [HanX 설치 페이지](https://studentsview.github.io/HanX/#install)에서 확인하세요. npm 패키지 이름은 `@juyoungsuh/hanx`, Homebrew formula는 `StudentsView/tap/hanx`입니다. 공개 배포가 확인된 채널에서 다음 명령으로 CLI를 설치합니다. npm 레지스트리의 2.8.0 게시 인증을 갱신 중이므로 아래 npm 명령은 GitHub 릴리스 패키지를 직접 설치합니다.
 
 ```sh
-npm install -g @juyoungsuh/hanx
+npm install -g https://github.com/StudentsView/HanX/releases/download/v2.8.0/juyoungsuh-hanx-2.8.0.tgz
 # 또는
 brew install StudentsView/tap/hanx
 ```

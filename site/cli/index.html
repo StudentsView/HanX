@@ -21,8 +21,8 @@ hanx --convert</code></pre>
 hanx convert &quot;매출.xlsx&quot; --output &quot;매출.pdf&quot;</code></pre>
 <p>문서, 엑셀, 슬라이드의 PDF 출력은 HanX 앱의 렌더러를 사용합니다. 슬라이드는 장당 한 페이지로 저장하고 전환과 애니메이션은 정지된 상태로 저장합니다. PDF 입력은 선택 가능한 텍스트를 문서로 가져옵니다. 표, 그림, 주석과 원본 배치는 재구성하지 않으며 스캔 PDF의 OCR은 지원하지 않습니다. 일반 XML은 의미를 추정해 문서로 변환하지 않고 HWPML 또는 Flat OPC의 실제 형식에 맞는 변환만 제공합니다.</p>
 <h2>설치와 시작</h2>
-<p>macOS 13 이상에서 Apple Silicon과 Intel을 지원합니다. 공개 설치 채널의 현재 상태는 <a href="https://studentsview.github.io/HanX/#install" rel="nofollow">HanX 설치 페이지</a>에서 확인하세요. npm 패키지 이름은 <code class="notranslate">@juyoungsuh/hanx</code>, Homebrew formula는 <code class="notranslate">StudentsView/tap/hanx</code>입니다. 공개 배포가 확인된 채널에서 다음 명령으로 CLI를 설치합니다.</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate">npm install -g @juyoungsuh/hanx
+<p>macOS 13 이상에서 Apple Silicon과 Intel을 지원합니다. 공개 설치 채널의 현재 상태는 <a href="https://studentsview.github.io/HanX/#install" rel="nofollow">HanX 설치 페이지</a>에서 확인하세요. npm 패키지 이름은 <code class="notranslate">@juyoungsuh/hanx</code>, Homebrew formula는 <code class="notranslate">StudentsView/tap/hanx</code>입니다. 공개 배포가 확인된 채널에서 다음 명령으로 CLI를 설치합니다. npm 레지스트리의 2.8.0 게시 인증을 갱신 중이므로 아래 npm 명령은 GitHub 릴리스 패키지를 직접 설치합니다.</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">npm install -g https://github.com/StudentsView/HanX/releases/download/v2.8.0/juyoungsuh-hanx-2.8.0.tgz
 <span class="pl-c"><span class="pl-c">#</span> 또는</span>
 brew install StudentsView/tap/hanx</pre></div>
 <p>GUI 앱과 CLI를 함께 설치하려면 <a href="https://github.com/StudentsView/HanX/releases">HanX 릴리스</a>의 <code class="notranslate">HanX-2.8.0.pkg</code>를 사용하세요. pkg는 앱을 <code class="notranslate">/Applications/HanX.app</code>에 설치하고 <code class="notranslate">/usr/local/bin</code>의 비어 있는 <code class="notranslate">hanx</code>와 <code class="notranslate">hanx-cli</code> 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.</p>

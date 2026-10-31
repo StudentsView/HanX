@@ -18,10 +18,10 @@ CLI는 npm과 Homebrew 설치를 지원합니다. macOS 13 이상, Apple Silicon
 ### npm
 
 ```sh
-npm install -g @juyoungsuh/hanx
+npm install -g https://github.com/StudentsView/HanX/releases/download/v2.8.0/juyoungsuh-hanx-2.8.0.tgz
 ```
 
-Node.js 18 이상이 필요합니다. [공개 npm 패키지](https://www.npmjs.com/package/@juyoungsuh/hanx)를 설치합니다.
+Node.js 18 이상이 필요합니다. npm 레지스트리의 2.8.0 게시 인증을 갱신 중이므로 위 명령은 GitHub 릴리스 패키지를 직접 설치합니다. [공개 npm 패키지](https://www.npmjs.com/package/@juyoungsuh/hanx)에도 순차 반영합니다.
 
 ### Homebrew
 
