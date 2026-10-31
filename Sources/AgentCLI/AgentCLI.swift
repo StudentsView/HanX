@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 enum AgentCLI {
     static let commands:Set<String>=["--convert","--help","-h","help","--version","version","capabilities","schema","read","create","edit","convert","xml","package","spreadsheet","mcp","serve"]
@@ -67,6 +73,13 @@ enum AgentCLI {
         lines += [rule("└", "┴", "┘")]
         return lines.joined(separator: "\n")
     }
+    static func pdfCapabilities() -> [String:Any] {
+#if HANX_PORTABLE || !canImport(AppKit)
+        return ["input":"Selectable text using local Poppler; no layout reconstruction or OCR", "output":"Local LibreOffice renderer; pagination and fonts can differ from macOS", "inputAvailable":PortableTool.find("pdfinfo") != nil && PortableTool.find("pdftotext") != nil, "outputAvailable":PortableTool.find("soffice") != nil, "dependencies":["input":["pdfinfo","pdftotext"], "output":["soffice"]]]
+#else
+        return ["input":"Selectable text as document; no layout reconstruction or OCR", "output":"Documents, spreadsheets, presentations using HanX renderers", "inputAvailable":true, "outputAvailable":true]
+#endif
+    }
     static func capabilities()->[String:Any] {
         let exe=(Bundle.main.executableURL ?? AgentIO.url(CommandLine.arguments[0])).resolvingSymlinksInPath()
         let guides=[exe.deletingLastPathComponent().appendingPathComponent("README.md"),exe.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("docs/cli/README.md")]
@@ -75,7 +88,7 @@ enum AgentCLI {
             "name":"HanX","version":AgentIO.version,"notices":[LegalNotices.independence],
             "guidePath":guide?.path ?? "",
             "formats":["document":["pdf","hwp","hwpx","docx","hml","txt","md","json"],"presentation":["pptx","json","pdf"],"spreadsheet":["xlsx","csv","tsv","json","pdf"],"xml":["generic XML with XPath","HWPML 2.x","Flat OPC","DOCX/PPTX/HWPX/XLSX package XML"]],
-            "pdf":["input":"Selectable text as document; no layout reconstruction or OCR", "output":"Documents, spreadsheets, presentations using HanX renderers"],
+            "pdf":pdfCapabilities(),
             "spreadsheetFunctions":FunctionLibrary.table.keys.sorted(),
             "operations":["spreadsheet":AgentSheets.operations,"document":AgentDocuments.documentOps,"presentation":AgentDocuments.slideOps,"xml":["set_text","set_attribute","append_xml","replace_xml","delete"]],
             "commands":["read","create","edit","convert","xml read","xml edit","package list","package read","package patch","spreadsheet read","spreadsheet eval","spreadsheet recalculate","spreadsheet functions","mcp"],
@@ -193,7 +206,13 @@ enum AgentCLI {
             if case .xml(let xml)=file,xml.rootElement()?.local == "package",["pptx","docx","hwpx","xlsx"].contains(ext) { return try save(AgentXML.unflatten(xml,extension:ext),kind:"package") }
             if AgentIO.url(path).pathExtension.lowercased() == ext { return try save(data,kind:file.kind) }
             var warnings = (try file.result()["warnings"]) as? [String] ?? []
-            if ext == "pdf" { warnings.append("PDF는 HanX의 지원 개체를 기준으로 렌더링합니다. 슬라이드 전환과 애니메이션은 정지된 페이지로 저장합니다.") }
+            if ext == "pdf" {
+#if HANX_PORTABLE || !canImport(AppKit)
+                warnings.append("PDF uses local LibreOffice; font metrics, pagination and supported drawing features can differ from the macOS renderer. Animations are static.")
+#else
+                warnings.append("PDF는 HanX의 지원 개체를 기준으로 렌더링합니다. 슬라이드 전환과 애니메이션은 정지된 페이지로 저장합니다.")
+#endif
+            }
             return try save(file.data(for:ext),kind:file.kind,warnings:warnings)
         case "xml_read":return try AgentXML.query(AgentXML.parse(AgentIO.read(input())),xpath:args["xpath"] as? String)
         case "xml_edit":

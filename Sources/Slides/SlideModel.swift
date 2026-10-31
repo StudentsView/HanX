@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Presentation model ("프레젠테이션"). Text inside shapes reuses the
 /// document model's Paragraph type, so the same TextKit bridge renders and

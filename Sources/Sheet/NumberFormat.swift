@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Excel number-format engine used for cell display and TEXT():
 /// up to four sections with [conditions], colours/locales, literals and

@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// HWPML 2.x adapter. Generic XML editing remains available for controls that
 /// the unified model cannot represent; conversion reports these explicitly.

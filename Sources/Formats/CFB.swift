@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Compound File Binary (OLE2 structured storage), the container HWP 5.0
 /// shares with legacy .doc. Reader handles v3/v4, DIFAT and the mini stream;

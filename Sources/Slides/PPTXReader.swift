@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// PresentationML reader. Resolves what PowerPoint resolves at render time:
 /// placeholder geometry and text styles inherited slide → layout → master,

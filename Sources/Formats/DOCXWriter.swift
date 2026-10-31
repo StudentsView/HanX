@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Writes a minimal, strictly valid WordprocessingML package from the
 /// unified model. Every property is written as direct formatting so the

@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// WordprocessingML (ECMA-376) reader. Mirrors Word's own resolution order:
 /// docDefaults → paragraph style chain → run style chain → direct formatting.

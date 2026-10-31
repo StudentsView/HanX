@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 enum LogicalFunctions {
     /// Logical values for AND/OR/XOR: references and arrays contribute

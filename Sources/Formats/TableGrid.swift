@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Resolves which grid slot belongs to which origin cell. The model keeps a
 /// full rows×cols grid with covered slots flagged; writers need to know

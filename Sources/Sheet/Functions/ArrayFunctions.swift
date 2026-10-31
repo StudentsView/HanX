@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 enum ArrayFunctions {
     /// Sort comparison: numbers < text < logicals < errors; blanks always last.

@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Converts formula text between the UI form and the OOXML storage form:
 /// newer functions carry `_xlfn.` (FILTER/SORT also `_xlws.`), LET/LAMBDA

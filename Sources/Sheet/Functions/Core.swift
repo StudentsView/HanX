@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Worksheet function library. Each category file adds its functions to the
 /// registry; names are the canonical English names Excel stores in files

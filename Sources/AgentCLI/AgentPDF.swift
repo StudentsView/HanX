@@ -1,3 +1,4 @@
+#if canImport(AppKit) && !HANX_PORTABLE
 import AppKit
 import PDFKit
 
@@ -67,3 +68,5 @@ enum AgentPDF {
         return PDFMerge.merge(pages)
     }
 }
+
+#endif

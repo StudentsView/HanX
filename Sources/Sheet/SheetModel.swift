@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Spreadsheet model ("도표"). Cells keep what the user typed (`input`);
 /// formulas start with "=" and are evaluated by `FormulaEngine` on demand.

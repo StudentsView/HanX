@@ -1,4 +1,11 @@
+#if canImport(AppKit) && !HANX_PORTABLE
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import PDFKit
 
 enum PDFMerge {
@@ -11,3 +18,5 @@ enum PDFMerge {
         return out.dataRepresentation() ?? Data()
     }
 }
+
+#endif

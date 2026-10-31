@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 enum AgentDocuments {
     static let documentOps=["replace_text","append_paragraph","append_block","insert_block","delete_block","set_paragraph","style_paragraph","set_cell","set_page"]

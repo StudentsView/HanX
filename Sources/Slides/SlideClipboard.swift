@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Native editing data must retain properties not represented by PPTX export
 /// (such as locked master decoration and original shape IDs).

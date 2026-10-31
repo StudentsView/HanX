@@ -1,5 +1,15 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(Compression) && !HANX_PORTABLE
 import Compression
+#else
+import CMiniz
+#endif
 
 enum FormatError: Error, CustomStringConvertible {
     case invalid(String)
@@ -89,6 +99,7 @@ struct ByteWriter {
 /// Raw DEFLATE (RFC 1951) via Apple's Compression framework. Both HWP streams
 /// and ZIP entries use headerless deflate, which is what COMPRESSION_ZLIB is.
 enum Deflate {
+#if canImport(Compression) && !HANX_PORTABLE
     static func inflate(_ input: [UInt8]) throws -> [UInt8] {
         try run(input, operation: COMPRESSION_STREAM_DECODE)
     }
@@ -127,6 +138,37 @@ enum Deflate {
         }
         return output
     }
+#else
+    static func inflate(_ input: [UInt8]) throws -> [UInt8] { try run(input, decode: true) }
+    static func deflate(_ input: [UInt8]) throws -> [UInt8] { try run(input, decode: false) }
+    private static func run(_ input: [UInt8], decode: Bool) throws -> [UInt8] {
+        if input.isEmpty && decode { return [] }
+        var stream = mz_stream()
+        let initialized = decode ? mz_inflateInit2(&stream, -15) : mz_deflateInit2(&stream, 6, 8, -15, 8, 0)
+        guard initialized == MZ_OK else { throw FormatError.invalid("Cannot initialize DEFLATE") }
+        defer { if decode { mz_inflateEnd(&stream) } else { mz_deflateEnd(&stream) } }
+        var result = [UInt8]()
+        try input.withUnsafeBufferPointer { src in
+            stream.next_in = src.baseAddress
+            stream.avail_in = UInt32(src.count)
+            var chunk = [UInt8](repeating: 0, count: 65536)
+            while true {
+                let status = chunk.withUnsafeMutableBufferPointer { dst -> Int32 in
+                    stream.next_out = dst.baseAddress
+                    stream.avail_out = UInt32(dst.count)
+                    return decode ? mz_inflate(&stream, Int32(MZ_FINISH)) : mz_deflate(&stream, Int32(MZ_FINISH))
+                }
+                let count = chunk.count - Int(stream.avail_out)
+                result.append(contentsOf: chunk.prefix(count))
+                guard result.count <= 512 * 1024 * 1024 else { throw FormatError.unsupported("DEFLATE stream exceeds 512 MiB") }
+                if status == MZ_STREAM_END { break }
+                guard (status == MZ_OK || status == MZ_BUF_ERROR), count > 0 else { throw FormatError.invalid("Corrupt DEFLATE stream") }
+            }
+        }
+        return result
+    }
+#endif
+
 }
 
 enum CRC32 {

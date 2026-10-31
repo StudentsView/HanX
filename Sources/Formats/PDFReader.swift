@@ -1,4 +1,11 @@
+#if canImport(AppKit) && !HANX_PORTABLE
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import PDFKit
 
 /// PDF is a page description, not an editable office document. Import its
@@ -59,3 +66,5 @@ enum PDFReader {
         return doc
     }
 }
+
+#endif

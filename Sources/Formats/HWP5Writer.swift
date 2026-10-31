@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// HWP 5.0 binary writer (emits version 5.1.0.1 record layouts, matching the
 /// blank Normal.hwt that ships with Hancom Office 2014). Streams:

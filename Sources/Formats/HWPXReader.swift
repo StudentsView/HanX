@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// HWPX / OWPML (KS X 6101) reader. Same logical model as HWP 5.0 — shared
 /// charPr/paraPr tables in Contents/header.xml, referenced by ID from

@@ -13,13 +13,13 @@ def ignored(directory,names):
  result=[]
  for name in names:
   p=pathlib.Path(directory)/name
-  if name in {'.DS_Store','__pycache__','node_modules','.git','native'} or p.suffix.lower() in blocked_suffixes or name.startswith('.env'):result.append(name)
+  if name in {'.DS_Store','__pycache__','node_modules','.git','native','.build','dist'} or p.suffix.lower() in blocked_suffixes or name.startswith('.env'):result.append(name)
  return result
-for rel in ['Sources','Resources','Tools','packaging','site','.github']:
+for rel in ['Sources','Resources','Tools','packaging','site','.github','desktop']:
  if (root/rel).exists():shutil.copytree(root/rel,dest/rel,ignore=ignored,dirs_exist_ok=True)
 for rel in ['Tests/AgentCLI','Tests/Distribution','Tests/StartWindow','Tests/Editing','Tests/Interaction','Tests/PasteboardGuard','docs/cli','docs/legal']:
  if (root/rel).exists():shutil.copytree(root/rel,dest/rel,ignore=ignored,dirs_exist_ok=True)
-for rel in ['Tests/formulas.tsv','Tests/run-editing.sh','Tests/run-interaction.sh','README.md','LICENSE','NOTICE','PROVENANCE.md','build-app.sh','build-cli.sh','build-pkg.sh','dev-build.sh','install-cli.sh','.gitignore']:
+for rel in ['Tests/formulas.tsv','Tests/run-editing.sh','Tests/run-interaction.sh','Package.swift','README.md','LICENSE','NOTICE','PROVENANCE.md','build-app.sh','build-cli.sh','build-pkg.sh','dev-build.sh','install-cli.sh','.gitignore']:
  if (root/rel).is_file():
   (dest/rel).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(root/rel,dest/rel)
 print(dest)

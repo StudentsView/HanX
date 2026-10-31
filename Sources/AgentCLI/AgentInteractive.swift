@@ -1,5 +1,15 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(Darwin)
 import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#endif
 
 /// Interactive prompts stay outside the JSON/stdio agent protocol.
 enum AgentInteractive {
@@ -15,6 +25,7 @@ enum AgentInteractive {
     └──────────────────────────────────────────────┘
     """
     private enum Key { case byte(UInt8), up, down, escape, pasteStart, pasteEnd, end }
+    #if !os(Windows)
     private final class Terminal {
         var saved = termios()
         init() throws {
@@ -29,8 +40,10 @@ enum AgentInteractive {
             raw.c_lflag &= ~tcflag_t(ICANON | ECHO | ISIG)
             // Keep UTF-8 input intact; process Ctrl-C ourselves so settings can be restored.
             raw.c_iflag &= ~tcflag_t(ISTRIP | IXON)
-            raw.c_cc.16 = 1 // Darwin VMIN
-            raw.c_cc.17 = 0 // Darwin VTIME
+            withUnsafeMutableBytes(of: &raw.c_cc) { bytes in
+                bytes[Int(VMIN)] = 1
+                bytes[Int(VTIME)] = 0
+            }
             guard tcsetattr(STDIN_FILENO, TCSANOW, &raw) == 0 else { throw AgentError("io_error", "터미널 입력을 설정할 수 없습니다.") }
         }
         func restore() { tcsetattr(STDIN_FILENO, TCSANOW, &saved) }
@@ -42,7 +55,7 @@ enum AgentInteractive {
                 if poll(&descriptor, 1, timeout) <= 0 { return nil }
             }
             var value: UInt8 = 0
-            return Darwin.read(STDIN_FILENO, &value, 1) == 1 ? value : nil
+            return read(STDIN_FILENO, &value, 1) == 1 ? value : nil
         }
         func key() -> Key {
             guard let first = byte() else { return .end }
@@ -98,6 +111,24 @@ enum AgentInteractive {
             }
         }
     }
+    #else
+    private final class Terminal {
+        init() throws {}
+        func activate() throws {}
+        func restore() {}
+        func output(_ text: String) { print(text, terminator: "") }
+        func path() throws -> String {
+            output("Input file path: ")
+            guard let value = readLine(), !value.isEmpty else { throw AgentError("cancelled", "Conversion cancelled") }
+            return value
+        }
+        func choose(_ choices: [String]) throws -> String {
+            for (i, choice) in choices.enumerated() { print("\(i + 1). \(choice.uppercased())") }
+            guard let line = readLine(), let n = Int(line), choices.indices.contains(n - 1) else { throw AgentError("cancelled", "Conversion cancelled") }
+            return choices[n - 1]
+        }
+    }
+    #endif
     static func formats(_ file: AgentFile, input: URL) -> [String] {
         let values: [String]
         switch file {

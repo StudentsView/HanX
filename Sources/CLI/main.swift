@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 // hanx-cli: headless harness for the import/export pipeline.
 //   hanx-cli dump <file>          stats + text preview

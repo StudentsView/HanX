@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Writes a self-contained PresentationML package: one blank layout, one
 /// master, a full theme, and slides whose shapes carry explicit geometry and

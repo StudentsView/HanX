@@ -1,0 +1,2 @@
+const {contextBridge,ipcRenderer}=require('electron');
+contextBridge.exposeInMainWorld('hanx',Object.freeze({initial:()=>ipcRenderer.invoke('hanx:initial'),newFile:kind=>ipcRenderer.invoke('hanx:new',kind),open:()=>ipcRenderer.invoke('hanx:open'),edit:ops=>ipcRenderer.invoke('hanx:edit',ops),save:as=>ipcRenderer.invoke('hanx:save',as===true),undo:redo=>ipcRenderer.invoke('hanx:undo',redo===true),onAction:callback=>ipcRenderer.on('hanx:action',(_event,action)=>callback(action))}));

@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// SpreadsheetML (ECMA-376 Part 1, §18) reader and writer.
 enum XLSXReader {
@@ -254,7 +260,9 @@ enum XLSXReader {
 }
 
 enum XLSXWriter {
-    static func write(_ book: Workbook, allowExternalIO: Bool = true) -> Data {
+    /// `includeFormulas: false` creates a calculated snapshot for external PDF
+    /// renderers. They must never evaluate workbook expressions or names.
+    static func write(_ book: Workbook, allowExternalIO: Bool = true, includeFormulas: Bool = true) -> Data {
         let engine = FormulaEngine(book: book, allowExternalIO: allowExternalIO)
         var shared: [String] = []
         var sharedIndex: [String: Int] = [:]
@@ -296,7 +304,7 @@ enum XLSXWriter {
                     spillValues[CellRef(row: ref.row + r, col: ref.col + c)] = m[r, c]
                 } }
             }
-            if !spillRanges.isEmpty { usesDynamicArrays = true }
+            if includeFormulas && !spillRanges.isEmpty { usesDynamicArrays = true }
             func valueXML(_ v: SheetValue) -> (String, String) {
                 switch v {
                 case .number(let d): return ("", "<v>\(xmlNumber(d))</v>")
@@ -318,6 +326,11 @@ enum XLSXWriter {
                     let sid = styleId(cell.style)
                     let sAttr = sid == 0 ? "" : " s=\"\(sid)\""
                     if cell.isFormula {
+                        if !includeFormulas {
+                            let (t, v) = valueXML(engine.value(ws, ref))
+                            x += "<c r=\"\(ref.a1)\"\(sAttr)\(t)>\(v)</c>"
+                            continue
+                        }
                         let f = XMLEscape.text(XLSXFormula.encode(String(cell.input.dropFirst())))
                         let (t, v) = valueXML(engine.value(ws, ref))
                         if ws.legacyFormulas.contains(ref) {
@@ -393,7 +406,7 @@ enum XLSXWriter {
             rels += "<Relationship Id=\"rId\(n + 3)\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata\" Target=\"metadata.xml\"/>"
             z.add("xl/metadata.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><metadata xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:xda=\"http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray\"><metadataTypes count=\"1\"><metadataType name=\"XLDAPR\" minSupportedVersion=\"120000\" copy=\"1\" pasteAll=\"1\" pasteValues=\"1\" merge=\"1\" splitFirst=\"1\" rowColShift=\"1\" clearFormats=\"1\" clearComments=\"1\" assign=\"1\" coerce=\"1\" cellMeta=\"1\"/></metadataTypes><futureMetadata name=\"XLDAPR\" count=\"1\"><bk><extLst><ext uri=\"{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}\"><xda:dynamicArrayProperties fDynamic=\"1\" fCollapsed=\"0\"/></ext></extLst></bk></futureMetadata><cellMetadata count=\"1\"><bk><rc t=\"1\" v=\"0\"/></bk></cellMetadata></metadata>")
         }
-        let names = book.definedNames.sorted { $0.key < $1.key }.map { "<definedName name=\"\(XMLEscape.text($0.key))\">\(XMLEscape.text(XLSXFormula.encode($0.value)))</definedName>" }.joined()
+        let names = includeFormulas ? book.definedNames.sorted { $0.key < $1.key }.map { "<definedName name=\"\(XMLEscape.text($0.key))\">\(XMLEscape.text(XLSXFormula.encode($0.value)))</definedName>" }.joined() : ""
         z.add("xl/workbook.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><bookViews><workbookView/></bookViews><sheets>\(sheetsList)</sheets>\(names.isEmpty ? "" : "<definedNames>" + names + "</definedNames>")</workbook>")
         z.add("xl/_rels/workbook.xml.rels", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\(rels)</Relationships>")
         for (i, x) in sheetsXML.enumerated() { z.add("xl/worksheets/sheet\(i + 1).xml", x) }

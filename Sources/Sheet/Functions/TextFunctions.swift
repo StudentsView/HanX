@@ -1,5 +1,13 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(NaturalLanguage)
 import NaturalLanguage
+#endif
 
 enum TextFunctions {
     static let maxLength = 32767
@@ -353,10 +361,14 @@ enum TextFunctions {
             return .string(try s.str(0).addingPercentEncoding(withAllowedCharacters: allowed) ?? "")
         }
         r.scalar("DETECTLANGUAGE", min: 1, max: 1) { s in
+            #if canImport(NaturalLanguage)
             let rec = NLLanguageRecognizer()
             rec.processString(try s.str(0))
             guard let lang = rec.dominantLanguage else { throw XLError.value }
             return .string(lang.rawValue)
+            #else
+            throw XLError.connect
+            #endif
         }
         r.raw("TRANSLATE", min: 1, max: 3) { _ in throw XLError.connect }
 

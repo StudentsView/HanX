@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Descriptive statistics shared by the statistical, SUBTOTAL and AGGREGATE functions.
 enum Stats {

@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Special functions behind the statistical distributions (Lanczos gamma,
 /// continued-fraction incomplete gamma/beta, AS241 normal quantile).

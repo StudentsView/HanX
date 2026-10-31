@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// D-functions: database range with a header row, a field (header text or
 /// 1-based index) and a criteria range (rows are OR-ed, columns AND-ed).

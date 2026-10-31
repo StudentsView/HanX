@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// ZIP container used by both OOXML (OPC package) and HWPX (OWPML package).
 final class ZipReader {

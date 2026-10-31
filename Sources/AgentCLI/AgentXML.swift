@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 enum AgentXML {
     static let packageNS="http://schemas.microsoft.com/office/2006/xmlPackage"

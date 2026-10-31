@@ -1,6 +1,19 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import CoreFoundation
+#if canImport(Darwin)
 import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#elseif os(Windows)
+import WinSDK
+import ucrt
+#endif
 
 struct AgentError: Error {
     let code:String
@@ -10,7 +23,7 @@ struct AgentError: Error {
 }
 
 enum AgentIO {
-    static let version="2.8.0"
+    static let version="2.9.0"
     static func object(_ data:Data)->Any? { try? JSONSerialization.jsonObject(with:data,options:[.fragmentsAllowed]) }
     static func json(_ value:Any,pretty:Bool=false)throws->Data {
         try JSONSerialization.data(withJSONObject:value,options:pretty ? [.sortedKeys,.prettyPrinted,.fragmentsAllowed] : [.sortedKeys,.fragmentsAllowed])
@@ -62,11 +75,22 @@ enum AgentIO {
         let temp=dest.deletingLastPathComponent().appendingPathComponent(".hanx-\(UUID().uuidString).tmp")
         defer { try? fm.removeItem(at:temp) }
         try data.write(to:temp,options:.withoutOverwriting)
-        let rc = force ? Darwin.rename(temp.path,dest.path) : Darwin.link(temp.path,dest.path)
+        #if os(Windows)
+        let flags: DWORD = force ? DWORD(MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) : DWORD(MOVEFILE_WRITE_THROUGH)
+        let moved = temp.path.withCString(encodedAs: UTF16.self) { src in
+            dest.path.withCString(encodedAs: UTF16.self) { dst in MoveFileExW(src, dst, flags) }
+        }
+        if !moved {
+            let code = GetLastError()
+            throw AgentError(code == ERROR_FILE_EXISTS || code == ERROR_ALREADY_EXISTS ? "output_exists" : "io_error", "Cannot publish \(dest.path): Windows error \(code)")
+        }
+#else
+        let rc = force ? rename(temp.path,dest.path) : link(temp.path,dest.path)
         if rc != 0 {
             let code=errno
             throw AgentError(code == EEXIST ? "output_exists" : "io_error","Cannot publish \(dest.path): \(String(cString:strerror(code)))")
         }
+#endif
     }
     static func error(_ error:Error)->AgentError {
         if let error=error as? AgentError { return error }

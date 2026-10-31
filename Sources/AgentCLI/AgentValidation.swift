@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Validate the model before calling format writers that use fixed-width
 /// binary fields. Decoding Codable data alone does not establish these bounds.

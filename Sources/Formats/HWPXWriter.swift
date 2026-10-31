@@ -1,4 +1,10 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Shared ID tables for the two Hancom writers: HWP keeps every distinct
 /// character/paragraph shape once in the document header and references it
