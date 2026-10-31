@@ -22,5 +22,6 @@ try {
 } finally {
   if ($null -eq $original) { $key.DeleteValue('Path', $false) } else { $key.SetValue('Path', $original, $kind) }
   $key.Dispose()
-  Remove-ItemProperty -Path 'HKCU:\Software\HanX\CLIPath' -Name $entry -ErrorAction SilentlyContinue
+  $ownership = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\HanX\CLIPath', $true)
+  if ($null -ne $ownership) { try { $ownership.DeleteValue($entry, $false) } finally { $ownership.Dispose() } }
 }

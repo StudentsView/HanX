@@ -17,16 +17,19 @@ try {
     if ($matches.Count -eq 0) {
       $updated = if ($raw.Length -eq 0) { $entry } else { $raw + ';' + $entry }
       $key.SetValue('Path', $updated, $kind)
-      New-Item -Path $state -Force | Out-Null
-      New-ItemProperty -Path $state -Name $entry -Value 1 -PropertyType DWord -Force | Out-Null
+      $ownership = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey('Software\HanX\CLIPath')
+      try { $ownership.SetValue($entry, 1, [Microsoft.Win32.RegistryValueKind]::DWord) } finally { $ownership.Dispose() }
     }
   } else {
-    $owned = Get-ItemPropertyValue -Path $state -Name $entry -ErrorAction SilentlyContinue
+    # An absent ownership value means this entry belongs to somebody else.
+    $ownership = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\HanX\CLIPath', $true)
+    $owned = if ($null -ne $ownership) { $ownership.GetValue($entry, $null) } else { $null }
     if ($owned -eq 1) {
       $updated = ($parts | Where-Object { $_.Trim().Trim('"').TrimEnd('\') -ine $entry }) -join ';'
       $key.SetValue('Path', $updated, $kind)
-      Remove-ItemProperty -Path $state -Name $entry -ErrorAction SilentlyContinue
+      $ownership.DeleteValue($entry, $false)
     }
+    if ($null -ne $ownership) { $ownership.Dispose() }
   }
 } finally { $key.Dispose() }
 if (-not ('HanXEnvironment' -as [type])) {
