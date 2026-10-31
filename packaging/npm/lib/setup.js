@@ -33,10 +33,17 @@ function parseOptions(args) {
 }
 async function chooseComponents({input=process.stdin,output=process.stdout}={}) {
   if (!input.isTTY || !output.isTTY || typeof input.setRawMode !== 'function') return 'cli';
-  const items=[['cli','CLI만 설치','터미널 명령과 MCP 도구'],['gui','GUI만 설치','문서 편집 앱 · 작은 설정 실행기 유지'],['all','GUI + CLI','문서 편집 앱과 터미널 명령']];
+  const items=[['cli','CLI만 설치','터미널 명령과 MCP 도구'],['gui','GUI만 설치','문서 편집 앱 / 설정 실행기 유지'],['all','GUI + CLI','문서 편집 앱과 터미널 명령']];
   return new Promise((resolve,reject)=>{
     let selected=0; const wasRaw=Boolean(input.isRaw); const wasPaused=input.isPaused(); let done=false;
-    const draw=()=> { output.write('\r\u001b[JHanX 설치 항목 선택 (↑/↓ 이동, Enter 선택, Esc 취소)\n'); for (let i=0;i<items.length;i++) output.write(`${i===selected?'❯':' '} ${items[i][1].padEnd(12)} │ ${items[i][2]}\n`); output.write('\u001b[4A'); };
+    const width=text=>Array.from(text).reduce((n,c)=>n+(/[\u1100-\u115f\u2e80-\ua4cf\uac00-\ud7a3\uf900-\ufaff\uff01-\uff60]/.test(c)?2:1),0);
+    const pad=(text,n)=>text+' '.repeat(Math.max(0,n-width(text)));
+    const draw=()=> {
+      const lines=['HanX 설치 항목 선택','┌'+'─'.repeat(18)+'┬'+'─'.repeat(44)+'┐',
+        ...items.map((item,i)=>'│ '+pad((i===selected?'❯':' ')+' '+item[1],16)+' │ '+pad(item[2],42)+' │'),
+        '└'+'─'.repeat(18)+'┴'+'─'.repeat(44)+'┘','↑ ↓ 이동   Enter 선택   Esc 취소'];
+      output.write('\r\u001b[J'+lines.join('\n')+'\n\u001b['+lines.length+'A');
+    };
     const cleanup=()=>{ if(done) return; done=true; input.removeListener('keypress',onKey); input.removeListener('end',onEnd); input.removeListener('error',onError); for(const signal of ['SIGTERM','SIGINT','SIGHUP']) process.removeListener(signal,onTerminate); input.setRawMode(wasRaw); if(wasPaused) input.pause(); output.write('\r\u001b[J\u001b[?25h'); };
     const cancel=()=>{cleanup(); reject(new Error('HanX setup cancelled; no components changed.'));};
     const onEnd=()=>cancel(); const onError=error=>{cleanup();reject(error);}; const onTerminate=()=>cancel();
@@ -83,21 +90,40 @@ async function verifyFile(file,expected) {
   if(hash.digest('hex')!==expected.toLowerCase()) throw new Error(`SHA256 checksum mismatch for ${path.basename(file)}. Nothing was installed.`);
 }
 async function writeExclusive(file,bytes) { await fs.promises.writeFile(file,bytes,{flag:'wx',mode:0o600}); }
-async function download(asset) {
+async function download(asset,{output=process.stdout}={}) {
   const directory=paths().downloads; fs.mkdirSync(directory,{recursive:true}); const destination=path.join(directory,asset.name);
   if(fs.existsSync(destination)) {await verifyFile(destination,asset.sha256); return destination;}
   const temporary=path.join(directory,`.${asset.name}.${crypto.randomUUID()}.part`);
+  const controller=new AbortController();
+  const cancel=()=>controller.abort(new Error('다운로드를 취소했습니다. 기존 설치는 보존했습니다.'));
+  const signals=['SIGINT','SIGTERM','SIGHUP'];for(const signal of signals)process.once(signal,cancel);
+  const timer=setTimeout(()=>controller.abort(new Error('다운로드 시간이 초과됐습니다. 다시 시도하세요.')),300000);timer.unref();
+  let progress=false;
   try {
-    const response=await fetch(RELEASE+encodeURIComponent(asset.name),{signal:AbortSignal.timeout(300000)});
-    if(!response.ok || !response.body) throw new Error(`Download unavailable (HTTP ${response.status}): ${asset.name}`);
-    const handle=await fs.promises.open(temporary,'wx',0o600); let size=0;
-    try { for await (const chunk of response.body) { size+=chunk.length; if(size>1024*1024*1024) throw new Error('Release download exceeds 1 GiB.'); await handle.writeFile(chunk); } } finally { await handle.close(); }
+    output.write('다운로드 중: '+asset.name+'\n');
+    const response=await fetch(RELEASE+encodeURIComponent(asset.name),{signal:controller.signal});
+    if(!response.ok || !response.body) throw new Error(`다운로드할 수 없습니다 (HTTP ${response.status}): ${asset.name}`);
+    const total=Number(response.headers?.get('content-length'))||0;
+    const handle=await fs.promises.open(temporary,'wx',0o600); let size=0,last=0;
+    try { for await (const chunk of response.body) {
+      if(controller.signal.aborted)throw controller.signal.reason;
+      size+=chunk.length;if(size>1024*1024*1024)throw new Error('배포 파일 크기가 허용 범위를 초과했습니다.');await handle.writeFile(chunk);
+      if(output.isTTY && (Date.now()-last>150||total&&size>=total)) {
+        const mb=(size/1048576).toFixed(1);const percent=total?Math.min(100,Math.floor(size/total*100))+'%  ':'';
+        output.write('\r\u001b[2K'+percent+mb+' MB');progress=true;last=Date.now();
+      }
+    }} finally { await handle.close(); }
+    if(controller.signal.aborted)throw controller.signal.reason;
     await verifyFile(temporary,asset.sha256);
-    // Exclusive link publishes a complete verified file without replacing another installer's download.
     try { await fs.promises.link(temporary,destination); } catch(error) { if(error.code!=='EEXIST') throw error; await verifyFile(destination,asset.sha256); }
+    output.write((progress?'\r\u001b[2K100%  ':'')+'다운로드 및 검증 완료\n');progress=false;
     return destination;
-  } finally { await fs.promises.rm(temporary,{force:true}); }
+  } finally {
+    clearTimeout(timer);for(const signal of signals)process.removeListener(signal,cancel);
+    if(progress)output.write('\n');await fs.promises.rm(temporary,{force:true});
+  }
 }
+
 function run(command,args,options={}) { return new Promise((resolve,reject)=>{ const child=spawn(command,args,{stdio:'inherit',shell:false,...options}); child.once('error',reject); child.once('exit',(code,signal)=>code===0?resolve():reject(new Error(`${path.basename(command)} ${signal?'was interrupted':`exited with code ${code}`}.`))); }); }
 async function extract(archive,destination,platform=process.platform) {
   fs.mkdirSync(destination,{recursive:true});
