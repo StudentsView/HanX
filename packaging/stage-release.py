@@ -16,7 +16,9 @@ repo = os.environ['GITHUB_REPOSITORY']
 def gh(*args):
     return subprocess.check_output(['gh', *args], text=True)
 
-release = json.loads(gh('api', f'repos/{repo}/releases/tags/{tag}'))
+matches = [r for r in json.loads(gh('api', f'repos/{repo}/releases?per_page=100')) if r['tag_name'] == tag]
+assert len(matches) == 1, 'Expected one existing draft release.'
+release = matches[0]
 assert release['draft'], 'Release staging must never replace a published release.'
 run = json.loads(gh('api', f'repos/{repo}/actions/runs/{sys.argv[1]}'))
 assert run['conclusion'] == 'success', 'Native release gates did not all pass.'
@@ -33,7 +35,7 @@ for name in names:
     local[name] = hashlib.file_digest(matches[0].open('rb'), 'sha256').hexdigest()
     gh('release', 'upload', tag, str(matches[0]), '--clobber', '--repo', repo)
 
-release = json.loads(gh('api', f'repos/{repo}/releases/tags/{tag}'))
+release = json.loads(gh('api', f'repos/{repo}/releases/{release["id"]}'))
 digests = {}
 for asset in release['assets']:
     digest = asset.get('digest') or ''
