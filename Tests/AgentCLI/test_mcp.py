@@ -1,16 +1,20 @@
-import json, os, pathlib, select, subprocess, tempfile, unittest
+import json, os, pathlib, queue, threading, subprocess, tempfile, unittest
 BIN=pathlib.Path(os.environ.get('HANX_BIN','build/hanx-cli')).resolve()
 class MCP(unittest.TestCase):
     def setUp(self):
         self.p=subprocess.Popen([str(BIN),'mcp'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,bufsize=1)
+        self.responses=queue.Queue()
+        def collect():
+            for line in self.p.stdout: self.responses.put(line)
+        self.reader=threading.Thread(target=collect,daemon=True); self.reader.start()
         self.seq=0; self.temp=tempfile.TemporaryDirectory(prefix='hanx-mcp-')
     def tearDown(self):
         if self.p.poll() is None: self.p.terminate()
         self.p.communicate(timeout=5); self.temp.cleanup()
     def send(self,value): self.p.stdin.write(json.dumps(value)+'\n'); self.p.stdin.flush()
     def receive(self):
-        self.assertTrue(select.select([self.p.stdout],[],[],5)[0],'MCP response timed out')
-        line=self.p.stdout.readline()
+        try: line=self.responses.get(timeout=5)
+        except queue.Empty: self.fail('MCP response timed out')
         try:return json.loads(line)
         except ValueError:self.fail('Expected a JSON-RPC message, got '+repr(line))
     def call(self,method,params=None):
@@ -38,7 +42,7 @@ class MCP(unittest.TestCase):
         self.assertEqual(self.call('ping')['result'],{})
     def test_no_argument_tool_call_and_malformed_create_keep_connection_alive(self):
         self.initialize(); r=self.call('tools/call',{'name':'hanx_capabilities'})
-        self.assertIn('result',r); self.assertFalse(r.get('result',{}).get('isError',False)); self.assertEqual(json.loads(r['result']['content'][0]['text'])['data']['version'],'2.8.0')
+        self.assertIn('result',r); self.assertFalse(r.get('result',{}).get('isError',False)); self.assertEqual(json.loads(r['result']['content'][0]['text'])['data']['version'],'2.9.0')
         r=self.call('tools/call',{'name':'hanx_create','arguments':{'output':str(pathlib.Path(self.temp.name)/'bad.hwp'),'spec':{'kind':'document','blocks':[{'text':'x','style':{'font':'a'*65536}}]}}})
         self.assertTrue(r['result']['isError']); self.assertEqual(self.call('ping')['result'],{})
 
