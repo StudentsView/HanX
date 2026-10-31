@@ -1,4 +1,4 @@
-# HanX CLI 2.8.0
+# HanX CLI 2.9.0
 
 로컬 AI 에이전트가 CLI 또는 MCP로 엑셀 파일의 셀과 범위를 읽고 수정하고 수식을 계산합니다. HWP, DOCX, HWPX, HWPML, PPTX와 XML도 읽고 생성하고 수정하고 변환합니다. Swift 실행 파일 하나로 동작하며 Word나 한글을 실행할 필요가 없습니다. 네이티브 CLI 실행에는 Python, Node.js, AI API 키와 추가 유료 라이브러리가 필요하지 않습니다. npm으로 설치하는 경우에는 Node.js 18 이상이 필요합니다.
 
@@ -21,17 +21,36 @@ hanx convert "매출.xlsx" --output "매출.pdf"
 
 ## 설치와 시작
 
-macOS 13 이상에서 Apple Silicon과 Intel을 지원합니다. 공개 설치 채널의 현재 상태는 [HanX 설치 페이지](https://studentsview.github.io/HanX/#install)에서 확인하세요. npm 패키지 이름은 `@juyoungsuh/hanx`, Homebrew formula는 `StudentsView/tap/hanx`입니다. 공개 배포가 확인된 채널에서 다음 명령으로 CLI를 설치합니다. npm 레지스트리의 2.8.0 게시 인증을 갱신 중이므로 아래 npm 명령은 GitHub 릴리스 패키지를 직접 설치합니다.
+macOS 13 이상(Apple Silicon/Intel), Windows x64, Ubuntu 22.04 이상 x64를 대상으로 합니다. npm에는 Node.js 18 이상이 필요합니다.
 
 ```sh
-npm install -g https://github.com/StudentsView/HanX/releases/download/v2.8.0/juyoungsuh-hanx-2.8.0.tgz
-# 또는
-brew install StudentsView/tap/hanx
+npm install -g @juyoungsuh/hanx
+hanx setup
 ```
 
-GUI 앱과 CLI를 함께 설치하려면 [HanX 릴리스](https://github.com/StudentsView/HanX/releases)의 `HanX-2.8.0.pkg`를 사용하세요. pkg는 앱을 `/Applications/HanX.app`에 설치하고 `/usr/local/bin`의 비어 있는 `hanx`와 `hanx-cli` 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.
+macOS와 Linux의 Homebrew에서는 다음 명령을 사용합니다. Windows에서는 npm 또는 Setup.exe를 사용하세요.
 
-독립 CLI는 릴리스의 `HanX-CLI-2.8.0-macOS.zip`으로도 제공합니다. ZIP을 풀고 해당 폴더에서 `./install-cli.sh`를 실행하세요. 설치 없이 `./hanx --help`로 바로 실행할 수도 있습니다. 기본 설치 위치는 `~/Library/Application Support/HanX/CLI/2.8.0`이며 `~/.local/bin/hanx`와 `hanx-cli` 명령을 연결합니다.
+```sh
+brew install StudentsView/tap/hanx
+hanx setup
+```
+
+설치 화면에서 방향키와 Enter로 GUI만, CLI만, 둘 다를 선택합니다. 패키지 관리자가 터미널 입력을 연결하지 않는 경우 CLI를 먼저 준비하며 `hanx setup`에서 선택을 이어갑니다. 자동 설치는 다음 옵션을 사용합니다.
+
+```sh
+hanx setup --components cli --yes
+hanx setup --components gui --yes
+hanx setup --components all --yes
+hanx gui
+```
+
+GUI만 설치해도 작은 설정 실행기는 남습니다. 문서 처리 명령은 활성화하지 않으며 앱 내부 엔진은 GUI 및 MCP 연결에 사용합니다. GUI의 AI 연결 화면에서 설치된 엔진의 MCP 설정을 확인할 수 있습니다. 이미 사용하는 ChatGPT/Claude/CLI 에이전트가 이 로컬 엔진을 호출하며 언어 모델이나 외부 AI API 키를 HanX가 요구하지 않습니다.
+
+Windows/Linux의 PDF 출력에는 로컬 LibreOffice, PDF 읽기에는 Poppler가 필요합니다. 설치 화면에서 PDF 도구를 선택하거나 `--pdf-dependencies`를 명시한 경우에만 추가 도구를 설치합니다. macOS 기본 네이티브 배포판에는 PDF 처리 기능이 포함돼 있습니다. 설치 여부는 `hanx capabilities --pretty`의 pdf 항목으로 확인하세요.
+
+GUI 앱과 CLI를 함께 설치하려면 [HanX 릴리스](https://github.com/StudentsView/HanX/releases)의 `HanX-2.9.0.pkg`를 사용하세요. pkg는 앱을 `/Applications/HanX.app`에 설치하고 `/usr/local/bin`의 비어 있는 `hanx`와 `hanx-cli` 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.
+
+독립 CLI는 릴리스의 `HanX-CLI-2.9.0-macOS.zip`으로도 제공합니다. ZIP을 풀고 해당 폴더에서 `./install-cli.sh`를 실행하세요. 설치 없이 `./hanx --help`로 바로 실행할 수도 있습니다. 기본 설치 위치는 `~/Library/Application Support/HanX/CLI/2.9.0`이며 `~/.local/bin/hanx`와 `hanx-cli` 명령을 연결합니다.
 
 설치 후 터미널에서 `hanx --help` 또는 `hanx capabilities --pretty`를 실행하세요. CLI 사용에는 PATH의 `hanx`를 쓰고, MCP 설정에는 설치 시 출력한 절대 경로를 쓰세요. PATH에 사용자 bin 폴더가 없으면 현재 셸에서 `export PATH="$HOME/.local/bin:$PATH"`를 실행할 수 있습니다.
 
@@ -46,7 +65,7 @@ hanx create --spec examples/presentation.json --output 발표.pptx
 
 예제 파일: [문서 명세](examples/document.json), [문서 수정](examples/document-edits.json), [엑셀 명세](examples/spreadsheet.json), [엑셀 수정](examples/spreadsheet-edits.json), [프레젠테이션](examples/presentation.json), [XML 수정](examples/xml-edits.json). 예제를 내려받고 명령의 경로를 해당 파일 위치에 맞추세요.
 
-명세와 작업은 JSON 파일로 주거나 `--spec -`, `--ops -`로 표준 입력에서 받습니다. 보통 응답은 `{"ok":true,"version":"2.8.0","data":...}` 형식입니다. 실패는 `{"ok":false,"error":{"code":...,"message":...}}`와 0이 아닌 종료 코드로 알립니다. `read --text`는 텍스트만 출력합니다. `--no-model`은 큰 native model 및 내장 그림의 base64를 응답에서 제외합니다.
+명세와 작업은 JSON 파일로 주거나 `--spec -`, `--ops -`로 표준 입력에서 받습니다. 보통 응답은 `{"ok":true,"version":"2.9.0","data":...}` 형식입니다. 실패는 `{"ok":false,"error":{"code":...,"message":...}}`와 0이 아닌 종료 코드로 알립니다. `read --text`는 텍스트만 출력합니다. `--no-model`은 큰 native model 및 내장 그림의 base64를 응답에서 제외합니다.
 
 파일은 output에 저장합니다. 기존 출력이 있으면 기본적으로 거부하며 `--force`를 명시했을 때만 교체합니다. `--force`와 원본 경로를 함께 지정하면 원본도 교체할 수 있으니 에이전트에는 새 경로를 주는 것이 좋습니다. 한 번의 edit 작업이 실패하면 결과를 저장하지 않습니다. 숫자 인덱스는 0부터 시작하며 길이는 pt, 시간은 초, 색은 RRGGBB입니다.
 

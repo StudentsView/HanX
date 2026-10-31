@@ -17,7 +17,7 @@
     "appId": "org.studentsview.hanx",
     "productName": "HanX",
     "executableName": "HanX",
-    "copyright": "Copyright \u00a9 HanX contributors",
+    "copyright": "Copyright © HanX contributors",
     "directories": {
       "output": "dist"
     },
@@ -63,7 +63,7 @@
           ]
         }
       ],
-      "artifactName": "HanX-${version}-win32-${arch}-Setup.${ext}"
+      "artifactName": "HanX-${version}-win32-x64-Setup.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -96,8 +96,8 @@
         }
       ],
       "category": "Office",
-      "artifactName": "HanX-${version}-linux-${arch}.${ext}",
-      "maintainer": "HanX contributors",
+      "artifactName": "HanX-${version}-linux-x64.${ext}",
+      "maintainer": "HanX contributors <juyoungsuh@naver.com>",
       "desktop": {
         "entry": {
           "Name": "HanX",
@@ -111,5 +111,10 @@
       "afterRemove": "../packaging/linux/deb-postremove.sh"
     },
     "publish": null
+  },
+  "homepage": "https://studentsview.github.io/HanX/",
+  "author": {
+    "name": "HanX contributors",
+    "email": "juyoungsuh@naver.com"
   }
 }

@@ -12,9 +12,20 @@ enum PortableTool {
         let separator: Character = ":"
         let suffix = ""
         #endif
-        var dirs = (env["PATH"] ?? "").split(separator: separator).map(String.init)
+        // Windows environment names are case-insensitive, but Swift dictionaries
+        // are not. Runners and standard terminals commonly expose "Path".
         #if os(Windows)
-        if let programFiles = env["ProgramFiles"] { dirs += [programFiles + "/LibreOffice/program", programFiles + "/poppler/Library/bin"] }
+        func value(_ name: String) -> String? { env.first { $0.key.caseInsensitiveCompare(name) == .orderedSame }?.value }
+        let searchPath = value("PATH") ?? ""
+        #else
+        let searchPath = env["PATH"] ?? ""
+        #endif
+        var dirs = searchPath.split(separator: separator).map(String.init)
+        #if os(Windows)
+        if let programFiles = value("ProgramFiles") { dirs += [programFiles + "/LibreOffice/program", programFiles + "/poppler/Library/bin"] }
+        if let local = value("LOCALAPPDATA") { dirs.append(local + "/Microsoft/WinGet/Links") }
+        if let choco = value("ChocolateyInstall") { dirs.append(choco + "/bin") }
+        else if let data = value("ProgramData") { dirs.append(data + "/chocolatey/bin") }
         #elseif os(macOS)
         dirs += ["/Applications/LibreOffice.app/Contents/MacOS", "/opt/homebrew/bin", "/usr/local/bin"]
         #endif
