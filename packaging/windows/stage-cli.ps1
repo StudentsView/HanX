@@ -53,6 +53,8 @@ while ($queue.Count -gt 0) {
 }
 if (-not (Test-Path (Join-Path $destination 'swiftCore.dll'))) { throw 'Swift runtime DLLs missing; pass -RuntimeDirectories with Swift runtime bin directories.' }
 Copy-Item LICENSE, NOTICE -Destination $destination
+Copy-Item 'docs/cli/README.md' -Destination (Join-Path $destination 'README.md')
+Copy-Item 'docs/cli/examples' -Destination (Join-Path $destination 'examples') -Recurse
 $licenses = Join-Path $destination 'third-party-licenses'
 New-Item -ItemType Directory -Path $licenses -Force | Out-Null
 Copy-Item 'Sources/CMiniz/LICENSE' -Destination (Join-Path $licenses 'miniz.txt')

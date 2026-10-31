@@ -20,6 +20,14 @@ def create(root, name, spec):
     return output
 assert run('--version')['version'] == '2.9.0'
 capabilities = run('capabilities')
+guide = pathlib.Path(capabilities['guidePath'])
+assert capabilities['guidePath'] and guide.is_file(), 'Packaged MCP guide is missing'
+# Resolve the guide through the public CLI from an unrelated working directory.
+with tempfile.TemporaryDirectory(prefix='HanX isolated guide ') as isolated:
+    guide_read = subprocess.run([binary, 'read', str(guide), '--text'], cwd=isolated,
+                                capture_output=True, encoding='utf-8', timeout=60)
+    assert guide_read.returncode == 0 and 'HanX' in guide_read.stdout, (guide_read.stdout, guide_read.stderr)
+    assert (guide.parent / 'examples' / 'document.json').is_file()
 marker = 'HanX portable 한글 290'
 with tempfile.TemporaryDirectory(prefix='HanX release 한글 ') as temp:
     root = pathlib.Path(temp)

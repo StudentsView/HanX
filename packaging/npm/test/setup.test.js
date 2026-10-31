@@ -120,3 +120,24 @@ test('download verifies bytes, preserves existing files, and removes failed part
   assert.equal(fs.readdirSync(paths().downloads).some(name=>name.endsWith('.part')),false);
   assert.equal(fs.existsSync(path.join(paths().downloads,'wrong.tar.gz')),false);
 });
+test('download progress is visible and SIGINT removes only the owned partial', async t => {
+  const { download, paths }=require('../lib/setup.js'); const { PassThrough }=require('node:stream');
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'hanx-abort-')); const original=global.fetch;
+  const old={XDG_DATA_HOME:process.env.XDG_DATA_HOME,LOCALAPPDATA:process.env.LOCALAPPDATA}; process.env.XDG_DATA_HOME=directory;process.env.LOCALAPPDATA=directory;
+  t.after(()=>{global.fetch=original;for(const [key,value]of Object.entries(old)){if(value===undefined)delete process.env[key];else process.env[key]=value;}fs.rmSync(directory,{recursive:true,force:true});});
+  const output=new PassThrough(); output.isTTY=true;let printed='';output.on('data',bytes=>printed+=bytes);
+  const bytes=Buffer.from('verified cache');const sha256=crypto.createHash('sha256').update(bytes).digest('hex');
+  global.fetch=async()=>new Response(bytes,{headers:{'content-length':String(bytes.length)}});
+  const cached=await download({...asset,name:'cached.tar.gz',sha256},{output});
+  assert.match(printed,/100%/);assert.match(printed,/검증 완료/);
+  const countBefore=process.listenerCount('SIGINT');
+  global.fetch=async(_url,{signal})=>({ok:true,headers:new Headers({'content-length':'100000'}),body:{async *[Symbol.asyncIterator](){
+    yield Buffer.from('partial bytes');
+    await new Promise((resolve,reject)=>{signal.addEventListener('abort',()=>reject(signal.reason),{once:true});setImmediate(()=>process.emit('SIGINT'));});
+  }}});
+  await assert.rejects(download({...asset,name:'cancelled.tar.gz',sha256},{output}),/취소|cancel/i);
+  assert.equal(process.listenerCount('SIGINT'),countBefore);
+  assert.equal(fs.readdirSync(paths().downloads).some(name=>name.endsWith('.part')),false);
+  assert.deepEqual(fs.readFileSync(cached),bytes);
+  assert.equal(fs.existsSync(path.join(paths().downloads,'cancelled.tar.gz')),false);
+});

@@ -12,6 +12,7 @@ $baseline='%USERPROFILE%\HanX unrelated path;' + $foreign + ';'
 function Run-And-Wait([string]$file,[string]$arguments,[int]$timeout=240) {
   $process=Start-Process -FilePath $file -ArgumentList $arguments -PassThru
   if (-not $process.WaitForExit($timeout*1000)) { Stop-Process -Id $process.Id -Force; throw "Process timed out: $file" }
+  $process.Refresh()
   if ($process.ExitCode -ne 0) { throw "Process exited $($process.ExitCode): $file" }
 }
 try {

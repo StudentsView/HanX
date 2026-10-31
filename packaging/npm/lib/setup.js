@@ -180,7 +180,7 @@ async function installPDF() {
 async function askPDF() {
   if(!process.stdin.isTTY||!process.stdout.isTTY) return false;
   const rl=readline.createInterface({input:process.stdin,output:process.stdout});
-  try {return await new Promise((resolve,reject)=>{rl.once('SIGINT',()=>reject(new Error('HanX setup cancelled.'))); rl.question('PDF 변환 도구(LibreOffice, Poppler)도 설치할까요? [y/N] ',answer=>resolve(/^y(es)?$/i.test(answer.trim())));});} finally {rl.close();}
+  try {return await new Promise((resolve,reject)=>{rl.once('SIGINT',()=>reject(new Error('HanX setup cancelled.'))); rl.once('close',()=>resolve(false)); rl.question('PDF 변환 도구(LibreOffice, Poppler)도 설치할까요? [y/N] ',answer=>resolve(/^y(es)?$/i.test(answer.trim())));});} finally {rl.close();}
 }
 async function setup(args=[],context={}) {
   const options=parseOptions(args); const components=options.components || (options.yes?'cli':await chooseComponents());

@@ -2,6 +2,9 @@ const {spawn} = require('node:child_process');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
+const {tableCellEditable}=require('./model.js');
+const {randomUUID}=require('node:crypto');
+function visitSlideMedia(value,visit){if(!value||typeof value!=='object')return;for(const key of ['imageID','backgroundImage'])if(typeof value[key]==='string')value[key]=visit(value[key]);if(typeof value.image?.id==='string')value.image.id=visit(value.image.id);for(const child of Object.values(value))visitSlideMedia(child,visit);}
 const ALLOWED = new Set(['replace_text','append_paragraph','append_block','insert_block','delete_block','set_paragraph','style_paragraph','set_cell','set_page','add_slide','duplicate_slide','delete_slide','move_slide','set_notes','set_transition','add_shape','update_shape','delete_shape','set_range','fill_formula','style_range','clear_range','add_sheet','delete_sheet','merge','unmerge','freeze','set_column_width','set_row_height','define_name']);
 function validateOperations(ops) {
   if (!Array.isArray(ops) || !ops.length || ops.length > 10000) throw Error('Expected 1–10000 editing operations.');
@@ -51,21 +54,36 @@ class Session {
   async edit(ops){
     validateOperations(ops);if(!this.file)throw Error('먼저 파일을 열거나 새로 만드세요.');
     let current=this.file;
-    const batches=ops.some(op=>op.op==='set_paragraph')?ops.map(op=>[op]):[ops];
+    const batches=ops.some(op=>op.op==='set_paragraph'||(this.kind==='document'&&op.op==='set_cell'))?ops.map(op=>[op]):[ops];
     for(const batch of batches){
       const op=batch[0];let original;
       if(batch.length===1&&op.op==='set_paragraph'){
         const before=await runEngine(this.executable,['read',current]);original=before.model.sections?.[op.section||0]?.blocks?.[op.block]?.paragraph?._0;
         if(original?.inlines.some(i=>i.image||i.field||i.pageBreak))throw Error('그림 또는 필드가 포함된 문단은 읽기 전용입니다.');
       }
+      if(batch.length===1&&op.op==='set_cell'&&this.kind==='document'){const before=await runEngine(this.executable,['read',current]),cell=before.model.sections?.[op.section||0]?.blocks?.[op.block]?.table?._0.rows?.[op.row]?.[op.column];if(cell&&!tableCellEditable(cell))throw Error('그림, 필드 또는 중첩 표가 포함된 셀은 읽기 전용입니다.');}
       const target=await this.next();await runEngine(this.executable,['edit',current,'--ops','-','--output',target],batch);
       if(original){const after=await runEngine(this.executable,['read',target]),paragraph=after.model.sections[op.section||0].blocks[op.block].paragraph._0;paragraph.props={...original.props,...(op.alignment?{alignment:op.alignment}:{}),...(op.styleName!==undefined?{styleName:op.styleName}:{})};await runEngine(this.executable,['create','--spec','-','--output',target,'--force'],{kind:after.kind,model:after.model});}
       current=target;
     }
     this.history.push(this.file);this.future=[];this.file=current;this.dirty=true;return this.read();
   }
-  async copySlide(index){const data=await this.read();if(data.kind!=='presentation'||!Number.isInteger(index)||!data.model.slides[index])throw Error('슬라이드를 선택하세요.');this.clipboard={slide:structuredClone(data.model.slides[index]),images:structuredClone(data.model.images)};return true;}
-  async pasteSlide(index){if(!this.clipboard||this.kind!=='presentation')throw Error('복사한 슬라이드가 없습니다.');const data=await this.read();if(!Number.isInteger(index)||index<0||index>data.model.slides.length)throw Error('Invalid slide index.');data.model.slides.splice(index,0,structuredClone(this.clipboard.slide));Object.assign(data.model.images,this.clipboard.images);const target=await this.next();await runEngine(this.executable,['create','--spec','-','--output',target],{kind:'presentation',model:data.model});this.history.push(this.file);this.future=[];this.file=target;this.dirty=true;return this.read();}
+  async copySlide(index){
+    const data=await this.read();if(data.kind!=='presentation'||!Number.isInteger(index)||!data.model.slides[index])throw Error('슬라이드를 선택하세요.');
+    const slide=structuredClone(data.model.slides[index]),used=new Set();visitSlideMedia(slide,id=>{used.add(id);return id;});
+    const images=Object.fromEntries([...used].filter(id=>Object.hasOwn(data.model.images||{},id)).map(id=>[id,structuredClone(data.model.images[id])]));
+    this.clipboard={slide,images};return true;
+  }
+  async pasteSlide(index){
+    if(!this.clipboard||this.kind!=='presentation')throw Error('복사한 슬라이드가 없습니다.');const data=await this.read();if(!Number.isInteger(index)||index<0||index>data.model.slides.length)throw Error('Invalid slide index.');
+    const slide=structuredClone(this.clipboard.slide),images=data.model.images??={},remap=new Map();
+    for(const [id,image] of Object.entries(this.clipboard.images)){
+      let targetID=id;while(Object.hasOwn(images,targetID))targetID='clipboard/'+randomUUID();
+      remap.set(id,targetID);Object.defineProperty(images,targetID,{value:structuredClone(image),enumerable:true,writable:true,configurable:true});
+    }
+    visitSlideMedia(slide,id=>remap.get(id)??id);data.model.slides.splice(index,0,slide);
+    const target=await this.next();await runEngine(this.executable,['create','--spec','-','--output',target],{kind:'presentation',model:data.model});this.history.push(this.file);this.future=[];this.file=target;this.dirty=true;return this.read();
+  }
   async undo(redo=false){const from=redo?this.future:this.history,to=redo?this.history:this.future;if(from.length){to.push(this.file);this.file=from.pop();this.dirty=true;}return this.read();}
   async save(destination){if(!this.file)throw Error('Open or create a file first.');const ext=path.extname(destination).slice(1).toLowerCase();if(!formats[this.kind].includes(ext))throw Error(`Choose a supported ${this.kind} format.`);const result=await runEngine(this.executable,['convert',this.file,'--output',destination,'--force']);if(ext!=='pdf'){this.source=destination;this.dirty=false;}return {...await this.read(),saveWarnings:result.warnings||[],exported:ext==='pdf'};}
   async close(){if(this.directory)await fs.rm(this.directory,{recursive:true,force:true});}

@@ -22,6 +22,9 @@ kernel.AttachConsole.restype = W.BOOL
 kernel.WriteConsoleInputW.argtypes = [W.HANDLE, ctypes.POINTER(InputRecord), W.DWORD, ctypes.POINTER(W.DWORD)]
 kernel.WriteConsoleInputW.restype = W.BOOL
 kernel.CloseHandle.argtypes = [W.HANDLE]
+kernel.GetConsoleMode.argtypes = [W.HANDLE, ctypes.POINTER(W.DWORD)]
+kernel.GetConsoleMode.restype = W.BOOL
+assert ctypes.sizeof(InputRecord) == 20, 'Unexpected Windows input record layout'
 def key(vk, unit=0):
     record = InputRecord()
     record.EventType = 1
@@ -51,6 +54,9 @@ def console(words, records, expected=0):
         assert kernel.WriteConsoleInputW(handle, batch, len(batch), ctypes.byref(count)), ctypes.WinError(ctypes.get_last_error())
         assert count.value == len(records)
         assert process.wait(timeout=60) == expected
+        mode = W.DWORD()
+        assert kernel.GetConsoleMode(handle, ctypes.byref(mode)), ctypes.WinError(ctypes.get_last_error())
+        assert mode.value & 7 == 7, 'Console line, echo or Ctrl-C mode was not restored'
     finally:
         if handle: kernel.CloseHandle(handle)
         if process.poll() is None: process.kill(); process.wait()
