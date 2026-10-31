@@ -4,6 +4,7 @@ $destination = Join-Path $PWD 'build/platform/cli'
 if (Test-Path -LiteralPath $destination) { Remove-Item -LiteralPath $destination -Recurse -Force }
 New-Item -ItemType Directory -Path $destination -Force | Out-Null
 Copy-Item -LiteralPath $Binary -Destination (Join-Path $destination 'hanx.exe')
+Set-Content -LiteralPath (Join-Path $destination 'hanx-cli.cmd') -Encoding Ascii -Value '@echo off', '"%~dp0hanx.exe" %*'
 $target = (& swift -print-target-info | ConvertFrom-Json)
 if ($LASTEXITCODE -ne 0) { throw 'swift -print-target-info failed' }
 $directories = @($RuntimeDirectories) + @($target.paths.runtimeLibraryPaths) + @((Split-Path (Get-Command swift).Source)) + @($env:Path -split ';' | Where-Object { $_ -match 'Swift' })
@@ -85,4 +86,6 @@ try {
   $env:Path = "$env:SystemRoot\System32;$env:SystemRoot"
   & (Join-Path $destination 'hanx.exe') --version
   if ($LASTEXITCODE -ne 0) { throw 'Staged CLI needs missing runtime DLLs' }
+  $aliasVersion = (& (Join-Path $destination 'hanx-cli.cmd') --version | ConvertFrom-Json)
+  if ($LASTEXITCODE -ne 0 -or $aliasVersion.data.version -ne '2.9.0') { throw 'Staged hanx-cli alias failed without developer tools' }
 } finally { $env:Path = $savedPath }

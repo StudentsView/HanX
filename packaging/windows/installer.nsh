@@ -1,4 +1,5 @@
 ; Per-user component wizard. The GUI always retains an internal native engine.
+!include MUI2.nsh
 !include nsDialogs.nsh
 !include LogicLib.nsh
 !include FileFunc.nsh
