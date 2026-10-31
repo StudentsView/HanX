@@ -2,12 +2,14 @@
 !include nsDialogs.nsh
 !include LogicLib.nsh
 !include FileFunc.nsh
+!ifndef BUILD_UNINSTALLER
 Var HanXCLI
 Var HanXGUI
 Var HanXCLICheck
 Var HanXGUICheck
 Var HanXPDF
 Var HanXPDFCheck
+!endif
 
 !macro customInit
   StrCpy $HanXCLI 1

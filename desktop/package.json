@@ -17,7 +17,7 @@
     "appId": "org.studentsview.hanx",
     "productName": "HanX",
     "executableName": "HanX",
-    "copyright": "Copyright © HanX contributors",
+    "copyright": "Copyright \u00a9 HanX contributors",
     "directories": {
       "output": "dist"
     },
@@ -63,7 +63,8 @@
           ]
         }
       ],
-      "artifactName": "HanX-${version}-win32-x64-Setup.${ext}"
+      "artifactName": "HanX-${version}-win32-x64-Setup.${ext}",
+      "icon": "assets/hanx.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -104,7 +105,8 @@
           "Comment": "Local document editor",
           "MimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.openxmlformats-officedocument.presentationml.presentation;"
         }
-      }
+      },
+      "icon": "assets/hanx.png"
     },
     "deb": {
       "afterInstall": "../packaging/linux/deb-postinstall.sh",
