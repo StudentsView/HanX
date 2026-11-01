@@ -57,11 +57,11 @@ brew upgrade StudentsView/tap/hanx
 
 ### macOS 앱 설치
 
-앱과 CLI를 함께 설치하려면 [릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.9.0)의 `HanX-2.9.0.pkg`를 사용하세요. npm과 Homebrew는 `hanx setup`에서 GUI와 CLI 구성을 선택합니다.
+최신 앱은 [릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.9.1)의 `HanX-2.9.1-macOS.zip` 또는 npm / Homebrew로 설치하세요. 마지막 공증 pkg는 2.9.0입니다. npm과 Homebrew는 `hanx setup`에서 GUI와 CLI 구성을 선택합니다.
 
 ## Windows와 Linux 앱 설치
 
-[릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.9.0)에서 Windows Setup.exe, Linux AppImage 또는 Debian 패키지를 제공합니다. Windows 설치 마법사에서는 GUI와 CLI를 선택할 수 있습니다. Linux CLI 압축 파일의 `install-cli.sh`에서도 구성을 고릅니다.
+[릴리스](https://github.com/StudentsView/HanX/releases/tag/v2.9.1)에서 Windows Setup.exe, Linux AppImage 또는 Debian 패키지를 제공합니다. Windows 설치 마법사에서는 GUI와 CLI를 선택할 수 있습니다. Linux CLI 압축 파일의 `install-cli.sh`에서도 구성을 고릅니다.
 
 Windows/Linux PDF 출력에는 로컬 LibreOffice, PDF 읽기에는 Poppler가 필요합니다. 설치 화면에서 PDF 도구를 선택한 경우에만 추가 설치합니다. macOS 기본 네이티브 배포판은 PDF 처리를 포함합니다.
 

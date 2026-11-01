@@ -15,9 +15,9 @@ GUI-only retains the small `hanx setup` / `hanx gui` launcher and disables termi
 
 ## Windows x64
 
-`HanX-2.9.0-win32-x64-Setup.exe` is a per-user NSIS wizard with GUI/CLI/both selection. Silent installation accepts `/S /COMPONENTS=cli`, `gui` or `all`. CLI-only omits Electron. GUI-only does not expose the private engine on PATH. Uninstall removes only PATH entries owned by HanX and preserves unrelated entries. Open a new terminal after installation.
+`HanX-2.9.1-win32-x64-Setup.exe` is a per-user NSIS wizard with GUI/CLI/both selection. Silent installation accepts `/S /COMPONENTS=cli`, `gui` or `all`. CLI-only omits Electron. GUI-only does not expose the private engine on PATH. Uninstall removes only PATH entries owned by HanX and preserves unrelated entries. Open a new terminal after installation.
 
-`HanX-CLI-2.9.0-win32-x64.zip` contains the standalone CLI, Swift runtime DLLs, documentation and notices. Extract the whole archive to a permanent folder and add that folder to user PATH. Runtime DLLs must stay beside `hanx.exe`; no Swift developer toolchain is required. Windows packages are unsigned.
+`HanX-CLI-2.9.1-win32-x64.zip` contains the standalone CLI, Swift runtime DLLs, documentation and notices. Extract the whole archive to a permanent folder and add that folder to user PATH. Runtime DLLs must stay beside `hanx.exe`; no Swift developer toolchain is required. Windows packages are unsigned.
 
 For a native build, install Swift 6.2.1 with its Windows prerequisites and Node.js 22, then run:
 
@@ -37,7 +37,7 @@ Staging includes the runtime dependency closure and tests execution with develop
 
 ## Linux x64
 
-The initial build targets Ubuntu 22.04 x64 or a compatible newer system. glibc and Electron system libraries remain system dependencies. AppImage may require FUSE 2 (`libfuse2` on Ubuntu 22.04). The release contains `HanX-2.9.0-linux-x64.AppImage`, a `.deb`, and `HanX-CLI-2.9.0-linux-x64.tar.gz`. ARM64 Windows/Linux binaries are not included in this release.
+The initial build targets Ubuntu 22.04 x64 or a compatible newer system. glibc and Electron system libraries remain system dependencies. AppImage may require FUSE 2 (`libfuse2` on Ubuntu 22.04). The release contains `HanX-2.9.1-linux-x64.AppImage`, a `.deb`, and `HanX-CLI-2.9.1-linux-x64.tar.gz`. ARM64 Windows/Linux binaries are not included in this release.
 
 Extract the CLI archive and run `./install-cli.sh`; it offers CLI, GUI or both. Unattended CLI installation accepts `--components cli --yes --prefix /path/to/prefix`. The default prefix is `~/.local`; add `~/.local/bin` to PATH. Keep the launcher, `hanx-engine` and `lib/` together. The launcher resolves installed symlinks and selects its own runtime libraries. GUI setup installs a per-user AppImage and desktop entry. Debian packages install the desktop and private engine; independent CLI installation remains available through setup.
 

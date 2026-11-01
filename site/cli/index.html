@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="HanX CLI 2.9.0 설치와 엑셀, 문서, 프레젠테이션 작업 및 MCP 연결 안내입니다.">
+  <meta name="description" content="HanX CLI 2.9.1 설치와 엑셀, 문서, 프레젠테이션 작업 및 MCP 연결 안내입니다.">
   <title>HanX CLI 사용 안내</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../styles.css">
   <style>body{background:#fff}main{max-width:960px;margin:40px auto;padding:0 24px 80px;line-height:1.85;color:#24364b}h1{font-size:34px;line-height:1.3}h2{margin-top:48px}h3{margin-top:32px}pre{padding:20px;background:#f1f5f9;overflow:auto;border-radius:6px;font-size:13px;line-height:1.65}code{font-family:ui-monospace,monospace}a{color:#2463a6}li{margin:7px 0}table{border-collapse:collapse}th,td{border:1px solid #d9e2eb;padding:8px}.guide-home{display:block;margin-bottom:28px}</style>
 </head>
 <body><main><a class="guide-home" href="../">HanX 홈</a>
-<h1 dir="auto">HanX CLI 2.9.0</h1>
+<h1 dir="auto">HanX CLI 2.9.1</h1>
 <p dir="auto">로컬 AI 에이전트가 CLI 또는 MCP로 엑셀 파일의 셀과 범위를 읽고 수정하고 수식을 계산합니다. HWP, DOCX, HWPX, HWPML, PPTX와 XML도 읽고 생성하고 수정하고 변환합니다. 네이티브 엔진과 함께 제공되는 실행 라이브러리로 동작하며 Word나 한글을 실행할 필요가 없습니다. 네이티브 CLI 실행에는 Python, Node.js, AI API 키와 추가 유료 라이브러리가 필요하지 않습니다. npm으로 설치하는 경우에는 Node.js 18 이상이 필요합니다.</p>
 <h2 dir="auto">터미널에서 파일 변환</h2>
 <div class="highlight highlight-source-shell" dir="auto"><pre class="notranslate">hanx
@@ -35,8 +35,8 @@ hanx gui</pre></div>
 <p dir="auto">GUI만 설치해도 작은 설정 실행기는 남습니다. 문서 처리 명령은 활성화하지 않으며 앱 내부 엔진은 GUI 및 MCP 연결에 사용합니다. GUI의 AI 연결 화면에서 설치된 엔진의 MCP 설정을 확인할 수 있습니다. 이미 사용하는 ChatGPT/Claude/CLI 에이전트가 이 로컬 엔진을 호출하며 언어 모델이나 외부 AI API 키를 HanX가 요구하지 않습니다.</p>
 <p dir="auto">Linux AppImage를 GUI만 설치한 경우 AI 연결을 사용하는 동안 HanX 앱을 열어 두세요. 앱을 닫고도 AI 에이전트를 사용하려면 CLI 또는 둘 다를 선택하세요.</p>
 <p dir="auto">Windows/Linux의 PDF 출력에는 로컬 LibreOffice, PDF 읽기에는 Poppler가 필요합니다. 설치 화면에서 PDF 도구를 선택하거나 <code class="notranslate">--pdf-dependencies</code>를 명시한 경우에만 추가 도구를 설치합니다. macOS 기본 네이티브 배포판에는 PDF 처리 기능이 포함돼 있습니다. 설치 여부는 <code class="notranslate">hanx capabilities --pretty</code>의 pdf 항목으로 확인하세요.</p>
-<p dir="auto">GUI 앱과 CLI를 함께 설치하려면 <a href="https://github.com/StudentsView/HanX/releases">HanX 릴리스</a>의 <code class="notranslate">HanX-2.9.0.pkg</code>를 사용하세요. pkg는 앱을 <code class="notranslate">/Applications/HanX.app</code>에 설치하고 <code class="notranslate">/usr/local/bin</code>의 비어 있는 <code class="notranslate">hanx</code>와 <code class="notranslate">hanx-cli</code> 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.</p>
-<p dir="auto">독립 CLI는 릴리스의 <code class="notranslate">HanX-CLI-2.9.0-macOS.zip</code>으로도 제공합니다. ZIP을 풀고 해당 폴더에서 <code class="notranslate">./install-cli.sh</code>를 실행하세요. 설치 없이 <code class="notranslate">./hanx --help</code>로 바로 실행할 수도 있습니다. 기본 설치 위치는 <code class="notranslate">~/Library/Application Support/HanX/CLI/2.9.0</code>이며 <code class="notranslate">~/.local/bin/hanx</code>와 <code class="notranslate">hanx-cli</code> 명령을 연결합니다.</p>
+<p dir="auto">최신 GUI 앱은 npm 또는 Homebrew 설치 후 <code class="notranslate">hanx setup</code>으로 설치하거나 <a href="https://github.com/StudentsView/HanX/releases">HanX 릴리스</a>의 <code class="notranslate">HanX-2.9.1-macOS.zip</code>을 사용하세요. 마지막으로 만든 공증 pkg는 <code class="notranslate">HanX-2.9.0.pkg</code>입니다. pkg는 앱을 <code class="notranslate">/Applications/HanX.app</code>에 설치하고 <code class="notranslate">/usr/local/bin</code>의 비어 있는 <code class="notranslate">hanx</code>와 <code class="notranslate">hanx-cli</code> 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.</p>
+<p dir="auto">독립 CLI는 릴리스의 <code class="notranslate">HanX-CLI-2.9.1-macOS.zip</code>으로도 제공합니다. ZIP을 풀고 해당 폴더에서 <code class="notranslate">./install-cli.sh</code>를 실행하세요. 설치 없이 <code class="notranslate">./hanx --help</code>로 바로 실행할 수도 있습니다. 기본 설치 위치는 <code class="notranslate">~/Library/Application Support/HanX/CLI/2.9.1</code>이며 <code class="notranslate">~/.local/bin/hanx</code>와 <code class="notranslate">hanx-cli</code> 명령을 연결합니다.</p>
 <p dir="auto">설치 후 터미널에서 <code class="notranslate">hanx --help</code> 또는 <code class="notranslate">hanx capabilities --pretty</code>를 실행하세요. CLI 사용에는 PATH의 <code class="notranslate">hanx</code>를 쓰고, MCP 설정에는 설치 시 출력한 절대 경로를 쓰세요. PATH에 사용자 bin 폴더가 없으면 현재 셸에서 <code class="notranslate">export PATH="$HOME/.local/bin:$PATH"</code>를 실행할 수 있습니다.</p>
 <div class="highlight highlight-source-shell" dir="auto"><pre class="notranslate">hanx create --spec examples/document.json --output 보고서.hwp
 hanx <span class="pl-c1">read</span> 보고서.hwp --text
@@ -45,7 +45,7 @@ hanx edit 보고서.hwp --ops examples/document-edits.json --output 수정본.do
 hanx convert 수정본.docx --output 수정본.hwpx
 hanx create --spec examples/presentation.json --output 발표.pptx</pre></div>
 <p dir="auto">예제 파일: <a href="examples/document.json">문서 명세</a>, <a href="examples/document-edits.json">문서 수정</a>, <a href="examples/spreadsheet.json">엑셀 명세</a>, <a href="examples/spreadsheet-edits.json">엑셀 수정</a>, <a href="examples/presentation.json">프레젠테이션</a>, <a href="examples/xml-edits.json">XML 수정</a>. 예제를 내려받고 명령의 경로를 해당 파일 위치에 맞추세요.</p>
-<p dir="auto">명세와 작업은 JSON 파일로 주거나 <code class="notranslate">--spec -</code>, <code class="notranslate">--ops -</code>로 표준 입력에서 받습니다. 보통 응답은 <code class="notranslate">{"ok":true,"version":"2.9.0","data":...}</code> 형식입니다. 실패는 <code class="notranslate">{"ok":false,"error":{"code":...,"message":...}}</code>와 0이 아닌 종료 코드로 알립니다. <code class="notranslate">read --text</code>는 텍스트만 출력합니다. <code class="notranslate">--no-model</code>은 큰 native model 및 내장 그림의 base64를 응답에서 제외합니다.</p>
+<p dir="auto">명세와 작업은 JSON 파일로 주거나 <code class="notranslate">--spec -</code>, <code class="notranslate">--ops -</code>로 표준 입력에서 받습니다. 보통 응답은 <code class="notranslate">{"ok":true,"version":"2.9.1","data":...}</code> 형식입니다. 실패는 <code class="notranslate">{"ok":false,"error":{"code":...,"message":...}}</code>와 0이 아닌 종료 코드로 알립니다. <code class="notranslate">read --text</code>는 텍스트만 출력합니다. <code class="notranslate">--no-model</code>은 큰 native model 및 내장 그림의 base64를 응답에서 제외합니다.</p>
 <p dir="auto">파일은 output에 저장합니다. 기존 출력이 있으면 기본적으로 거부하며 <code class="notranslate">--force</code>를 명시했을 때만 교체합니다. <code class="notranslate">--force</code>와 원본 경로를 함께 지정하면 원본도 교체할 수 있으니 에이전트에는 새 경로를 주는 것이 좋습니다. 한 번의 edit 작업이 실패하면 결과를 저장하지 않습니다. 숫자 인덱스는 0부터 시작하며 길이는 pt, 시간은 초, 색은 RRGGBB입니다.</p>
 <h2 dir="auto">엑셀 작업과 수식</h2>
 <p dir="auto">Excel 앱을 열지 않고 XLSX, CSV, TSV를 읽고 계산합니다. 기존 <code class="notranslate">create</code>, <code class="notranslate">read</code>, <code class="notranslate">edit</code>, <code class="notranslate">convert</code> 명령과 MCP에서 <code class="notranslate">kind: spreadsheet</code>를 사용합니다. <code class="notranslate">.xls</code> 바이너리 형식은 지원하지 않습니다. 통합문서에는 최대 256개 시트, 저장된 셀은 합계 100,000개를 지원합니다. 한 번의 범위 조회, 수정은 최대 100,000셀입니다.</p>
