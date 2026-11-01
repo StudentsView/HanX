@@ -46,6 +46,8 @@ hanx gui
 
 GUI만 설치해도 작은 설정 실행기는 남습니다. 문서 처리 명령은 활성화하지 않으며 앱 내부 엔진은 GUI 및 MCP 연결에 사용합니다. GUI의 AI 연결 화면에서 설치된 엔진의 MCP 설정을 확인할 수 있습니다. 이미 사용하는 ChatGPT/Claude/CLI 에이전트가 이 로컬 엔진을 호출하며 언어 모델이나 외부 AI API 키를 HanX가 요구하지 않습니다.
 
+Linux AppImage를 GUI만 설치한 경우 AI 연결을 사용하는 동안 HanX 앱을 열어 두세요. 앱을 닫고도 AI 에이전트를 사용하려면 CLI 또는 둘 다를 선택하세요.
+
 Windows/Linux의 PDF 출력에는 로컬 LibreOffice, PDF 읽기에는 Poppler가 필요합니다. 설치 화면에서 PDF 도구를 선택하거나 `--pdf-dependencies`를 명시한 경우에만 추가 도구를 설치합니다. macOS 기본 네이티브 배포판에는 PDF 처리 기능이 포함돼 있습니다. 설치 여부는 `hanx capabilities --pretty`의 pdf 항목으로 확인하세요.
 
 GUI 앱과 CLI를 함께 설치하려면 [HanX 릴리스](https://github.com/StudentsView/HanX/releases)의 `HanX-2.9.0.pkg`를 사용하세요. pkg는 앱을 `/Applications/HanX.app`에 설치하고 `/usr/local/bin`의 비어 있는 `hanx`와 `hanx-cli` 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.

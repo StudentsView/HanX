@@ -57,7 +57,7 @@ npx electron-builder --linux AppImage deb --publish never
 
 Windows/Linux PDF output uses a local LibreOffice installation. PDF text import uses Poppler (`pdfinfo`, `pdftotext`). They are separate optional applications. Setup installs them only when selected, or with `--pdf-dependencies`; Debian/Ubuntu users can also run `sudo apt-get install libreoffice poppler-utils fonts-noto-cjk`. Use `hanx capabilities --pretty` to check availability. macOS native builds include their existing PDF processing.
 
-`hanx mcp` and the desktop AI connection panel expose the local engine to compatible AI agents. No cloud document upload or built-in model account is required. The CLI archive includes its guide and examples so MCP guide paths work outside the source checkout.
+`hanx mcp` and the desktop AI connection panel expose the local engine to compatible AI agents. No cloud document upload or built-in model account is required. A GUI-only Linux AppImage connection uses its running application engine; keep the app open, or select CLI/both for an independent persistent MCP command. The CLI archive includes its guide and examples so MCP guide paths work outside the source checkout.
 
 ## Verification and release
 
