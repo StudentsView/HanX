@@ -50,7 +50,7 @@ Linux AppImage를 GUI만 설치한 경우 AI 연결을 사용하는 동안 HanX 
 
 Windows/Linux의 PDF 출력에는 로컬 LibreOffice, PDF 읽기에는 Poppler가 필요합니다. 설치 화면에서 PDF 도구를 선택하거나 `--pdf-dependencies`를 명시한 경우에만 추가 도구를 설치합니다. macOS 기본 네이티브 배포판에는 PDF 처리 기능이 포함돼 있습니다. 설치 여부는 `hanx capabilities --pretty`의 pdf 항목으로 확인하세요.
 
-GUI 앱과 CLI를 함께 설치하려면 [HanX 릴리스](https://github.com/StudentsView/HanX/releases)의 `HanX-2.9.1.pkg`를 사용하세요. pkg는 앱을 `/Applications/HanX.app`에 설치하고 `/usr/local/bin`의 비어 있는 `hanx`와 `hanx-cli` 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.
+최신 GUI 앱은 npm 또는 Homebrew 설치 후 `hanx setup`으로 설치하거나 [HanX 릴리스](https://github.com/StudentsView/HanX/releases)의 `HanX-2.9.1-macOS.zip`을 사용하세요. 마지막으로 만든 공증 pkg는 `HanX-2.9.0.pkg`입니다. pkg는 앱을 `/Applications/HanX.app`에 설치하고 `/usr/local/bin`의 비어 있는 `hanx`와 `hanx-cli` 명령을 연결합니다. Homebrew와 npm은 CLI를 설치하며 해당 도구로 업데이트합니다. 다른 방식으로 설치한 기존 명령을 자동으로 덮어쓰지 않습니다.
 
 독립 CLI는 릴리스의 `HanX-CLI-2.9.1-macOS.zip`으로도 제공합니다. ZIP을 풀고 해당 폴더에서 `./install-cli.sh`를 실행하세요. 설치 없이 `./hanx --help`로 바로 실행할 수도 있습니다. 기본 설치 위치는 `~/Library/Application Support/HanX/CLI/2.9.1`이며 `~/.local/bin/hanx`와 `hanx-cli` 명령을 연결합니다.
 
