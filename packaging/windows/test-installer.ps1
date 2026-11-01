@@ -37,9 +37,9 @@ try {
       if (-not $hasCLI) { throw "$mode did not expose terminal commands." }
       if ($raw -cne ($baseline + ';' + $cliDirectory)) { throw 'Installer rewrote unrelated user PATH entries.' }
       $version=(& $cli --version | ConvertFrom-Json)
-      if ($LASTEXITCODE -ne 0 -or $version.data.version -ne '2.9.0') { throw 'Installed CLI version smoke failed.' }
+      if ($LASTEXITCODE -ne 0 -or $version.data.version -ne '2.9.1') { throw 'Installed CLI version smoke failed.' }
       $aliasVersion=(& (Join-Path $cliDirectory 'hanx-cli.cmd') --version | ConvertFrom-Json)
-      if ($LASTEXITCODE -ne 0 -or $aliasVersion.data.version -ne '2.9.0') { throw 'Installed hanx-cli alias failed.' }
+      if ($LASTEXITCODE -ne 0 -or $aliasVersion.data.version -ne '2.9.1') { throw 'Installed hanx-cli alias failed.' }
     }
     if ($mode -eq 'all') {
       Run-And-Wait $gui '--smoke-test' 180

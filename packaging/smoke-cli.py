@@ -18,7 +18,7 @@ def create(root, name, spec):
     run('create', '--spec', '-', '--output', output, stdin=json.dumps(spec, ensure_ascii=False))
     assert output.stat().st_size > 0
     return output
-assert run('--version')['version'] == '2.9.0'
+assert run('--version')['version'] == '2.9.1'
 capabilities = run('capabilities')
 guide = pathlib.Path(capabilities['guidePath'])
 assert capabilities['guidePath'] and guide.is_file(), 'Packaged MCP guide is missing'

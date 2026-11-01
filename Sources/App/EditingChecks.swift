@@ -161,7 +161,7 @@ enum EditingChecks {
         let pdfEditor=pdfDoc.windowControllers.first as! EditorWindowController
         pdfEditor.updateStatus()
         let pdfLabels=descendants(pdfEditor.window!.contentView!).compactMap({$0 as? NSTextField})
-        try require(pdfLabels.contains(where:{$0.stringValue.contains("PDF 텍스트 가져오기") && ($0.toolTip?.contains("OCR") ?? false)}),"PDF extraction notice visible in editor status")
+        try require(!pdfLabels.contains(where:{$0.stringValue.contains("OCR") || ($0.toolTip?.contains("OCR") ?? false)}),"PDF extraction notice stays out of editor status")
         let pdfDocx=folder.appendingPathComponent("editing-check-from-pdf.docx")
         try pdfDoc.data(ofType:DocType.docx).write(to:pdfDocx)
         let pdfBack=try DocumentIO.load(url:pdfDocx)

@@ -59,7 +59,8 @@ final class PageLayoutView: NSView, NSLayoutManagerDelegate {
         tv.allowsUndo = true
         tv.usesFontPanel = true
         tv.usesRuler = true
-        tv.usesInspectorBar = true
+        // OfficeRibbon owns formatting controls for every page.
+        tv.usesInspectorBar = false
         tv.usesFindBar = true
         tv.isIncrementalSearchingEnabled = true
         tv.allowsImageEditing = true

@@ -5,12 +5,14 @@ const {dialog}=require('electron');
 const {runEngine}=require('./engine.cjs');
 module.exports=async function smoke(win,session){
  const js=code=>win.webContents.executeJavaScript(code);
- async function waitFor(expression){for(let i=0;i<150;i++){if(await js(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression+'\n'+await js("document.getElementById('error').textContent"));}
+ const shownNotices=[];dialog.showMessageBox=async(_parent,options)=>{shownNotices.push(options);return {response:0};};
+ async function click(id){await js("(()=>{document.getElementById("+JSON.stringify(id)+").click();return new Promise(resolve=>setTimeout(()=>pending.then(resolve),0));})()");}
+ async function waitFor(expression){for(let i=0;i<150;i++){if(await js(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression+'\n'+await js("document.getElementById('status').textContent"));}
  const screenshotDir=process.env.HANX_SMOKE_OUTPUT_DIR;if(screenshotDir)await fs.mkdir(screenshotDir,{recursive:true});
  async function settle(){await js('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');}
  async function screenshot(name){await settle();if(screenshotDir)await fs.writeFile(path.join(screenshotDir,name+'.png'),(await win.webContents.capturePage()).toPNG());}
- async function saveAs(filename){const target=path.join(session.directory,filename);dialog.showSaveDialog=async()=>({canceled:false,filePath:target});await js("document.getElementById('saveAs').click()");await waitFor(`!busy && document.getElementById('status').textContent==='저장했습니다.'`);await fs.access(target);return target;}
- async function open(filename){dialog.showOpenDialog=async()=>({canceled:false,filePaths:[filename]});await js("document.getElementById('open').click()");await waitFor(`!busy && state.path===${JSON.stringify(filename)}`);}
+ async function saveAs(filename){const target=path.join(session.directory,filename);dialog.showSaveDialog=async()=>({canceled:false,filePath:target});await click('saveAs');await waitFor('!busy');await fs.access(target);return target;}
+ async function open(filename){dialog.showOpenDialog=async()=>({canceled:false,filePaths:[filename]});await click('open');await waitFor(`!busy && state.path===${JSON.stringify(filename)}`);}
  async function newFile(kind){await js(`document.getElementById('newKind').value=${JSON.stringify(kind)};document.getElementById('new').click()`);await waitFor(`!busy && state.kind===${JSON.stringify(kind)} && !state.path`);}
  async function drag(selector,dx,dy){const p=await js(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {x:Math.round(r.x+r.width/2),y:Math.round(r.y+r.height/2)}})()`);await settle();win.focus();win.webContents.sendInputEvent({type:'mouseMove',...p});await new Promise(r=>setTimeout(r,50));win.webContents.sendInputEvent({type:'mouseDown',button:'left',clickCount:1,...p});await new Promise(r=>setTimeout(r,50));win.webContents.sendInputEvent({type:'mouseMove',modifiers:['leftButtonDown'],x:p.x+dx,y:p.y+dy});await new Promise(r=>setTimeout(r,50));win.webContents.sendInputEvent({type:'mouseUp',button:'left',clickCount:1,x:p.x+dx,y:p.y+dy});}
  await waitFor('Boolean(state && !busy)');win.show();win.focus();await settle();assert.equal(await js('document.documentElement.lang'),'ko');
@@ -43,5 +45,11 @@ module.exports=async function smoke(win,session){
  await js('duplicateSlide()');await waitFor('!busy && state.model.slides.length===2');
  const slides=await saveAs('gui.pptx');await open(slides);assert.equal(await js('state.model.slides[0].transition.kind'),'fade');await screenshot('presentation');
  const pdf=await saveAs('gui.pdf');assert.equal((await fs.readFile(pdf)).subarray(0,4).toString(),'%PDF');
+ await open(pdf);assert.ok(shownNotices.some(n=>n.type==='warning'&&n.detail.includes('PDF')));const warningCount=shownNotices.length;
+ await js("edit({op:'append_paragraph',section:0,text:'알림 반복 확인'})");await waitFor('!busy');assert.equal(shownNotices.length,warningCount);
+ assert.equal(await js("Boolean(document.getElementById('error')||document.getElementById('notices')||document.querySelector('.local-note'))"),false);
+ await js("run(()=>hanx.edit([{op:'not-supported'}]))");await waitFor('!busy');assert.equal(shownNotices.length,warningCount+1);assert.equal(shownNotices.at(-1).type,'error');
+ await js("run(()=>{throw Error('로컬 화면 오류 확인')})");await waitFor('!busy');assert.equal(shownNotices.length,warningCount+2);assert.ok(shownNotices.at(-1).detail.includes('로컬 화면 오류 확인'));
+ await click('help');assert.equal(shownNotices.at(-1).type,'info');
  console.log('HANX_GUI_SMOKE_OK: native renderer open/edit/calculation/resize/save/docx/xlsx/pptx/pdf');
 };

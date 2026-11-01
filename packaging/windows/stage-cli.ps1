@@ -87,5 +87,5 @@ try {
   & (Join-Path $destination 'hanx.exe') --version
   if ($LASTEXITCODE -ne 0) { throw 'Staged CLI needs missing runtime DLLs' }
   $aliasVersion = (& (Join-Path $destination 'hanx-cli.cmd') --version | ConvertFrom-Json)
-  if ($LASTEXITCODE -ne 0 -or $aliasVersion.data.version -ne '2.9.0') { throw 'Staged hanx-cli alias failed without developer tools' }
+  if ($LASTEXITCODE -ne 0 -or $aliasVersion.data.version -ne '2.9.1') { throw 'Staged hanx-cli alias failed without developer tools' }
 } finally { $env:Path = $savedPath }

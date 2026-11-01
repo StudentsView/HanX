@@ -76,7 +76,7 @@ final class StartWindowController: NSWindowController {
     static let shared = StartWindowController()
 
     private let recentList = NSStackView()
-    private let emptyRecent = NSTextField(labelWithString: "최근에 연 문서가 없습니다.")
+    private let emptyRecent = NSTextField(labelWithString: "최근 문서 없음")
     private let clearRecentButton = NSButton()
     private let makeDefaultButton = NSButton()
     private let recentDocuments: RecentDocumentStore
@@ -127,10 +127,7 @@ final class StartWindowController: NSWindowController {
         let name = NSTextField(labelWithString: "HanX")
         name.font = HWTheme.font(30,weight:.semibold)
         name.textColor=HWTheme.ink
-        let tag = NSTextField(labelWithString: "문서 작성부터 발표까지")
-        tag.font = .systemFont(ofSize: 12)
-        tag.textColor = .secondaryLabelColor
-        let brand = NSStackView(views: [icon, name, tag])
+        let brand = NSStackView(views: [icon, name])
         brand.orientation = .vertical
         brand.alignment = .leading
         brand.spacing = 4
@@ -158,9 +155,6 @@ final class StartWindowController: NSWindowController {
         let title = NSTextField(labelWithString: "새로 만들기")
         title.font = HWTheme.font(27,weight:.semibold)
         title.textColor=HWTheme.ink
-        let subtitle = NSTextField(labelWithString: "작업할 파일을 선택하세요. 파일 형식은 저장할 때 고를 수 있습니다.")
-        subtitle.font = .systemFont(ofSize: 13)
-        subtitle.textColor = .secondaryLabelColor
 
         let tiles = NSStackView(views: [
             TemplateTile(kind: .document, title: "새 문서", caption: "HWP, HWPX, DOCX", target: self, action: #selector(newDoc(_:))),
@@ -198,11 +192,11 @@ final class StartWindowController: NSWindowController {
         recentList.spacing = 2
         emptyRecent.textColor = .tertiaryLabelColor
 
-        let main = NSStackView(views: [title, subtitle, tiles, recentHeading, recentList])
+        let main = NSStackView(views: [title, tiles, recentHeading, recentList])
         main.orientation = .vertical
         main.alignment = .leading
         main.spacing = 8
-        main.setCustomSpacing(28, after: subtitle)
+        main.setCustomSpacing(28, after: title)
         main.setCustomSpacing(36, after: tiles)
         main.setCustomSpacing(10, after: recentHeading)
         main.translatesAutoresizingMaskIntoConstraints = false

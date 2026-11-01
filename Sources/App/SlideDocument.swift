@@ -141,7 +141,7 @@ final class SlideCanvasView: NSView, NSTextViewDelegate, NSMenuItemValidation {
         for s in slide.shapes where !s.locked && !s.hasText && s.placeholder != nil && s.id != editingID {
             let r=SlideRenderer.cg(s.frame).insetBy(dx:1,dy:1)
             NSColor.tertiaryLabelColor.setStroke(); let p=NSBezierPath(rect:r); p.lineWidth=scaleFactor; p.setLineDash([5*scaleFactor,4*scaleFactor],count:2,phase:0); p.stroke()
-            let hint=s.placeholder == "body" ? "내용을 입력하려면 두 번 클릭하세요" : s.placeholder == "subTitle" ? "부제목을 입력하려면 두 번 클릭하세요" : "제목을 입력하려면 두 번 클릭하세요"
+            let hint=s.placeholder == "body" ? "내용" : s.placeholder == "subTitle" ? "부제목" : "제목"
             let text=NSAttributedString(string:hint,attributes:[.font:NSFont.systemFont(ofSize:s.placeholder == "body" ? 20 : 26),.foregroundColor:NSColor.placeholderTextColor])
             text.draw(in:SlideRenderer.textRect(s))
         }

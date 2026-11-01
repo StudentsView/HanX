@@ -56,7 +56,7 @@ for platform, arches in [('darwin', ['arm64', 'x64']), ('win32', ['x64']), ('lin
                 name = f'HanX-{version}-win32-x64-Setup.exe' if platform == 'win32' else f'HanX-{version}-linux-x64.AppImage'
             assert name in digests, f'Release asset is missing: {name}'
             assets.append(dict(component=component, platform=platform, arch=arch, name=name, sha256=digests[name]))
-for required in [f'HanX-{version}.pkg', f'HanX-Setup-{version}.tar.gz', f'juyoungsuh-hanx-{version}.tgz']:
+for required in [f'HanX-Setup-{version}.tar.gz', f'juyoungsuh-hanx-{version}.tgz']:
     assert required in digests, f'Release asset is missing: {required}'
 
 output = Path('build/release-metadata'); output.mkdir(parents=True, exist_ok=True)

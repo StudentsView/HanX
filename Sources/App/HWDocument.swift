@@ -37,6 +37,7 @@ final class HWDocument: NSDocument {
     /// Documents opened from disk get "Save As" on their first save, so a
     /// lossy conversion never silently replaces the original file.
     private var inPlaceSaveConfirmed = false
+    private var importWarningsPresented = false
 
     override init() {
         super.init()
@@ -65,6 +66,7 @@ final class HWDocument: NSDocument {
             throw NSError(domain: "HanX", code: 1, userInfo: [NSLocalizedDescriptionKey: "문서를 열 수 없습니다", NSLocalizedFailureReasonErrorKey: e.description])
         }
         model = d
+        importWarningsPresented = false
         page = d.sections.first?.page ?? .a4Hwp
         header = d.sections.first?.header
         footer = d.sections.first?.footer
@@ -86,6 +88,7 @@ final class HWDocument: NSDocument {
         let data = try Data(contentsOf: url)
         var attr: NSAttributedString
         model = UDocument()
+        importWarningsPresented = false
         model.source = .docx
         page = .a4Hwp
         if ext == "rtf" || ext == "html" || ext == "htm" {
@@ -103,6 +106,53 @@ final class HWDocument: NSDocument {
     }
 
     private var displayNameOverride: String?
+
+    /// The notice belongs to the opened document, not its selection, edits or windows.
+    func presentImportWarnings(in window: NSWindow) {
+        guard !importWarningsPresented, !model.warnings.isEmpty else { return }
+        let notices = model.warnings.map { warning in
+            warning == "PDF import extracts selectable text and page sizes. Layout, tables, images and annotations are not reconstructed; scanned pages require OCR, which HanX does not perform."
+                ? "PDF에서 선택 가능한 텍스트와 페이지 크기를 가져왔습니다. 원본 배치, 표, 이미지, 주석은 재구성하지 않습니다. 스캔한 페이지에는 OCR이 필요하며 HanX는 OCR을 지원하지 않습니다."
+                : warning
+        }.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        guard !notices.isEmpty else { return }
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "문서 가져오기 안내"
+        let fullText = notices.joined(separator: "\n\n")
+        if fullText.count <= 1200 {
+            alert.informativeText = fullText
+        } else {
+            alert.informativeText = "가져오기 안내 \(notices.count)개가 있습니다. 아래 목록에서 전체 내용을 확인하세요."
+            let scroll = NSScrollView(frame: NSRect(x: 0, y: 0, width: 520, height: 240))
+            scroll.hasVerticalScroller = true
+            scroll.autohidesScrollers = true
+            scroll.borderType = .bezelBorder
+            let details = NSTextView(frame: scroll.contentView.bounds)
+            details.isEditable = false
+            details.isSelectable = true
+            details.isRichText = false
+            details.isVerticallyResizable = true
+            details.isHorizontallyResizable = false
+            details.minSize = NSSize(width: 0, height: scroll.contentSize.height)
+            details.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+            details.autoresizingMask = [.width]
+            details.textContainer?.widthTracksTextView = true
+            details.textContainer?.containerSize = NSSize(width: scroll.contentSize.width, height: CGFloat.greatestFiniteMagnitude)
+            details.textContainerInset = NSSize(width: 8, height: 8)
+            details.font = .systemFont(ofSize: 12)
+            details.textColor = .labelColor
+            details.setAccessibilityLabel("가져오기 안내 전체 내용")
+            scroll.documentView = details
+            details.string = fullText
+            alert.accessoryView = scroll
+        }
+        alert.addButton(withTitle: "확인")
+        importWarningsPresented = true
+        // AppKit queues this sheet if another operation already has one open.
+        alert.beginSheetModal(for: window)
+    }
+
     override var displayName: String! {
         get { displayNameOverride.map { fileURL == nil ? $0 : super.displayName } ?? super.displayName }
         set { super.displayName = newValue }

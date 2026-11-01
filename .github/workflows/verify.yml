@@ -17,5 +17,7 @@ jobs:
         run: build/hanx-cli formula-suite Tests/formulas.tsv
       - name: Start screen behavior
         run: Tests/StartWindow/run.sh
+      - name: GUI notice behavior
+        run: Tests/CleanGUI/run.sh
       - name: Existing editing behavior
         run: Tests/run-editing.sh

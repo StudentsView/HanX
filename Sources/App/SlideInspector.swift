@@ -267,11 +267,7 @@ final class SlideInspector: NSView, NSTableViewDataSource, NSTableViewDelegate, 
             row("재생 시간", numberField(durationField), NSTextField(labelWithString: "초")),
             row("지연", numberField(delayField), NSTextField(labelWithString: "초")),
         ])
-        let hint = NSTextField(wrappingLabelWithString: "슬라이드에서 개체를 선택한 뒤 효과를 추가하세요. 슬라이드 쇼에서는 클릭할 때마다 다음 효과가 재생됩니다.")
-        hint.font = .systemFont(ofSize: 11)
-        hint.textColor = .secondaryLabelColor
-        hint.widthAnchor.constraint(equalToConstant: 240).isActive = true
-        pane(animPane, [addEffect, scroll, controls, animDetail, hint])
+        pane(animPane, [addEffect, scroll, controls, animDetail])
 
         // Transition
         transPopup.addItems(withTitles: TransitionKind.allCases.map(\.title))
