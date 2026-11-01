@@ -1,6 +1,12 @@
 name: Verify published installers
 on:
   workflow_dispatch:
+    inputs:
+      source:
+        description: Package source to verify
+        type: choice
+        default: release
+        options: [release, registry]
 permissions:
   contents: read
 jobs:
@@ -36,11 +42,17 @@ jobs:
           Get-ChildItem 'C:\ProgramData\chocolatey\lib\poppler' -Filter pdfinfo.exe -Recurse | ForEach-Object {
             $_.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           }
-      - name: Install the public npm version
+      - name: Install the public package
         shell: bash
+        env:
+          PACKAGE_SOURCE: ${{ inputs.source }}
         run: |
           version=$(node -p "require('./packaging/npm/package.json').version")
-          npm install --prefix build/published --foreground-scripts --no-audit --no-fund "@juyoungsuh/hanx@$version"
+          package="@juyoungsuh/hanx@$version"
+          if [ "$PACKAGE_SOURCE" = "release" ]; then
+            package="https://github.com/StudentsView/HanX/releases/download/v$version/juyoungsuh-hanx-$version.tgz"
+          fi
+          npm install --prefix build/published --foreground-scripts --no-audit --no-fund "$package"
       - name: Verify installed components, editing, conversion and AI tools
         run: node packaging/verify-published.cjs build/published
       - uses: Homebrew/actions/setup-homebrew@c262868c096d909fc278daa87ed9772967331ea3
