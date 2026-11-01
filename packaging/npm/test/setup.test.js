@@ -6,7 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { parseOptions, validateManifest, selectAsset, verifyFile, chooseComponents, writeExclusive, platformKey } = require('../lib/setup.js');
-const version = '2.9.0';
+const version = require('../package.json').version;
 const asset = { component:'cli', platform:'linux', arch:'x64', name:'hanx-cli-linux-x64.tar.gz', sha256:'a'.repeat(64) };
 test('automation and noninteractive defaults never select GUI implicitly', async () => {
   assert.equal(parseOptions([]).components, undefined);
@@ -73,27 +73,27 @@ test('nonTTY postinstall exits without hanging or fetching a GUI', t => {
 test('GUI version is independent from a newly upgraded CLI version', t => {
   const { installedGUI }=require('../lib/setup.js');
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'hanx-version-')); t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
-  assert.equal(installedGUI({gui:dir,version:'2.9.0',guiVersion:'2.8.0'}),null);
-  assert.equal(installedGUI({gui:dir,version:'2.8.0',guiVersion:'2.9.0'}),dir);
-  assert.equal(installedGUI({gui:dir,version:'2.9.0'}),null);
+  assert.equal(installedGUI({gui:dir,version,guiVersion:'2.8.0'}),null);
+  assert.equal(installedGUI({gui:dir,version:'2.8.0',guiVersion:version}),dir);
+  assert.equal(installedGUI({gui:dir,version}),null);
 });
 test('owned macOS GUI upgrade replaces staged app and refuses unowned app', {skip:process.platform!=='darwin'}, async t => {
   const { installGUI, paths }=require('../lib/setup.js'); const cp=require('node:child_process');
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'hanx-upgrade-'));
-  const old={HOME:process.env.HOME,XDG_DATA_HOME:process.env.XDG_DATA_HOME}; const fetchOriginal=global.fetch;
-  process.env.HOME=directory; process.env.XDG_DATA_HOME=directory;
-  t.after(()=>{global.fetch=fetchOriginal; for(const [key,value] of Object.entries(old)) {if(value===undefined) delete process.env[key]; else process.env[key]=value;} fs.rmSync(directory,{recursive:true,force:true});});
+  const homedirOriginal=os.homedir; const old={XDG_DATA_HOME:process.env.XDG_DATA_HOME}; const fetchOriginal=global.fetch;
+  os.homedir=()=>directory; process.env.XDG_DATA_HOME=directory;
+  t.after(()=>{global.fetch=fetchOriginal; os.homedir=homedirOriginal; for(const [key,value] of Object.entries(old)) {if(value===undefined) delete process.env[key]; else process.env[key]=value;} fs.rmSync(directory,{recursive:true,force:true});});
   const source=path.join(directory,'source'); fs.mkdirSync(path.join(source,'HanX.app'),{recursive:true}); fs.writeFileSync(path.join(source,'HanX.app','version'),'new');
   const archive=path.join(directory,'fixture.zip'); assert.equal(cp.spawnSync('/usr/bin/ditto',['-c','-k','--keepParent',path.join(source,'HanX.app'),archive]).status,0);
   const bytes=fs.readFileSync(archive); const sha256=crypto.createHash('sha256').update(bytes).digest('hex');
-  global.fetch=async url=>new Response(url.endsWith('hanx-install-manifest.json')?JSON.stringify({version,assets:[{component:'gui',platform:'darwin',arch:process.arch,name:'HanX-2.9.0-macOS.zip',sha256}]}):bytes,{status:200});
+  global.fetch=async url=>new Response(url.endsWith('hanx-install-manifest.json')?JSON.stringify({version,assets:[{component:'gui',platform:'darwin',arch:process.arch,name:'HanX-'+version+'-macOS.zip',sha256}]}):bytes,{status:200});
   const destination=path.join(directory,'Applications','HanX.app'); fs.mkdirSync(destination,{recursive:true}); fs.writeFileSync(path.join(destination,'version'),'old');
   await assert.rejects(installGUI('gui',true),/unowned/);
   assert.equal(fs.readFileSync(path.join(destination,'version'),'utf8'),'old');
-  fs.mkdirSync(path.dirname(paths().state),{recursive:true}); fs.writeFileSync(paths().state,JSON.stringify({gui:destination,guiVersion:'2.8.0',version:'2.9.0'}));
+  fs.mkdirSync(path.dirname(paths().state),{recursive:true}); fs.writeFileSync(paths().state,JSON.stringify({gui:destination,guiVersion:'2.8.0',version}));
   assert.equal(await installGUI('gui',true),destination);
   assert.equal(fs.readFileSync(path.join(destination,'version'),'utf8'),'new');
-  assert.equal(JSON.parse(fs.readFileSync(paths().state)).guiVersion,'2.9.0');
+  assert.equal(JSON.parse(fs.readFileSync(paths().state)).guiVersion,version);
   assert.equal(fs.readdirSync(path.dirname(destination)).some(name=>name.startsWith('.HanX-')),false);
 });
 test('missing manifest uses SHA256SUMS, but malformed published manifest fails closed', async t => {
